@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZIPPY – Encontrá el profesional que necesitás</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F5F0E8;
+      --bg-soft:  #EDE8DE;
+      --bg-hover: #E4DDD0;
+      --ink:      #111111;
+      --ink-mid:  #555555;
+      --ink-soft: #999999;
+      --border:   #EBEBEB;
+      --accent:   #FACC15;
+      --accent-d: #E6B800;
+      --danger:   #E02020;
+      --success:  #008A05;
+      --wsp:      #25D366;
+      --radius:   14px;
+      --radius-sm:8px;
+      --shadow-card: 0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+      --shadow-hover: 0 6px 32px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'Outfit', sans-serif; font-size: 14px;
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════
+       HEADER
+    ══════════════════════════════ */
+    header {
+      position: sticky; top: 0; z-index: 300;
+      background: rgba(245,240,232,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center;
+      padding: 0 24px; height: 80px; gap: 24px;
+    }
+
+    /* Logo */
+    .logo {
+      font-size: 28px; font-weight: 900;
+      letter-spacing: -2px; white-space: nowrap;
+      display: flex; align-items: center; gap: 0;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logo-bg {
+      background: var(--ink); border-radius: 10px;
+      padding: 4px 10px; display: flex; align-items: center;
+    }
+    .logo-z { color: var(--accent); }
+    .logo-rest { color: #fff; }
+
+    /* Search pill */
+    .search-pill {
+      flex: 1; max-width: 580px; margin: 0 auto;
+      display: flex; align-items: center;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 99px; height: 52px;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow .2s;
+      overflow: hidden; cursor: text;
+    }
+    .search-pill:focus-within {
+      box-shadow: var(--shadow-hover);
+      border-color: var(--ink);
+    }
+
+    .sp-section {
+      display: flex; flex-direction: column;
+      padding: 0 20px; flex: 1; min-width: 0;
+      border-right: 1px solid var(--border);
+    }
+    .sp-section:last-of-type { border-right: none; }
+    .sp-label { font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--ink); text-transform: uppercase; }
+    .sp-input {
+      border: none; outline: none; background: transparent;
+      font-family: 'Outfit', sans-serif; font-size: 13px;
+      color: var(--ink-mid); padding: 0; width: 100%;
+    }
+    .sp-input::placeholder { color: var(--ink-soft); }
+
+    .sp-btn {
+      background: var(--ink); border: none;
+      width: 40px; height: 40px; border-radius: 99px; margin-right: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: background .2s;
+      font-size: 16px; color: #fff;
+    }
+    .sp-btn:hover { background: #333; }
+
+    .h-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-link {
+      background: none; border: none; color: var(--ink);
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 10px 14px; border-radius: 10px; cursor: pointer;
+      transition: background .15s; white-space: nowrap;
+    }
+    .btn-link:hover { background: var(--bg-hover); }
+    .btn-pub {
+      background: var(--ink); border: none; color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 11px 20px; border-radius: 10px; cursor: pointer;
+      transition: background .15s; white-space: nowrap;
+    }
+    .btn-pub:hover { background: #222; }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 24px 56px;
+    }
+    .hero-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 20px; align-items: flex-start;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: var(--ink);
+      border-radius: 99px; padding: 5px 14px;
+      font-size: 12px; font-weight: 700; letter-spacing: .3px;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 5.5vw, 64px);
+      font-weight: 800; line-height: 1.05;
+      letter-spacing: -2px; color: var(--ink);
+      max-width: 720px;
+    }
+    .hero-sub {
+      font-size: 17px; color: var(--ink-mid);
+      max-width: 500px; line-height: 1.65; font-weight: 400;
+    }
+
+    /* buscador mobile hero */
+    .hero-search {
+      width: 100%; max-width: 600px; position: relative;
+    }
+    .hs-box {
+      display: flex; align-items: center;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow-card); transition: box-shadow .2s;
+    }
+    .hs-box:focus-within { box-shadow: var(--shadow-hover); border-color: var(--ink); }
+    .hs-icon { padding: 0 16px; color: var(--ink-soft); font-size: 18px; flex-shrink: 0; }
+    .hs-box input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--ink);
+      padding: 16px 0;
+    }
+    .hs-box input::placeholder { color: var(--ink-soft); }
+    .hs-sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+    .hs-btn {
+      background: var(--ink); border: none; color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 0 24px; cursor: pointer; height: 100%; white-space: nowrap;
+      transition: background .15s;
+    }
+    .hs-btn:hover { background: #222; }
+
+    .b-drop {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius); z-index: 100;
+      max-height: 260px; overflow-y: auto; display: none;
+      box-shadow: var(--shadow-hover);
+    }
+    .b-drop.open { display: block; }
+    .b-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px; cursor: pointer; color: var(--ink-mid);
+      font-size: 14px; border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .b-item:hover { background: var(--bg-soft); color: var(--ink); }
+    .b-item:last-child { border-bottom: none; }
+    .b-ico { color: var(--ink-soft); font-size: 14px; }
+    .b-none { padding: 16px 18px; color: var(--ink-soft); font-size: 13px; text-align: center; }
+
+    .loc-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 99px; padding: 6px 14px 6px 10px;
+      font-size: 13px; color: var(--ink-mid); cursor: pointer;
+      transition: border-color .15s, background .15s; margin-top: 6px;
+    }
+    .loc-chip:hover { border-color: var(--ink); color: var(--ink); background: var(--bg-soft); }
+    .loc-chip .ldot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+    .loc-chip .lx { color: var(--ink-soft); font-size: 16px; line-height: 1; }
+
+    /* trust row */
+    .trust-row {
+      display: flex; gap: 24px; flex-wrap: wrap; margin-top: 4px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--ink-mid);
+    }
+    .trust-item .ti { font-size: 16px; }
+
+    /* ══════════════════════════════
+       CATS SCROLL (estilo Airbnb)
+    ══════════════════════════════ */
+    .cats-bar {
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 80px; z-index: 200;
+      background: var(--bg);
+    }
+    .cats-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; gap: 0; overflow-x: auto;
+      scrollbar-width: none; padding: 0 24px;
+    }
+    .cats-inner::-webkit-scrollbar { display: none; }
+
+    .cat-tab {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 20px; cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: border-color .2s, color .2s; color: var(--ink-soft);
+      min-width: 80px;
+    }
+    .cat-tab:hover { color: var(--ink); border-color: var(--border); }
+    .cat-tab.active { color: var(--ink); border-color: var(--ink); }
+    .cat-tab-icon { font-size: 22px; line-height: 1; }
+    .cat-tab-label { font-size: 11px; font-weight: 600; letter-spacing: .2px; }
+    .cat-tab-n { font-size: 10px; color: var(--ink-soft); }
+
+    /* ══════════════════════════════
+       SECCIÓN PRINCIPAL
+    ══════════════════════════════ */
+    .main {
+      max-width: 1280px; margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
+
+    .main-header {
+      display: flex; align-items: baseline;
+      justify-content: space-between; margin-bottom: 28px;
+    }
+    .main-title { font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
+    .main-count { font-size: 14px; color: var(--ink-soft); margin-left: 8px; font-weight: 400; }
+    .main-link { font-size: 14px; color: var(--ink); font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+    /* GRID */
+    .pros-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    @media(max-width:1100px){ .pros-grid{grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:760px){ .pros-grid{grid-template-columns:repeat(2,1fr); gap:16px;} }
+    @media(max-width:480px){ .pros-grid{grid-template-columns:1fr;} }
+
+    /* CARD */
+    .pro-card {
+      display: flex; flex-direction: column;
+      cursor: pointer; border-radius: var(--radius);
+      transition: transform .2s;
+    }
+    .pro-card:hover { transform: translateY(-2px); }
+    .pro-card:hover .card-img-wrap { box-shadow: var(--shadow-hover); }
+
+    .card-img-wrap {
+      aspect-ratio: 4/3; border-radius: var(--radius);
+      overflow: hidden; position: relative;
+      background: var(--bg-soft);
+      box-shadow: var(--shadow-card);
+      transition: box-shadow .2s;
+    }
+    .card-img-wrap .card-emoji {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    }
+    .card-pro-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: var(--ink); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      border-radius: 6px; padding: 3px 8px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .card-pro-badge .star { color: var(--accent); }
+    .card-urg {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--danger); color: #fff;
+      font-size: 10px; font-weight: 700;
+      border-radius: 6px; padding: 3px 8px;
+    }
+    .card-new {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--accent); color: var(--ink);
+      font-size: 10px; font-weight: 700;
+      border-radius: 6px; padding: 3px 8px;
+    }
+
+    .card-body { padding: 14px 4px 0; display: flex; flex-direction: column; gap: 6px; }
+
+    .card-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .card-name { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+    .card-rating { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .card-rating .star { font-size: 12px; }
+
+    .card-cat { font-size: 13px; color: var(--ink-mid); }
+    .card-zona { font-size: 13px; color: var(--ink-soft); }
+    .card-desc {
+      font-size: 12px; color: var(--ink-mid); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-nreseñas { font-size: 12px; color: var(--ink-soft); }
+
+    .card-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .card-actions a {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 10px 8px; border-radius: var(--radius-sm);
+      font-size: 12px; font-weight: 600; text-decoration: none;
+      font-family: 'Outfit', sans-serif; transition: all .15s;
+    }
+    .a-call {
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      color: var(--ink);
+    }
+    .a-call:hover { background: var(--bg-hover); border-color: var(--ink); }
+    .a-wsp { background: var(--wsp); color: #fff; }
+    .a-wsp:hover { opacity: .88; }
+
+    /* estado vacío / loading */
+    .state-box {
+      grid-column: 1/-1;
+      padding: 64px 24px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .state-box .s-ico { font-size: 48px; }
+    .state-box h3 { font-size: 20px; font-weight: 700; }
+    .state-box p { font-size: 14px; color: var(--ink-soft); max-width: 320px; line-height: 1.6; }
+    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* ══════════════════════════════
+       BANNER URGENCIAS
+    ══════════════════════════════ */
+    .banner-section { background: var(--ink); padding: 56px 24px; }
+    .banner-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; gap: 40px; flex-wrap: wrap;
+    }
+    .banner-text { flex: 1; min-width: 260px; }
+    .banner-text h2 {
+      font-size: clamp(26px,4vw,42px); font-weight: 800;
+      letter-spacing: -1.5px; color: #fff; margin-bottom: 10px; line-height: 1.1;
+    }
+    .banner-text h2 em { font-style: normal; color: var(--accent); }
+    .banner-text p { font-size: 15px; color: rgba(255,255,255,.65); line-height: 1.6; }
+    .btn-urg {
+      background: var(--accent); border: none; color: var(--ink);
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      padding: 16px 32px; border-radius: var(--radius); cursor: pointer;
+      transition: background .15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-urg:hover { background: var(--accent-d); }
+
+    /* ══════════════════════════════
+       CÓMO FUNCIONA
+    ══════════════════════════════ */
+    .how-section { padding: 64px 24px; background: var(--bg-soft); border-top: 1px solid var(--border); }
+    .how-inner { max-width: 1280px; margin: 0 auto; }
+    .how-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 36px; }
+    .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
+    @media(max-width:640px){ .how-grid{grid-template-columns:1fr; gap:24px;} }
+    .how-item { display: flex; flex-direction: column; gap: 14px; }
+    .how-num {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: var(--ink);
+    }
+    .how-item h4 { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
+    .how-item p { font-size: 14px; color: var(--ink-mid); line-height: 1.65; }
+
+    /* ══════════════════════════════
+       MODAL REGISTRO
+    ══════════════════════════════ */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 400;
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: #F5F0E8; border-radius: 20px;
+      padding: 32px; width: 100%; max-width: 520px;
+      max-height: 92vh; overflow-y: auto;
+      animation: popIn .25s cubic-bezier(.16,1,.3,1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+    }
+    @keyframes popIn { from{transform:scale(.96) translateY(8px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
+
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    .modal-head h3 { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+    .modal-x {
+      background: var(--bg-soft); border: none; color: var(--ink);
+      width: 34px; height: 34px; border-radius: 50%; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .15s; flex-shrink: 0;
+    }
+    .modal-x:hover { background: var(--bg-hover); }
+    .modal-sub { font-size: 14px; color: var(--ink-mid); margin-bottom: 24px; line-height: 1.5; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width:480px){ .form-row{grid-template-columns:1fr;} }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field label { font-size: 12px; font-weight: 700; color: var(--ink); }
+    .field input, .field select, .field textarea {
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px;
+      outline: none; transition: border-color .15s, background .15s; width: 100%;
+    }
+    .field input::placeholder, .field textarea::placeholder { color: var(--ink-soft); }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--ink); background: var(--bg);
+    }
+    .field select {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      background-color: var(--bg-soft); padding-right: 36px;
+    }
+    .field select option { background: var(--bg); }
+    .field textarea { resize: vertical; min-height: 88px; }
+    .field .hint { font-size: 11px; color: var(--ink-soft); }
+
+    .info-note {
+      background: #FFFBEA; border: 1.5px solid #FDE68A;
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      font-size: 13px; color: #92400E; line-height: 1.6;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .info-note .ni { font-size: 18px; flex-shrink: 0; }
+
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel {
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      color: var(--ink); font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600; padding: 11px 20px;
+      border-radius: var(--radius-sm); cursor: pointer; transition: background .15s;
+    }
+    .btn-cancel:hover { background: var(--bg-hover); }
+    .btn-submit {
+      background: var(--ink); border: none; color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+      padding: 11px 24px; border-radius: var(--radius-sm); cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-submit:hover { background: #222; }
+    .btn-submit:disabled { opacity: .6; cursor: default; }
+
+    /* ══════════════════════════════
+       TOAST
+    ══════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--ink); color: #fff;
+      border-radius: 99px; padding: 13px 24px;
+      font-size: 14px; font-weight: 500; z-index: 500;
+      display: none; white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    }
+    .toast.show { display: block; animation: toastIn .25s ease; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(8px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      background: var(--bg);
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .footer-top {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .foot-logo {
+      font-size: 22px; font-weight: 900; letter-spacing: -1.5px;
+      display: flex; align-items: center;
+    }
+    .foot-logo-bg { background: var(--ink); border-radius: 8px; padding: 3px 8px; display: flex; }
+    .flz { color: var(--accent); }
+    .flr { color: #fff; }
+    .foot-cats { display: flex; gap: 20px; flex-wrap: wrap; }
+    .foot-cats a { font-size: 13px; color: var(--ink-mid); text-decoration: none; transition: color .15s; }
+    .foot-cats a:hover { color: var(--ink); }
+    .footer-bottom {
+      border-top: 1px solid var(--border); padding-top: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-bottom p { font-size: 13px; color: var(--ink-soft); }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media(max-width:768px){
+      .header-top { padding: 0 16px; height: 64px; }
+      .search-pill { display: none; }
+      .btn-link { display: none; }
+      .hero { padding: 40px 16px 36px; }
+      .main { padding: 24px 16px 48px; }
+      .banner-section { padding: 40px 16px; }
+      .how-section { padding: 40px 16px; }
+      footer { padding: 32px 16px; }
+      .cats-bar { top: 64px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <a class="logo" href="#">
+      <div class="logo-bg">
+        <span class="logo-z">Z</span>
+        <span class="logo-rest">IPPY</span>
+      </div>
+    </a>
+
+    <div class="search-pill">
+      <div class="sp-section">
+        <span class="sp-label">Rubro</span>
+        <input class="sp-input" type="text" id="spRubro" placeholder="Plomería, electricidad…" oninput="handleSearch(this.value)"/>
+      </div>
+      <div class="sp-section" style="max-width:180px">
+        <span class="sp-label">Barrio</span>
+        <input class="sp-input" type="text" id="spBarrio" placeholder="¿Dónde estás?" autocomplete="off"
+          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('sp')" onblur="cerrarDrop()"/>
+      </div>
+      <button class="sp-btn" onclick="applySearch()">🔍</button>
+    </div>
+
+    <div class="h-right">
+      <button class="btn-link" onclick="focusBarrio()">📍 Mi barrio</button>
+      <button class="btn-pub" onclick="abrirModal('registro')">Publicar servicio</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">⚡ Córdoba Capital</div>
+    <h1>Encontrá el profesional<br/>que necesitás, hoy.</h1>
+    <p class="hero-sub">Plomeros, electricistas, cerrajeros y más — verificados, con reseñas reales, en tu barrio.</p>
+
+    <div class="hero-search" id="heroSearch">
+      <div class="hs-box">
+        <span class="hs-icon">📍</span>
+        <input type="text" id="hsInput" placeholder="Buscá por barrio, ej: Nueva Córdoba…" autocomplete="off"
+          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
+        <span class="hs-sep"></span>
+        <button class="hs-btn" onclick="applySearch()">Buscar</button>
+      </div>
+      <div class="b-drop" id="bDrop"></div>
+    </div>
+
+    <div id="locTag" style="display:none">
+      <span class="loc-chip" onclick="limpiarBarrio()">
+        <span class="ldot"></span>
+        <span id="locTxt"></span>
+        <span class="lx">×</span>
+      </span>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item"><span class="ti">✅</span> Profesionales verificados</div>
+      <div class="trust-item"><span class="ti">💬</span> Reseñas reales de vecinos</div>
+      <div class="trust-item"><span class="ti">📞</span> Contacto directo, sin intermediarios</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATS BAR (estilo Airbnb) -->
+<div class="cats-bar">
+  <div class="cats-inner" id="catsInner">
+    <!-- generado por JS -->
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main">
+  <div class="main-header">
+    <div>
+      <span class="main-title" id="mainTitle">Todos los profesionales</span>
+      <span class="main-count" id="mainCount"></span>
+    </div>
+    <span class="main-link" onclick="filterBy(null)">Ver todos</span>
+  </div>
+  <div class="pros-grid" id="prosGrid">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Cargando profesionales…</p>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER -->
+<div class="banner-section">
+  <div class="banner-inner">
+    <div class="banner-text">
+      <h2>¿Emergencia<br/><em>ahora mismo?</em></h2>
+      <p>Cerrajeros, gasistas y plomeros con guardia activa las 24 horas en Córdoba. Contacto directo, sin esperas.</p>
+    </div>
+    <button class="btn-urg" onclick="filterBy('cerrajeria')">Ver guardias activas →</button>
+  </div>
+</div>
+
+<!-- CÓMO FUNCIONA -->
+<div class="how-section">
+  <div class="how-inner">
+    <h2 class="how-title">¿Cómo funciona?</h2>
+    <div class="how-grid">
+      <div class="how-item">
+        <div class="how-num">1</div>
+        <h4>Elegí el rubro</h4>
+        <p>Seleccioná la categoría y tu barrio. ZIPPY te muestra los profesionales disponibles cerca tuyo.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-num">2</div>
+        <h4>Revisá reseñas</h4>
+        <p>Leé la experiencia de otros vecinos, mirá la calificación y elegí el que más confianza te dé.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-num">3</div>
+        <h4>Contactá directo</h4>
+        <p>Llamá o escribí por WhatsApp sin intermediarios. Acordás precio y horario vos directamente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRO -->
+<div class="overlay" id="ov-registro" onclick="closeMod('registro',event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Publicar mi servicio</h3>
+      <button class="modal-x" onclick="cerrarModal('registro')">×</button>
+    </div>
+    <p class="modal-sub">Completá el formulario. Tu perfil quedará pendiente hasta que confirmemos el pago de la suscripción.</p>
+
+    <div class="form-row">
+      <div class="field"><label>Nombre completo *</label><input type="text" id="r_nombre" placeholder="Marcelo Ruiz"/></div>
+      <div class="field"><label>Nombre del negocio</label><input type="text" id="r_negocio" placeholder="Cerrajería Ruiz"/></div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Celular / WhatsApp *</label>
+        <input type="tel" id="r_tel" placeholder="3516001234"/>
+        <span class="hint">Sin 0 ni 15 — solo números</span>
+      </div>
+      <div class="field">
+        <label>Rubro *</label>
+        <select id="r_cat">
+          <option value="">— Seleccioná —</option>
+          <option value="plomeria">🚿 Plomería</option>
+          <option value="electricidad">⚡ Electricidad</option>
+          <option value="cerrajeria">🔑 Cerrajería</option>
+          <option value="herreria">⚙️ Herrería</option>
+          <option value="albanileria">🧱 Albañilería</option>
+          <option value="mecanica">🔧 Mecánica</option>
+          <option value="pintura">🖌️ Pintura</option>
+          <option value="gasista">🔥 Gasista</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Barrios donde trabajás *</label>
+      <input type="text" id="r_zona" placeholder="Nueva Córdoba, Centro, Alberdi"/>
+      <span class="hint">Separados por coma</span>
+    </div>
+    <div class="field"><label>Descripción del servicio</label><textarea id="r_desc" placeholder="Contá tu experiencia, especialidades, años en el rubro…"></textarea></div>
+    <div class="field">
+      <label>¿Atendés urgencias 24 hs?</label>
+      <select id="r_urg">
+        <option value="no">No, solo horario comercial</option>
+        <option value="si">Sí, atiendo emergencias</option>
+      </select>
+    </div>
+
+    <div class="info-note">
+      <span class="ni">💛</span>
+      Tu perfil quedará <strong>pendiente de activación</strong> hasta confirmar el pago de la suscripción. Te contactamos por WhatsApp al número que ingresaste.
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarModal('registro')">Cancelar</button>
+      <button class="btn-submit" id="btnReg" onclick="registrarPrestador()">Enviar solicitud</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="foot-logo">
+        <div class="foot-logo-bg"><span class="flz">Z</span><span class="flr">IPPY</span></div>
+      </div>
+      <div class="foot-cats">
+        <a href="#" onclick="filterBy('plomeria')">Plomería</a>
+        <a href="#" onclick="filterBy('electricidad')">Electricidad</a>
+        <a href="#" onclick="filterBy('cerrajeria')">Cerrajería</a>
+        <a href="#" onclick="filterBy('herreria')">Herrería</a>
+        <a href="#" onclick="filterBy('albanileria')">Albañilería</a>
+        <a href="#" onclick="filterBy('mecanica')">Mecánica</a>
+        <a href="#" onclick="filterBy('pintura')">Pintura</a>
+        <a href="#" onclick="filterBy('gasista')">Gasista</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ZIPPY · Córdoba, Argentina</p>
+      <p>Todos los profesionales son independientes</p>
+    </div>
+  </div>
+</footer>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const db = getFirestore(initializeApp({
+    apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
+    authDomain:"servicio-ece5d.firebaseapp.com",
+    projectId:"servicio-ece5d",
+    storageBucket:"servicio-ece5d.firebasestorage.app",
+    messagingSenderId:"729691529118",
+    appId:"1:729691529118:web:7eeff9104496b7fb29c08f"
+  }));
+
+  const CATS = [
+    {id:'plomeria',    label:'Plomería',    emoji:'🚿'},
+    {id:'electricidad',label:'Electricidad',emoji:'⚡'},
+    {id:'cerrajeria',  label:'Cerrajería',  emoji:'🔑'},
+    {id:'herreria',    label:'Herrería',    emoji:'⚙️'},
+    {id:'albanileria', label:'Albañilería', emoji:'🧱'},
+    {id:'mecanica',    label:'Mecánica',    emoji:'🔧'},
+    {id:'pintura',     label:'Pintura',     emoji:'🖌️'},
+    {id:'gasista',     label:'Gasista',     emoji:'🔥'},
+  ];
+  const CM={}; CATS.forEach(c=>CM[c.id]=c);
+  window.CATS=CATS; window.CM=CM;
+
+  let TODOS=[], activeCat=null, activeBarrio=null, searchQ='';
+
+  function getList(){
+    let l=[...TODOS];
+    if(activeCat) l=l.filter(p=>p.cat===activeCat);
+    if(activeBarrio) l=l.filter(p=>(p.zona||'').toLowerCase().includes(activeBarrio.toLowerCase()));
+    if(searchQ) l=l.filter(p=>
+      (p.nombre||'').toLowerCase().includes(searchQ)||
+      (CM[p.cat]?.label||'').toLowerCase().includes(searchQ)||
+      (p.desc||'').toLowerCase().includes(searchQ)||
+      (p.zona||'').toLowerCase().includes(searchQ)||
+      (p.negocio||'').toLowerCase().includes(searchQ)
+    );
+    l.sort((a,b)=>(a.plan==='pro'&&b.plan!=='pro')?-1:(b.plan==='pro'&&a.plan!=='pro')?1:0);
+    return l;
+  }
+
+  function esc(s){return s?String(s).replace(/[&<>'"]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)):''}
+
+  function renderCats(counts){
+    const el=document.getElementById('catsInner');
+    el.innerHTML=`<div class="cat-tab active" id="cat-all" onclick="filterBy(null)">
+      <span class="cat-tab-icon">🏠</span>
+      <span class="cat-tab-label">Todos</span>
+      <span class="cat-tab-n">${TODOS.length}</span>
+    </div>`+CATS.map(c=>`
+      <div class="cat-tab" id="cat-${c.id}" onclick="filterBy('${c.id}')">
+        <span class="cat-tab-icon">${c.emoji}</span>
+        <span class="cat-tab-label">${c.label}</span>
+        <span class="cat-tab-n">${counts[c.id]||0}</span>
+      </div>`).join('');
+  }
+
+  function renderPros(){
+    const list=getList();
+    const el=document.getElementById('prosGrid');
+    document.getElementById('mainCount').textContent=`(${list.length})`;
+
+    if(!list.length){
+      el.innerHTML=`<div class="state-box">
+        <div class="s-ico">🔍</div>
+        <h3>No encontramos resultados</h3>
+        <p>Probá con otro barrio o rubro. Si sos profesional, ¡publicá tu servicio gratis!</p>
+      </div>`;
+      return;
+    }
+
+    const now=Date.now();
+    el.innerHTML=list.map(p=>{
+      const c=CM[p.cat]||{};
+      const tel=(p.telefono||'').replace(/\D/g,'');
+      const wa='549'+tel;
+      const msg=encodeURIComponent(`Hola ${esc(p.nombre)}, te encuentro en ZIPPY. Necesito un servicio de ${c.label||p.cat}.`);
+      const ts=p.creado?(p.creado.toMillis?p.creado.toMillis():new Date(p.creado).getTime()):0;
+      const isNew=(now-ts)<86400000*3;
+      const r=p.estrellas;
+      const nr=p.totalReseñas||0;
+      const isPro=p.plan==='pro';
+
+      return `<div class="pro-card">
+        <div class="card-img-wrap">
+          <div class="card-emoji">${c.emoji||'🔧'}</div>
+          ${isPro?`<div class="card-pro-badge"><span class="star">★</span> PRO</div>`:''}
+          ${p.urgencias&&!isPro?'<div class="card-urg">24h</div>':''}
+          ${isNew&&!p.urgencias&&!isPro?'<div class="card-new">NUEVO</div>':''}
+        </div>
+        <div class="card-body">
+          <div class="card-row1">
+            <div class="card-name">${esc(p.nombre||p.negocio)}</div>
+            ${r?`<div class="card-rating"><span class="star">★</span>${r}</div>`:''}
+          </div>
+          <div class="card-cat">${c.label||''}${p.negocio?` · ${esc(p.negocio)}`:''}</div>
+          <div class="card-zona">📍 ${esc(p.zona||'Córdoba')}</div>
+          ${p.desc?`<div class="card-desc">${esc(p.desc)}</div>`:''}
+          ${nr?`<div class="card-nreseñas">${nr} reseña${nr!==1?'s':''}</div>`:''}
+          <div class="card-actions">
+            <a class="a-call" href="tel:${tel}">📞 Llamar</a>
+            <a class="a-wsp" href="https://wa.me/${wa}?text=${msg}" target="_blank">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  onSnapshot(collection(db,'prestadores'),snap=>{
+    const counts={};
+    TODOS=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.estado==='activo');
+    TODOS.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
+    renderCats(counts);
+    renderPros();
+  });
+
+  window.registrarPrestador=async function(){
+    const nombre=document.getElementById('r_nombre').value.trim();
+    const negocio=document.getElementById('r_negocio').value.trim();
+    const tel=document.getElementById('r_tel').value.trim().replace(/\D/g,'');
+    const cat=document.getElementById('r_cat').value;
+    const zona=document.getElementById('r_zona').value.trim();
+    const desc=document.getElementById('r_desc').value.trim();
+    const urg=document.getElementById('r_urg').value;
+    if(!nombre||!tel||!cat||!zona){showToast('⚠️ Completá nombre, celular, rubro y barrios.');return;}
+    if(!/^\d{8,12}$/.test(tel)){showToast('⚠️ Número inválido, solo dígitos sin espacios.');return;}
+    const btn=document.getElementById('btnReg');
+    btn.textContent='Enviando…';btn.disabled=true;
+    try{
+      await addDoc(collection(db,'prestadores'),{nombre,negocio,telefono:tel,cat,zona,desc,urgencias:urg==='si',estado:'pendiente',plan:'gratis',estrellas:null,totalReseñas:0,creado:serverTimestamp()});
+      ['r_nombre','r_negocio','r_tel','r_zona','r_desc'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('r_cat').value='';
+      cerrarModal('registro');
+      showToast('✅ Solicitud enviada. Te contactamos pronto por WhatsApp.');
+    }catch(e){showToast('❌ Error al enviar. Intentá de nuevo.');console.error(e);}
+    btn.textContent='Enviar solicitud';btn.disabled=false;
+  };
+
+  window.filterBy=function(cat){
+    activeCat=cat; renderPros();
+    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById(cat?'cat-'+cat:'cat-all')?.classList.add('active');
+    const label=cat?CM[cat]?.label:'Todos los profesionales';
+    document.getElementById('mainTitle').textContent=label;
+    if(cat) window.scrollTo({top:document.querySelector('.cats-bar').offsetTop+120,behavior:'smooth'});
+  };
+
+  window.handleSearch=function(v){searchQ=v.toLowerCase().trim();renderPros();};
+
+  window.applySearch=function(){
+    const barrio=document.getElementById('hsInput')?.value.trim()||document.getElementById('spBarrio')?.value.trim();
+    if(barrio) elegirBarrio(barrio);
+  };
+
+  window._setBarrio=function(b){activeBarrio=b;renderPros();};
+</script>
+
+<script>
+  const BARRIOS=["Alberdi","Alta Córdoba","Arguello","Ayacucho","Bajo Palermo","Bella Vista","Botanico","Boulevares","Buen Pastor","Cañitas","Carbó","Caseros","Centro","Cerro Chico","Cerro Las Rosas","Colón","Dean Funes","El Velódromo","Empalme","Estación Flores","Ferreyra","General Bustos","General Paz","General Urquiza","Guiñazú","Güemes","Hipódromo","Ituzaingó","Iturraspe","Jardín Claret","Jardín Espinosa","Jardín Hipódromo","José Ignacio Díaz","La France","La Rambla","Las Violetas","Los Boulevares","Los Cedros","Lourdes","Maipú","Maldonado","Marqués de Sobremonte","Mataderos","Monserrat","Müller","Nazca","Nueva Córdoba","Nueva Italia","Observatorio","Palermo","Parque Azul","Parque Capital","Parque Chacabuco","Parque Liceo","Parque San Vicente","Parque Vélez Sarsfield","Patricias Argentinas","Poeta Lugones","Pueyrredón","Remedios de Escalada","Ricardo Rojas","Rivadavia","San Ignacio","San Martín","San Vicente","Santa Isabel","Talleres Este","Talleres Oeste","Terminal","Urca","Valle del Cerro","Vélez Sarsfield","Villa Adela","Villa Cabrera","Villa del Parque","Villa Dora","Villa El Libertador","Villa Esquiú","Villa General Mitre","Villa Los Álamos","Villa Páez","Villa Peñaloza","Villa Rivadavia","Villa Siburu","Villa Urquiza","Villa Warcalde","Yapeyú","Yofre Norte","Yofre Sud"].sort();
+
+  let activeDropSrc=null, dT;
+
+  function filtrarBarrios(v){
+    const q=v.toLowerCase().trim();
+    const m=q?BARRIOS.filter(b=>b.toLowerCase().includes(q)):BARRIOS.slice(0,8);
+    const drop=document.getElementById('bDrop');
+    drop.innerHTML=m.length
+      ?m.slice(0,8).map(b=>`<div class="b-item" onmousedown="elegirBarrio('${b.replace(/'/g,"\\'")}')"><span class="b-ico">📍</span>${b}</div>`).join('')
+      :'<div class="b-none">No encontramos ese barrio</div>';
+  }
+
+  function abrirDrop(src){
+    clearTimeout(dT); activeDropSrc=src;
+    const inp=src==='sp'?document.getElementById('spBarrio'):document.getElementById('hsInput');
+    filtrarBarrios(inp?.value||'');
+    document.getElementById('bDrop').classList.add('open');
+  }
+  function cerrarDrop(){dT=setTimeout(()=>document.getElementById('bDrop').classList.remove('open'),180);}
+
+  function elegirBarrio(b){
+    document.getElementById('bDrop').classList.remove('open');
+    const hs=document.getElementById('hsInput');
+    const sp=document.getElementById('spBarrio');
+    if(hs) hs.value=b;
+    if(sp) sp.value=b;
+    document.getElementById('locTxt').textContent=b;
+    document.getElementById('locTag').style.display='block';
+    window._setBarrio&&window._setBarrio(b);
+    showToast('📍 Mostrando profesionales en '+b);
+    setTimeout(()=>document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'}),300);
+  }
+
+  function limpiarBarrio(){
+    document.getElementById('locTag').style.display='none';
+    const hs=document.getElementById('hsInput');
+    const sp=document.getElementById('spBarrio');
+    if(hs) hs.value='';
+    if(sp) sp.value='';
+    window._setBarrio&&window._setBarrio(null);
+  }
+
+  function focusBarrio(){
+    document.getElementById('hsInput').focus();
+    abrirDrop('hs');
+    document.getElementById('heroSearch').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  function abrirModal(id){document.getElementById('ov-'+id).classList.add('open');}
+  function cerrarModal(id){document.getElementById('ov-'+id).classList.remove('open');}
+  function closeMod(id,e){if(e.target===document.getElementById('ov-'+id))cerrarModal(id);}
+
+  let tT;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast show';
+    clearTimeout(tT); tT=setTimeout(()=>t.className='toast',4000);
+  }
+</script>
+</body>
+</html>
