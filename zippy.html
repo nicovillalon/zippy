@@ -162,8 +162,8 @@
     .hs-icon { padding: 0 16px; color: var(--ink-soft); font-size: 18px; flex-shrink: 0; }
     .hs-box input {
       flex: 1; border: none; outline: none; background: transparent;
-      font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--ink);
-      padding: 16px 0;
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--ink);
+      padding: 16px 0; min-width: 0;
     }
     .hs-box input::placeholder { color: var(--ink-soft); }
     .hs-sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
@@ -577,10 +577,16 @@
 
     <div class="hero-search" id="heroSearch">
       <div class="hs-box">
-        <span class="hs-icon">📍</span>
-        <input type="text" id="hsInput" placeholder="Buscá por barrio, ej: Nueva Córdoba…" autocomplete="off"
-          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
+        <span class="hs-icon">🔧</span>
+        <input type="text" id="hsRubro" placeholder="¿Qué servicio necesitás?" autocomplete="off"
+          oninput="filtrarRubros(this.value)" onfocus="abrirDropRubro()" onblur="cerrarDropRubro()"
+          style="min-width:0"/>
+        <div class="b-drop" id="rubroDrop" style="left:0;right:auto;width:260px"></div>
         <span class="hs-sep"></span>
+        <span class="hs-icon" style="position:relative;left:auto;transform:none;padding:0 10px">📍</span>
+        <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
+          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"
+          style="min-width:0"/>
         <button class="hs-btn" onclick="applySearch()">Buscar</button>
       </div>
       <div class="b-drop" id="bDrop"></div>
@@ -697,8 +703,15 @@
     </div>
     <div class="field">
       <label>Barrios donde trabajás *</label>
-      <input type="text" id="r_zona" placeholder="Nueva Córdoba, Centro, Alberdi"/>
-      <span class="hint">Separados por coma</span>
+      <div id="zonaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;min-height:0"></div>
+      <div style="position:relative">
+        <input type="text" id="r_zona_input" placeholder="Escribí un barrio y seleccionalo…" autocomplete="off"
+          oninput="filtrarZona(this.value)" onfocus="abrirDropZona()" onblur="cerrarDropZona()"
+          style="background:var(--bg-soft);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color .15s"/>
+        <div id="zonaDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);z-index:999;max-height:180px;overflow-y:auto;box-shadow:var(--shadow-hover)"></div>
+      </div>
+      <input type="hidden" id="r_zona"/>
+      <span class="hint">Podés agregar varios barrios</span>
     </div>
     <div class="field"><label>Descripción del servicio</label><textarea id="r_desc" placeholder="Contá tu experiencia, especialidades, años en el rubro…"></textarea></div>
     <div class="field">
@@ -905,8 +918,17 @@
   window.handleSearch=function(v){searchQ=v.toLowerCase().trim();renderPros();};
 
   window.applySearch=function(){
-    const barrio=document.getElementById('hsInput')?.value.trim()||document.getElementById('spBarrio')?.value.trim();
+    const barrio=(document.getElementById('hsInput')?.value.trim()||document.getElementById('spBarrio')?.value.trim());
+    const rubroInput=document.getElementById('hsRubro')?.value.trim()||document.getElementById('spRubro')?.value.trim();
+    // aplicar barrio
     if(barrio) elegirBarrio(barrio);
+    // aplicar rubro si escribieron algo que no eligieron del dropdown
+    if(rubroInput && !rubroSeleccionado) {
+      const match = RUBROS_LIST.find(r=>r.label.toLowerCase().includes(rubroInput.toLowerCase().replace(/[^\w]/g,'')));
+      if(match){ window.filterBy && window.filterBy(match.id); rubroSeleccionado=match.id; }
+      else { window.handleSearch && window.handleSearch(rubroInput); }
+    }
+    if(!barrio && !rubroInput) showToast('⚠️ Escribí un rubro o barrio para buscar');
   };
 
   window._setBarrio=function(b){activeBarrio=b;renderPros();};
@@ -916,6 +938,50 @@
   const BARRIOS=["Alberdi","Alta Córdoba","Arguello","Ayacucho","Bajo Palermo","Bella Vista","Botanico","Boulevares","Buen Pastor","Cañitas","Carbó","Caseros","Centro","Cerro Chico","Cerro Las Rosas","Colón","Dean Funes","El Velódromo","Empalme","Estación Flores","Ferreyra","General Bustos","General Paz","General Urquiza","Guiñazú","Güemes","Hipódromo","Ituzaingó","Iturraspe","Jardín Claret","Jardín Espinosa","Jardín Hipódromo","José Ignacio Díaz","La France","La Rambla","Las Violetas","Los Boulevares","Los Cedros","Lourdes","Maipú","Maldonado","Marqués de Sobremonte","Mataderos","Monserrat","Müller","Nazca","Nueva Córdoba","Nueva Italia","Observatorio","Palermo","Parque Azul","Parque Capital","Parque Chacabuco","Parque Liceo","Parque San Vicente","Parque Vélez Sarsfield","Patricias Argentinas","Poeta Lugones","Pueyrredón","Remedios de Escalada","Ricardo Rojas","Rivadavia","San Ignacio","San Martín","San Vicente","Santa Isabel","Talleres Este","Talleres Oeste","Terminal","Urca","Valle del Cerro","Vélez Sarsfield","Villa Adela","Villa Cabrera","Villa del Parque","Villa Dora","Villa El Libertador","Villa Esquiú","Villa General Mitre","Villa Los Álamos","Villa Páez","Villa Peñaloza","Villa Rivadavia","Villa Siburu","Villa Urquiza","Villa Warcalde","Yapeyú","Yofre Norte","Yofre Sud"].sort();
 
   let activeDropSrc=null, dT;
+
+  // ── DROPDOWN RUBROS EN HERO ──
+  const RUBROS_LIST = [
+    {id:'plomeria',    label:'Plomería',    emoji:'🚿'},
+    {id:'electricidad',label:'Electricidad',emoji:'⚡'},
+    {id:'cerrajeria',  label:'Cerrajería',  emoji:'🔑'},
+    {id:'herreria',    label:'Herrería',    emoji:'⚙️'},
+    {id:'albanileria', label:'Albañilería', emoji:'🧱'},
+    {id:'mecanica',    label:'Mecánica',    emoji:'🔧'},
+    {id:'pintura',     label:'Pintura',     emoji:'🖌️'},
+    {id:'gasista',     label:'Gasista',     emoji:'🔥'},
+  ];
+  let rubroDropT, rubroSeleccionado=null;
+
+  function filtrarRubros(v) {
+    const q = v.toLowerCase().trim();
+    const drop = document.getElementById('rubroDrop');
+    const matches = q ? RUBROS_LIST.filter(r=>r.label.toLowerCase().includes(q)) : RUBROS_LIST;
+    if(!matches.length){ drop.classList.remove('open'); return; }
+    drop.classList.add('open');
+    drop.innerHTML = matches.map(r =>
+      `<div class="b-item" onmousedown="elegirRubro('${r.id}','${r.label}','${r.emoji}')">
+        <span class="b-ico">${r.emoji}</span>${r.label}
+      </div>`
+    ).join('');
+  }
+
+  function abrirDropRubro() {
+    clearTimeout(rubroDropT);
+    filtrarRubros(document.getElementById('hsRubro').value);
+  }
+
+  function cerrarDropRubro() {
+    rubroDropT = setTimeout(()=>document.getElementById('rubroDrop').classList.remove('open'), 180);
+  }
+
+  function elegirRubro(id, label, emoji) {
+    rubroSeleccionado = id;
+    document.getElementById('hsRubro').value = emoji + ' ' + label;
+    document.getElementById('rubroDrop').classList.remove('open');
+    window.filterBy && window.filterBy(id);
+    showToast(emoji + ' Mostrando ' + label);
+    setTimeout(()=>document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'}),300);
+  }
 
   function filtrarBarrios(v){
     const q=v.toLowerCase().trim();
@@ -962,7 +1028,67 @@
     document.getElementById('heroSearch').scrollIntoView({behavior:'smooth',block:'center'});
   }
 
-  function abrirModal(id){document.getElementById('ov-'+id).classList.add('open');}
+  // ── ZONA DROPDOWN EN EL FORMULARIO ──
+  let zonaSeleccionada = [];
+  let zonaDropT;
+
+  function filtrarZona(v) {
+    const q = v.toLowerCase().trim();
+    const drop = document.getElementById('zonaDropdown');
+    const matches = q ? BARRIOS.filter(b => b.toLowerCase().includes(q) && !zonaSeleccionada.includes(b)) : BARRIOS.filter(b => !zonaSeleccionada.includes(b)).slice(0,8);
+    if(!matches.length){ drop.style.display='none'; return; }
+    drop.style.display = 'block';
+    drop.innerHTML = matches.slice(0,8).map(b =>
+      `<div onmousedown="agregarZona('${b.replace(/'/g,"\\'")}') "
+        style="padding:10px 14px;cursor:pointer;font-size:13px;color:#555;border-bottom:1px solid #f0ece4;display:flex;align-items:center;gap:8px;"
+        onmouseover="this.style.background='#f5f0e8'" onmouseout="this.style.background=''"
+      >📍 ${b}</div>`
+    ).join('');
+  }
+
+  function abrirDropZona() {
+    clearTimeout(zonaDropT);
+    filtrarZona(document.getElementById('r_zona_input').value);
+  }
+
+  function cerrarDropZona() {
+    zonaDropT = setTimeout(() => {
+      document.getElementById('zonaDropdown').style.display = 'none';
+    }, 180);
+  }
+
+  function agregarZona(b) {
+    if(zonaSeleccionada.includes(b)) return;
+    zonaSeleccionada.push(b);
+    document.getElementById('r_zona_input').value = '';
+    document.getElementById('zonaDropdown').style.display = 'none';
+    document.getElementById('r_zona').value = zonaSeleccionada.join(', ');
+    renderZonaChips();
+  }
+
+  function quitarZona(b) {
+    zonaSeleccionada = zonaSeleccionada.filter(x => x !== b);
+    document.getElementById('r_zona').value = zonaSeleccionada.join(', ');
+    renderZonaChips();
+  }
+
+  function renderZonaChips() {
+    const el = document.getElementById('zonaChips');
+    el.innerHTML = zonaSeleccionada.map(b =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;background:#111;color:#fff;border-radius:99px;padding:4px 12px 4px 10px;font-size:12px;font-weight:600;">
+        📍 ${b}
+        <span onclick="quitarZona('${b.replace(/'/g,"\\'")}') " style="cursor:pointer;font-size:15px;opacity:.6;line-height:1;">×</span>
+      </span>`
+    ).join('');
+  }
+
+  // limpiar chips al cerrar modal
+  const _origCerrarModal = window.cerrarModal;
+
+  function abrirModal(id){
+    if(id==='registro'){ zonaSeleccionada=[]; renderZonaChips(); document.getElementById('r_zona').value=''; }
+    document.getElementById('ov-'+id).classList.add('open');
+  }
   function cerrarModal(id){document.getElementById('ov-'+id).classList.remove('open');}
   function closeMod(id,e){if(e.target===document.getElementById('ov-'+id))cerrarModal(id);}
 
