@@ -764,7 +764,7 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, doc, addDoc, setDoc, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const db = getFirestore(initializeApp({
@@ -897,8 +897,11 @@
     const btn=document.getElementById('btnReg');
     btn.textContent='Enviando…';btn.disabled=true;
     try{
-      await addDoc(collection(db,'prestadores'),{nombre,negocio,telefono:tel,cat,zona,desc,urgencias:urg==='si',estado:'pendiente',plan:'gratis',estrellas:null,totalReseñas:0,creado:serverTimestamp()});
-      ['r_nombre','r_negocio','r_tel','r_zona','r_desc'].forEach(id=>document.getElementById(id).value='');
+      // ID = teléfono → fácil de buscar en Firestore
+      await setDoc(doc(db,'prestadores',tel),{nombre,negocio,telefono:tel,cat,zona,desc,urgencias:urg==='si',estado:'pendiente',plan:'gratis',estrellas:null,totalReseñas:0,creado:serverTimestamp()});
+      zonaSeleccionada=[];
+      renderZonaChips();
+      ['r_nombre','r_negocio','r_tel','r_zona','r_zona_input','r_desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       document.getElementById('r_cat').value='';
       cerrarModal('registro');
       showToast('✅ Solicitud enviada. Te contactamos pronto por WhatsApp.');
