@@ -395,9 +395,28 @@
     .how-item h4 { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
     .how-item p { font-size: 14px; color: var(--ink-mid); line-height: 1.65; }
 
-    /* ══════════════════════════════
-       MODAL REGISTRO
-    ══════════════════════════════ */
+    .a-resena {
+      width: 100%; margin-top: 8px; padding: 9px;
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600; color: var(--ink-mid);
+      cursor: pointer; transition: all .15s; text-align: center;
+    }
+    .a-resena:hover { border-color: var(--accent); color: var(--ink); background: #FFFBEA; }
+
+    .card-resenas { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .resena-mini { font-size: 12px; color: var(--ink-mid); line-height: 1.5; }
+    .resena-stars { color: var(--accent); font-size: 11px; margin-right: 4px; }
+    .resena-autor { font-weight: 600; color: var(--ink); margin-right: 4px; }
+    .resena-txt { color: var(--ink-mid); }
+
+    /* estrellas interactivas */
+    .star-picker { display: flex; gap: 6px; margin: 8px 0; }
+    .star-picker span {
+      font-size: 28px; cursor: pointer; color: var(--border);
+      transition: color .15s; line-height: 1;
+    }
+    .star-picker span.on { color: var(--accent); }
     .overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.5); z-index: 400;
@@ -667,6 +686,41 @@
   </div>
 </div>
 
+<!-- MODAL RESEÑA -->
+<div class="overlay" id="ov-resena" onclick="closeMod('resena',event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Dejar reseña</h3>
+      <button class="modal-x" onclick="cerrarModal('resena')">×</button>
+    </div>
+    <p class="modal-sub" id="resena-para">Tu opinión ayuda a otros vecinos a elegir mejor.</p>
+    <input type="hidden" id="rv_id"/>
+    <input type="hidden" id="rv_nombre_prestador"/>
+    <div class="field">
+      <label>Tu nombre</label>
+      <input type="text" id="rv_autor" placeholder="Ej: Juan García"/>
+    </div>
+    <div class="field">
+      <label>Calificación *</label>
+      <div class="star-picker" id="starPicker">
+        <span onclick="setStar(1)">★</span>
+        <span onclick="setStar(2)">★</span>
+        <span onclick="setStar(3)">★</span>
+        <span onclick="setStar(4)">★</span>
+        <span onclick="setStar(5)">★</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Comentario *</label>
+      <textarea id="rv_comentario" placeholder="Contá cómo fue tu experiencia con este profesional…" style="resize:vertical;min-height:90px"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarModal('resena')">Cancelar</button>
+      <button class="btn-submit" id="btnResena" onclick="enviarResena()">Enviar reseña</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL REGISTRO -->
 <div class="overlay" id="ov-registro" onclick="closeMod('registro',event)">
   <div class="modal">
@@ -871,10 +925,83 @@
               WhatsApp
             </a>
           </div>
+          <button class="a-resena" onclick="abrirResena('${p.id}','${esc(p.nombre||p.negocio)}')">⭐ Dejar reseña</button>
+          ${RESENAS_MAP[p.id]&&RESENAS_MAP[p.id].length?`
+          <div class="card-resenas">
+            ${RESENAS_MAP[p.id].slice(0,2).map(r=>`
+              <div class="resena-mini">
+                <span class="resena-stars">${'★'.repeat(r.estrellas||5)}</span>
+                <span class="resena-autor">${esc(r.autor||'Cliente')}</span>
+                <span class="resena-txt">"${esc(r.comentario)}"</span>
+              </div>`).join('')}
+          </div>`:''}
         </div>
       </div>`;
     }).join('');
   }
+
+  // ── RESEÑAS ──
+  let RESENAS_MAP = {}; // { prestadorId: [resenas aprobadas] }
+
+  onSnapshot(collection(db,'resenas'), snap => {
+    RESENAS_MAP = {};
+    snap.docs.forEach(d => {
+      const r = { id: d.id, ...d.data() };
+      if(!r.aprobada) return;
+      if(!RESENAS_MAP[r.prestadorId]) RESENAS_MAP[r.prestadorId] = [];
+      RESENAS_MAP[r.prestadorId].push(r);
+    });
+    renderPros();
+  });
+
+  window.abrirResena = function(id, nombre) {
+    document.getElementById('rv_id').value = id;
+    document.getElementById('rv_nombre_prestador').value = nombre;
+    document.getElementById('resena-para').textContent = `Tu opinión sobre ${nombre} ayuda a otros vecinos.`;
+    document.getElementById('rv_autor').value = '';
+    document.getElementById('rv_comentario').value = '';
+    estrellasSel = 0;
+    setStar(0);
+    abrirModal('resena');
+  };
+
+  let estrellasSel = 0;
+  window.setStar = function(n) {
+    estrellasSel = n;
+    document.querySelectorAll('#starPicker span').forEach((s,i) => {
+      s.classList.toggle('on', i < n);
+    });
+  };
+
+  window.enviarResena = async function() {
+    const prestadorId    = document.getElementById('rv_id').value;
+    const prestadorNombre= document.getElementById('rv_nombre_prestador').value;
+    const autor          = document.getElementById('rv_autor').value.trim();
+    const comentario     = document.getElementById('rv_comentario').value.trim();
+
+    if(!estrellasSel){ showToast('⚠️ Elegí una calificación.'); return; }
+    if(!comentario){ showToast('⚠️ Escribí un comentario.'); return; }
+
+    const btn = document.getElementById('btnResena');
+    btn.textContent = 'Enviando…'; btn.disabled = true;
+
+    try {
+      await addDoc(collection(db,'resenas'), {
+        prestadorId, prestadorNombre,
+        autor: autor || 'Anónimo',
+        estrellas: estrellasSel,
+        comentario,
+        aprobada: false,
+        fecha: serverTimestamp()
+      });
+      cerrarModal('resena');
+      showToast('✅ ¡Gracias! Tu reseña será publicada después de ser revisada.');
+    } catch(e) {
+      showToast('❌ Error al enviar. Intentá de nuevo.');
+      console.error(e);
+    }
+    btn.textContent = 'Enviar reseña'; btn.disabled = false;
+  };
 
   onSnapshot(collection(db,'prestadores'),snap=>{
     const counts={};
