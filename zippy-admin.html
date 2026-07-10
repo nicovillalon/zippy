@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZIPPY Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #F5F0E8;
+      --bg-soft: #EDE8DE;
+      --white:   #FFFFFF;
+      --ink:     #111111;
+      --mid:     #555555;
+      --soft:    #999999;
+      --border:  #E0D8CC;
+      --accent:  #FACC15;
+      --success: #16A34A;
+      --danger:  #DC2626;
+      --warning: #D97706;
+      --info:    #2563EB;
+      --radius:  10px;
+      --shadow:  0 2px 12px rgba(0,0,0,0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px; min-height: 100vh; }
+
+    /* LOGIN */
+    .login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--ink);
+    }
+    .login-box {
+      background: var(--white); border-radius: 20px; padding: 48px 40px;
+      width: 100%; max-width: 400px; text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    }
+    .login-logo { font-size: 32px; font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; }
+    .login-logo .z { color: var(--accent); background: var(--ink); border-radius: 8px; padding: 2px 8px; }
+    .login-sub { font-size: 14px; color: var(--soft); margin-bottom: 36px; }
+    .login-tag { font-size: 12px; font-weight: 700; color: var(--soft); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .btn-google {
+      width: 100%; background: var(--white); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 14px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--ink); cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 12px; transition: border-color .2s, background .2s;
+    }
+    .btn-google:hover { border-color: var(--ink); background: var(--bg); }
+    .login-note { font-size: 12px; color: var(--soft); margin-top: 20px; line-height: 1.5; }
+
+    /* ACCESO DENEGADO */
+    .denied-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--ink); flex-direction: column; gap: 16px; text-align: center; padding: 24px;
+    }
+    .denied-screen h2 { color: #fff; font-size: 24px; font-weight: 700; }
+    .denied-screen p { color: rgba(255,255,255,.6); font-size: 14px; }
+    .btn-logout-denied {
+      background: var(--danger); border: none; color: #fff;
+      border-radius: var(--radius); padding: 10px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    /* APP */
+    .app { display: none; }
+    .app.visible { display: block; }
+
+    /* HEADER ADMIN */
+    .admin-header {
+      background: var(--ink); height: 60px;
+      display: flex; align-items: center; padding: 0 24px;
+      gap: 16px; position: sticky; top: 0; z-index: 100;
+    }
+    .admin-logo { font-size: 20px; font-weight: 900; letter-spacing: -1.5px; }
+    .admin-logo .z { color: var(--accent); }
+    .admin-logo .tag { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.4); letter-spacing: 2px; text-transform: uppercase; margin-left: 8px; }
+    .admin-user { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .admin-user span { font-size: 13px; color: rgba(255,255,255,.6); }
+    .btn-logout {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: #fff; border-radius: var(--radius); padding: 6px 14px;
+      font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,.15); }
+
+    /* NAV TABS */
+    .nav-tabs {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      display: flex; padding: 0 24px; gap: 0; overflow-x: auto;
+    }
+    .nav-tab {
+      padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+      border-bottom: 2px solid transparent; color: var(--soft); white-space: nowrap;
+      transition: color .2s, border-color .2s;
+    }
+    .nav-tab:hover { color: var(--ink); }
+    .nav-tab.active { color: var(--ink); border-color: var(--ink); }
+    .nav-tab .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--danger); color: #fff; border-radius: 99px;
+      width: 18px; height: 18px; font-size: 10px; font-weight: 700;
+      margin-left: 6px;
+    }
+    .nav-tab .badge.warn { background: var(--warning); }
+    .nav-tab .badge.ok { background: var(--success); }
+
+    /* CONTENT */
+    .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* STATS CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+    @media(max-width:900px){ .stats-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:480px){ .stats-grid{grid-template-columns:1fr;} }
+
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; }
+    .stat-val { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
+    .stat-sub { font-size: 12px; color: var(--soft); }
+    .stat-card.danger .stat-val { color: var(--danger); }
+    .stat-card.warn .stat-val { color: var(--warning); }
+    .stat-card.ok .stat-val { color: var(--success); }
+
+    /* SECTION TITLE */
+    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .sec-title span { font-size: 12px; color: var(--soft); font-weight: 500; }
+
+    /* FILTROS */
+    .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filtro {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 99px; padding: 6px 16px; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: var(--soft); transition: all .15s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .filtro:hover { border-color: var(--ink); color: var(--ink); }
+    .filtro.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+    .search-bar {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--ink);
+      outline: none; width: 100%; max-width: 320px; margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+    .search-bar:focus { border-color: var(--ink); }
+    .search-bar::placeholder { color: var(--soft); }
+
+    /* TABLA PRESTADORES */
+    .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--bg-soft); }
+    th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
+    td { padding: 14px 16px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    tr:hover td { background: var(--bg); }
+
+    .td-name { font-weight: 600; color: var(--ink); }
+    .td-biz { font-size: 12px; color: var(--soft); }
+    .td-tel a { color: var(--info); text-decoration: none; font-weight: 500; }
+    .td-tel a:hover { text-decoration: underline; }
+
+    /* BADGES ESTADO */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge.activo   { background: rgba(22,163,74,.1);  color: var(--success); }
+    .badge.pendiente{ background: rgba(217,119,6,.1);  color: var(--warning); }
+    .badge.inactivo { background: rgba(220,38,38,.1);  color: var(--danger);  }
+    .badge.pro      { background: rgba(250,204,21,.15); color: #92400E; }
+    .badge.gratis   { background: var(--bg-soft); color: var(--soft); }
+
+    /* ACCIONES */
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm {
+      border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700;
+      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+      transition: opacity .15s; white-space: nowrap;
+    }
+    .btn-sm:hover { opacity: .85; }
+    .btn-activar   { background: var(--success); color: #fff; }
+    .btn-desactivar{ background: var(--danger);  color: #fff; }
+    .btn-pro       { background: var(--accent);  color: var(--ink); }
+    .btn-gratis    { background: var(--bg-soft); color: var(--mid); border: 1px solid var(--border); }
+    .btn-wsp       { background: #25D366; color: #fff; }
+    .btn-eliminar  { background: var(--bg-soft); color: var(--danger); border: 1px solid rgba(220,38,38,.2); }
+
+    /* VENCIMIENTO */
+    .venc-ok   { color: var(--success); font-weight: 600; }
+    .venc-warn { color: var(--warning); font-weight: 600; }
+    .venc-bad  { color: var(--danger);  font-weight: 600; }
+
+    /* RESEÑAS */
+    .resena-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+    }
+    .resena-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .resena-autor { font-weight: 700; font-size: 14px; }
+    .resena-prestador { font-size: 12px; color: var(--soft); }
+    .resena-stars { color: var(--accent); font-size: 14px; }
+    .resena-txt { font-size: 13px; color: var(--mid); line-height: 1.6; margin: 8px 0; }
+    .resena-fecha { font-size: 11px; color: var(--soft); }
+    .resena-acts { display: flex; gap: 8px; margin-top: 12px; }
+
+    /* PAGOS */
+    .pago-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .pago-info { flex: 1; min-width: 200px; }
+    .pago-nombre { font-weight: 700; font-size: 14px; }
+    .pago-detalle { font-size: 12px; color: var(--soft); margin-top: 2px; }
+    .pago-monto { font-size: 20px; font-weight: 800; color: var(--success); white-space: nowrap; }
+    .pago-fecha { font-size: 12px; color: var(--soft); text-align: right; }
+
+    /* MODAL */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 16px; padding: 28px;
+      width: 100%; max-width: 460px; animation: popIn .2s ease;
+      box-shadow: 0 24px 64px rgba(0,0,0,.2);
+    }
+    @keyframes popIn { from{transform:scale(.95);opacity:0;} to{transform:scale(1);opacity:1;} }
+    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .modal p { font-size: 13px; color: var(--mid); margin-bottom: 20px; line-height: 1.5; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field label { font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; }
+    .field input, .field select {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; color: var(--ink); font-family: 'Outfit', sans-serif;
+      font-size: 14px; outline: none; transition: border-color .15s; width: 100%;
+    }
+    .field input:focus, .field select:focus { border-color: var(--ink); }
+    .field select { appearance: none; cursor: pointer; }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: var(--bg-soft); border: 1px solid var(--border); color: var(--ink); border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-ok { background: var(--ink); border: none; color: #fff; border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; border-radius: 99px; padding: 12px 24px; font-size: 13px; font-weight: 500; z-index: 500; display: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+    .toast.show { display: block; animation: tIn .2s ease; }
+    @keyframes tIn { from{opacity:0;transform:translateX(-50%) translateY(8px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 48px 24px; color: var(--soft); }
+    .empty .ei { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    @media(max-width:768px){
+      .content { padding: 20px 16px; }
+      .admin-header { padding: 0 16px; }
+      table { font-size: 12px; }
+      th, td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><span class="z">Z</span>IPPY</div>
+    <p class="login-sub">Panel de administración</p>
+    <p class="login-tag">Acceso restringido</p>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Ingresar con Google
+    </button>
+    <p class="login-note">Solo la cuenta autorizada puede acceder a este panel.</p>
+  </div>
+</div>
+
+<!-- ACCESO DENEGADO -->
+<div class="denied-screen" id="deniedScreen" style="display:none">
+  <div style="font-size:48px">🚫</div>
+  <h2>Acceso denegado</h2>
+  <p>Tu cuenta no tiene permisos para acceder al panel de ZIPPY.</p>
+  <button class="btn-logout-denied" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- APP ADMIN -->
+<div class="app" id="adminApp">
+
+  <header class="admin-header">
+    <div class="admin-logo">
+      <span class="z">Z</span>IPPY
+      <span class="tag">Admin</span>
+    </div>
+    <div class="admin-user">
+      <span id="adminEmail"></span>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPanel('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="showPanel('prestadores')">👥 Prestadores <span class="badge" id="badgePend">0</span></div>
+    <div class="nav-tab" onclick="showPanel('pagos')">💰 Pagos</div>
+    <div class="nav-tab" onclick="showPanel('resenas')">⭐ Reseñas <span class="badge warn" id="badgeRes">0</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card ok">
+          <div class="stat-label">Activos</div>
+          <div class="stat-val" id="stActivos">—</div>
+          <div class="stat-sub">Prestadores en línea</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Pendientes</div>
+          <div class="stat-val" id="stPend">—</div>
+          <div class="stat-sub">Esperando activación</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Vencen pronto</div>
+          <div class="stat-val" id="stVenc">—</div>
+          <div class="stat-sub">En los próximos 7 días</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plan PRO</div>
+          <div class="stat-val" id="stPro">—</div>
+          <div class="stat-sub">Destacados activos</div>
+        </div>
+      </div>
+
+      <div class="sec-title">⚠️ Pendientes de activación <span>Registrados que esperan pago</span></div>
+      <div id="dashPend"></div>
+
+      <div class="sec-title" style="margin-top:32px">🔔 Vencen esta semana <span>Contactalos para renovar</span></div>
+      <div id="dashVenc"></div>
+    </div>
+
+    <!-- PRESTADORES -->
+    <div class="panel" id="panel-prestadores">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+        <input class="search-bar" type="text" placeholder="🔍 Buscar por nombre, rubro, barrio…" oninput="filtrarPrestadores(this.value)" style="margin-bottom:0"/>
+        <button class="btn-sm btn-activar" style="padding:9px 16px;font-size:13px" onclick="abrirModalPago()">+ Registrar pago</button>
+      </div>
+      <div class="filtros">
+        <div class="filtro active" onclick="setFiltro('todos',this)">Todos</div>
+        <div class="filtro" onclick="setFiltro('pendiente',this)">Pendientes</div>
+        <div class="filtro" onclick="setFiltro('activo',this)">Activos</div>
+        <div class="filtro" onclick="setFiltro('inactivo',this)">Inactivos</div>
+        <div class="filtro" onclick="setFiltro('pro',this)">PRO</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Prestador</th>
+              <th>Rubro</th>
+              <th>Zona</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Plan</th>
+              <th>Vencimiento</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPrestadores"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGOS -->
+    <div class="panel" id="panel-pagos">
+      <div class="sec-title">💰 Historial de pagos</div>
+      <div id="listaPagos"></div>
+    </div>
+
+    <!-- RESEÑAS -->
+    <div class="panel" id="panel-resenas">
+      <div class="sec-title">⭐ Reseñas pendientes de aprobación</div>
+      <div id="listaResenas"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PAGO -->
+<div class="overlay" id="ov-pago" onclick="closeMod('pago',event)">
+  <div class="modal">
+    <h3>Registrar pago</h3>
+    <p>Completá los datos del pago para activar o renovar al prestador.</p>
+    <div class="field">
+      <label>Prestador</label>
+      <select id="p_prestador"></select>
+    </div>
+    <div class="field">
+      <label>Monto ($)</label>
+      <input type="number" id="p_monto" placeholder="Ej: 5000"/>
+    </div>
+    <div class="field">
+      <label>Duración</label>
+      <select id="p_dur">
+        <option value="30">1 mes</option>
+        <option value="60">2 meses</option>
+        <option value="90">3 meses</option>
+        <option value="180">6 meses</option>
+        <option value="365">1 año</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Plan</label>
+      <select id="p_plan">
+        <option value="gratis">Básico</option>
+        <option value="pro">PRO (aparece primero)</option>
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarMod('pago')">Cancelar</button>
+      <button class="btn-ok" onclick="confirmarPago()">Confirmar pago</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const ADMIN_EMAIL = "villalon242@gmail.com";
+
+  const app = initializeApp({
+    apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
+    authDomain:"servicio-ece5d.firebaseapp.com",
+    projectId:"servicio-ece5d",
+    storageBucket:"servicio-ece5d.firebasestorage.app",
+    messagingSenderId:"729691529118",
+    appId:"1:729691529118:web:7eeff9104496b7fb29c08f"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const CAT = {
+    plomeria:'🚿 Plomería', electricidad:'⚡ Electricidad',
+    cerrajeria:'🔑 Cerrajería', herreria:'⚙️ Herrería',
+    albanileria:'🧱 Albañilería', mecanica:'🔧 Mecánica',
+    pintura:'🖌️ Pintura', gasista:'🔥 Gasista'
+  };
+
+  // ── AUTH ──
+  window.loginGoogle = async function() {
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch(e){ showToast('❌ Error al iniciar sesión'); }
+  };
+  window.logout = async function() {
+    await signOut(auth);
+    location.reload();
+  };
+
+  onAuthStateChanged(auth, user => {
+    document.getElementById('loginScreen').style.display = 'none';
+    if (!user) {
+      document.getElementById('loginScreen').style.display = 'flex';
+      return;
+    }
+    if (user.email !== ADMIN_EMAIL) {
+      document.getElementById('deniedScreen').style.display = 'flex';
+      return;
+    }
+    document.getElementById('adminApp').classList.add('visible');
+    document.getElementById('adminEmail').textContent = user.email;
+    iniciarListeners();
+  });
+
+  // ── DATA ──
+  let PRESTADORES = [];
+  let PAGOS = [];
+  let RESENAS = [];
+  let filtroActivo = 'todos';
+  let searchQ = '';
+
+  function iniciarListeners() {
+    // Prestadores
+    onSnapshot(query(collection(db,'prestadores'), orderBy('creado','desc')), snap => {
+      PRESTADORES = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDashboard();
+      renderPrestadores();
+      actualizarBadges();
+      llenarSelectPrestadores();
+    });
+
+    // Pagos
+    onSnapshot(query(collection(db,'pagos'), orderBy('fecha','desc')), snap => {
+      PAGOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPagos();
+    });
+
+    // Reseñas
+    onSnapshot(collection(db,'resenas'), snap => {
+      RESENAS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderResenas();
+      actualizarBadges();
+    });
+  }
+
+  // ── DASHBOARD ──
+  function renderDashboard() {
+    const hoy = new Date();
+    const en7 = new Date(); en7.setDate(en7.getDate()+7);
+
+    const activos   = PRESTADORES.filter(p=>p.estado==='activo').length;
+    const pendientes= PRESTADORES.filter(p=>p.estado==='pendiente').length;
+    const pro       = PRESTADORES.filter(p=>p.plan==='pro'&&p.estado==='activo').length;
+    const vencProx  = PRESTADORES.filter(p=>{
+      if(!p.vencimiento||p.estado!=='activo') return false;
+      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+    }).length;
+
+    document.getElementById('stActivos').textContent = activos;
+    document.getElementById('stPend').textContent    = pendientes;
+    document.getElementById('stVenc').textContent    = vencProx;
+    document.getElementById('stPro').textContent     = pro;
+
+    // Pendientes
+    const pend = PRESTADORES.filter(p=>p.estado==='pendiente');
+    const dp = document.getElementById('dashPend');
+    if(!pend.length){ dp.innerHTML='<div class="empty"><div class="ei">✅</div><p>No hay prestadores pendientes</p></div>'; }
+    else {
+      dp.innerHTML=`<div class="table-wrap"><table>
+        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Fecha registro</th><th>Acciones</th></tr></thead>
+        <tbody>${pend.map(p=>`<tr>
+          <td><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
+          <td>${CAT[p.cat]||p.cat}</td>
+          <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
+          <td>${fmtFecha(p.creado)}</td>
+          <td><div class="actions">
+            <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">✅ Activar</button>
+            <button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+
+    // Vencen pronto
+    const venc = PRESTADORES.filter(p=>{
+      if(!p.vencimiento||p.estado!=='activo') return false;
+      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+    });
+    const dv = document.getElementById('dashVenc');
+    if(!venc.length){ dv.innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nadie vence esta semana</p></div>'; }
+    else {
+      dv.innerHTML=`<div class="table-wrap"><table>
+        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Vence</th><th>Acciones</th></tr></thead>
+        <tbody>${venc.map(p=>`<tr>
+          <td><div class="td-name">${esc(p.nombre)}</div></td>
+          <td>${CAT[p.cat]||p.cat}</td>
+          <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
+          <td><span class="venc-warn">${p.vencimiento||'—'}</span></td>
+          <td><div class="actions">
+            <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence pronto. ¿Renovamos?')}','_blank')">💬 Recordatorio</button>
+            <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+  }
+
+  // ── PRESTADORES ──
+  function getListaFiltrada() {
+    let l = PRESTADORES;
+    if(filtroActivo==='pro') l=l.filter(p=>p.plan==='pro');
+    else if(filtroActivo!=='todos') l=l.filter(p=>p.estado===filtroActivo);
+    if(searchQ) l=l.filter(p=>
+      (p.nombre||'').toLowerCase().includes(searchQ)||
+      (p.negocio||'').toLowerCase().includes(searchQ)||
+      (CAT[p.cat]||'').toLowerCase().includes(searchQ)||
+      (p.zona||'').toLowerCase().includes(searchQ)||
+      (p.telefono||'').includes(searchQ)
+    );
+    return l;
+  }
+
+  function renderPrestadores() {
+    const list = getListaFiltrada();
+    const tbody = document.getElementById('tablaPrestadores');
+    if(!list.length){ tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><p>No hay prestadores con este filtro</p></div></td></tr>`; return; }
+
+    const hoy=new Date();
+    tbody.innerHTML = list.map(p=>{
+      const vencClass = !p.vencimiento ? '' :
+        new Date(p.vencimiento) < hoy ? 'venc-bad' :
+        (new Date(p.vencimiento)-hoy)<7*86400000 ? 'venc-warn' : 'venc-ok';
+
+      const btns = [];
+      if(p.estado==='pendiente') btns.push(`<button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">✅ Activar</button>`);
+      if(p.estado==='activo')    btns.push(`<button class="btn-sm btn-desactivar" onclick="cambiarEstado('${p.id}','inactivo','${esc(p.nombre)}')">⏸ Pausar</button>`);
+      if(p.estado==='inactivo')  btns.push(`<button class="btn-sm btn-activar" onclick="cambiarEstado('${p.id}','activo','${esc(p.nombre)}')">▶️ Reactivar</button>`);
+      if(p.plan!=='pro')         btns.push(`<button class="btn-sm btn-pro" onclick="cambiarPlan('${p.id}','pro','${esc(p.nombre)}')">⭐ PRO</button>`);
+      if(p.plan==='pro')         btns.push(`<button class="btn-sm btn-gratis" onclick="cambiarPlan('${p.id}','gratis','${esc(p.nombre)}')">↓ Básico</button>`);
+      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}','_blank')">💬</button>`);
+      btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
+
+      return `<tr>
+        <td><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
+        <td>${CAT[p.cat]||p.cat||'—'}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.zona||'—')}</td>
+        <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">${p.telefono}</a></td>
+        <td><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span></td>
+        <td><span class="badge ${p.plan||'gratis'}">${p.plan==='pro'?'⭐ PRO':'Básico'}</span></td>
+        <td><span class="${vencClass}">${p.vencimiento||'—'}</span></td>
+        <td><div class="actions">${btns.join('')}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── PAGOS ──
+  function renderPagos() {
+    const el = document.getElementById('listaPagos');
+    if(!PAGOS.length){ el.innerHTML='<div class="empty"><div class="ei">💰</div><p>No hay pagos registrados aún</p></div>'; return; }
+    el.innerHTML = PAGOS.map(p=>`
+      <div class="pago-card">
+        <div class="pago-info">
+          <div class="pago-nombre">${esc(p.nombre||'—')}</div>
+          <div class="pago-detalle">${p.plan==='pro'?'⭐ Plan PRO':'Plan Básico'} · ${p.duracion||30} días · ${fmtFecha(p.fecha)}</div>
+        </div>
+        <div class="pago-monto">$${Number(p.monto||0).toLocaleString('es-AR')}</div>
+        <div class="pago-fecha">Vence: ${p.vencimiento||'—'}</div>
+      </div>`).join('');
+  }
+
+  // ── RESEÑAS ──
+  function renderResenas() {
+    const pendientes = RESENAS.filter(r=>!r.aprobada);
+    const aprobadas  = RESENAS.filter(r=>r.aprobada);
+    const el = document.getElementById('listaResenas');
+
+    let html = '';
+    if(pendientes.length){
+      html += `<div class="sec-title" style="margin-bottom:12px">Pendientes de aprobación (${pendientes.length})</div>`;
+      html += pendientes.map(r=>`
+        <div class="resena-card">
+          <div class="resena-head">
+            <div>
+              <div class="resena-autor">${esc(r.autor||'Anónimo')}</div>
+              <div class="resena-prestador">Para: ${esc(r.prestadorNombre||r.prestadorId||'—')}</div>
+            </div>
+            <div class="resena-stars">${'★'.repeat(r.estrellas||5)}</div>
+          </div>
+          <div class="resena-txt">${esc(r.comentario||'')}</div>
+          <div class="resena-fecha">${fmtFecha(r.fecha)}</div>
+          <div class="resena-acts">
+            <button class="btn-sm btn-activar" onclick="aprobarResena('${r.id}')">✅ Aprobar</button>
+            <button class="btn-sm btn-eliminar" onclick="eliminarResena('${r.id}')">🗑️ Rechazar</button>
+          </div>
+        </div>`).join('');
+    } else {
+      html += '<div class="empty"><div class="ei">✅</div><p>No hay reseñas pendientes</p></div>';
+    }
+
+    if(aprobadas.length){
+      html += `<div class="sec-title" style="margin-top:32px;margin-bottom:12px">Aprobadas (${aprobadas.length})</div>`;
+      html += aprobadas.map(r=>`
+        <div class="resena-card" style="opacity:.7">
+          <div class="resena-head">
+            <div>
+              <div class="resena-autor">${esc(r.autor||'Anónimo')}</div>
+              <div class="resena-prestador">Para: ${esc(r.prestadorNombre||'—')}</div>
+            </div>
+            <div class="resena-stars">${'★'.repeat(r.estrellas||5)}</div>
+          </div>
+          <div class="resena-txt">${esc(r.comentario||'')}</div>
+          <div class="resena-acts">
+            <button class="btn-sm btn-eliminar" onclick="eliminarResena('${r.id}')">🗑️ Eliminar</button>
+          </div>
+        </div>`).join('');
+    }
+    el.innerHTML = html;
+  }
+
+  // ── ACCIONES PRESTADORES ──
+  window.cambiarEstado = async function(id, estado, nombre) {
+    await updateDoc(doc(db,'prestadores',id), { estado });
+    showToast(`✅ ${nombre} → ${estado}`);
+  };
+
+  window.cambiarPlan = async function(id, plan, nombre) {
+    await updateDoc(doc(db,'prestadores',id), { plan });
+    showToast(`⭐ ${nombre} → Plan ${plan==='pro'?'PRO':'Básico'}`);
+  };
+
+  window.eliminarPrestador = async function(id, nombre) {
+    if(!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    await deleteDoc(doc(db,'prestadores',id));
+    showToast(`🗑️ ${nombre} eliminado`);
+  };
+
+  // ── MODAL PAGO ──
+  let pagoPreId = null;
+
+  window.abrirModalPago = function() {
+    pagoPreId = null;
+    document.getElementById('p_prestador').value='';
+    document.getElementById('ov-pago').classList.add('open');
+  };
+
+  window.abrirModalPagoId = function(id) {
+    pagoPreId = id;
+    document.getElementById('p_prestador').value = id;
+    document.getElementById('ov-pago').classList.add('open');
+  };
+
+  function llenarSelectPrestadores() {
+    const sel = document.getElementById('p_prestador');
+    sel.innerHTML = '<option value="">— Seleccioná un prestador —</option>' +
+      PRESTADORES.map(p=>`<option value="${p.id}">${esc(p.nombre)} (${CAT[p.cat]||p.cat})</option>`).join('');
+    if(pagoPreId) sel.value = pagoPreId;
+  }
+
+  window.confirmarPago = async function() {
+    const prestId = document.getElementById('p_prestador').value;
+    const monto   = document.getElementById('p_monto').value;
+    const dias    = parseInt(document.getElementById('p_dur').value);
+    const plan    = document.getElementById('p_plan').value;
+
+    if(!prestId||!monto){ showToast('⚠️ Completá todos los campos'); return; }
+
+    const prest = PRESTADORES.find(p=>p.id===prestId);
+    const hoy = new Date();
+    const venc = new Date(hoy); venc.setDate(venc.getDate()+dias);
+    const vencStr = venc.toISOString().split('T')[0];
+
+    // Actualizar prestador
+    await updateDoc(doc(db,'prestadores',prestId), {
+      estado: 'activo', plan, vencimiento: vencStr
+    });
+
+    // Registrar pago
+    await addDoc(collection(db,'pagos'), {
+      prestadorId: prestId, nombre: prest?.nombre||'',
+      monto: Number(monto), plan, duracion: dias,
+      vencimiento: vencStr, fecha: serverTimestamp()
+    });
+
+    cerrarMod('pago');
+    showToast(`✅ Pago registrado · ${prest?.nombre} activado hasta ${vencStr}`);
+  };
+
+  // ── RESEÑAS ──
+  window.aprobarResena = async function(id) {
+    const r = RESENAS.find(r=>r.id===id);
+    if(!r) return;
+    await updateDoc(doc(db,'resenas',id), { aprobada: true });
+    // actualizar promedio del prestador
+    const delPrest = RESENAS.filter(x=>x.prestadorId===r.prestadorId&&x.aprobada).concat([{...r,aprobada:true}]);
+    const prom = delPrest.reduce((a,x)=>a+(x.estrellas||5),0)/delPrest.length;
+    await updateDoc(doc(db,'prestadores',r.prestadorId), {
+      estrellas: Math.round(prom*10)/10,
+      totalReseñas: delPrest.length
+    });
+    showToast('✅ Reseña aprobada');
+  };
+
+  window.eliminarResena = async function(id) {
+    if(!confirm('¿Eliminar esta reseña?')) return;
+    await deleteDoc(doc(db,'resenas',id));
+    showToast('🗑️ Reseña eliminada');
+  };
+
+  // ── FILTROS Y BÚSQUEDA ──
+  window.setFiltro = function(f, el) {
+    filtroActivo = f;
+    document.querySelectorAll('.filtro').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    renderPrestadores();
+  };
+
+  window.filtrarPrestadores = function(v) {
+    searchQ = v.toLowerCase().trim();
+    renderPrestadores();
+  };
+
+  // ── BADGES ──
+  function actualizarBadges() {
+    const pend = PRESTADORES.filter(p=>p.estado==='pendiente').length;
+    const resP = RESENAS.filter(r=>!r.aprobada).length;
+    document.getElementById('badgePend').textContent = pend;
+    document.getElementById('badgePend').style.display = pend?'inline-flex':'none';
+    document.getElementById('badgeRes').textContent = resP;
+    document.getElementById('badgeRes').style.display = resP?'inline-flex':'none';
+  }
+
+  // ── HELPERS ──
+  function esc(s){ return s?String(s).replace(/[&<>'"]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)):''; }
+
+  function fmtFecha(ts) {
+    if(!ts) return '—';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    } catch(e){ return '—'; }
+  }
+
+  // ── TOAST ──
+  let tT;
+  window.showToast = function(msg) {
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast show';
+    clearTimeout(tT); tT=setTimeout(()=>t.className='toast',4000);
+  };
+</script>
+
+<script>
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('panel-'+id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+  function cerrarMod(id){ document.getElementById('ov-'+id).classList.remove('open'); }
+  function closeMod(id,e){ if(e.target===document.getElementById('ov-'+id)) cerrarMod(id); }
+</script>
+</body>
+</html>
