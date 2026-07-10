@@ -392,6 +392,33 @@
   </div>
 </div>
 
+<!-- MODAL EDITAR PRESTADOR -->
+<div class="overlay" id="ov-editar" onclick="closeMod('editar',event)">
+  <div class="modal">
+    <h3>Editar prestador</h3>
+    <p>Modificá los datos básicos. El rubro y el plan se manejan desde la tabla.</p>
+    <input type="hidden" id="e_id"/>
+    <div class="form-row">
+      <div class="field"><label>Nombre *</label><input type="text" id="e_nombre" placeholder="Marcelo Ruiz"/></div>
+      <div class="field"><label>Negocio</label><input type="text" id="e_negocio" placeholder="Cerrajería Ruiz"/></div>
+    </div>
+    <div class="field"><label>Teléfono *</label><input type="tel" id="e_tel" placeholder="3516001234"/></div>
+    <div class="field"><label>Barrios donde trabaja</label><input type="text" id="e_zona" placeholder="Nueva Córdoba, Centro, Alberdi"/></div>
+    <div class="field"><label>Descripción</label><textarea id="e_desc" style="resize:vertical;min-height:80px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%" placeholder="Descripción del servicio…"></textarea></div>
+    <div class="field">
+      <label>¿Urgencias 24hs?</label>
+      <select id="e_urg">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarMod('editar')">Cancelar</button>
+      <button class="btn-ok" onclick="guardarEdicion()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL PAGO -->
 <div class="overlay" id="ov-pago" onclick="closeMod('pago',event)">
   <div class="modal">
@@ -609,6 +636,7 @@
       if(p.estado==='inactivo')  btns.push(`<button class="btn-sm btn-activar" onclick="cambiarEstado('${p.id}','activo','${esc(p.nombre)}')">▶️ Reactivar</button>`);
       if(p.plan!=='pro')         btns.push(`<button class="btn-sm btn-pro" onclick="cambiarPlan('${p.id}','pro','${esc(p.nombre)}')">⭐ PRO</button>`);
       if(p.plan==='pro')         btns.push(`<button class="btn-sm btn-gratis" onclick="cambiarPlan('${p.id}','gratis','${esc(p.nombre)}')">↓ Básico</button>`);
+      btns.push(`<button class="btn-sm" style="background:#2563EB;color:#fff" onclick="abrirEditar('${p.id}')">✏️ Editar</button>`);
       btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}','_blank')">💬</button>`);
       btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
 
@@ -704,6 +732,41 @@
     if(!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return;
     await deleteDoc(doc(db,'prestadores',id));
     showToast(`🗑️ ${nombre} eliminado`);
+  };
+
+  // ── EDITAR PRESTADOR ──
+  window.abrirEditar = function(id) {
+    const p = PRESTADORES.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('e_id').value     = id;
+    document.getElementById('e_nombre').value = p.nombre||'';
+    document.getElementById('e_negocio').value= p.negocio||'';
+    document.getElementById('e_tel').value    = p.telefono||'';
+    document.getElementById('e_zona').value   = p.zona||'';
+    document.getElementById('e_desc').value   = p.desc||'';
+    document.getElementById('e_urg').value    = p.urgencias?'si':'no';
+    document.getElementById('ov-editar').classList.add('open');
+  };
+
+  window.guardarEdicion = async function() {
+    const id     = document.getElementById('e_id').value;
+    const nombre = document.getElementById('e_nombre').value.trim();
+    const negocio= document.getElementById('e_negocio').value.trim();
+    const tel    = document.getElementById('e_tel').value.trim().replace(/\D/g,'');
+    const zona   = document.getElementById('e_zona').value.trim();
+    const desc   = document.getElementById('e_desc').value.trim();
+    const urg    = document.getElementById('e_urg').value;
+
+    if(!nombre||!tel){ showToast('⚠️ Nombre y teléfono son obligatorios.'); return; }
+
+    try {
+      await updateDoc(doc(db,'prestadores',id), { nombre, negocio, telefono:tel, zona, desc, urgencias:urg==='si' });
+      cerrarMod('editar');
+      showToast('✅ Datos actualizados correctamente.');
+    } catch(e) {
+      showToast('❌ Error al guardar. Intentá de nuevo.');
+      console.error(e);
+    }
   };
 
   // ── MODAL PAGO ──
