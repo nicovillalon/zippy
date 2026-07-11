@@ -463,10 +463,11 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp }
+  import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const ADMIN_EMAIL = "villalon242@gmail.com";
+  // Admins autorizados
+  const ADMIN_EMAILS = ["villalon242@gmail.com"];
 
   const app = initializeApp({
     apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
@@ -502,7 +503,7 @@
       document.getElementById('loginScreen').style.display = 'flex';
       return;
     }
-    if (user.email !== ADMIN_EMAIL) {
+    if (!ADMIN_EMAILS.includes(user.email)) {
       document.getElementById('deniedScreen').style.display = 'flex';
       return;
     }
@@ -800,39 +801,74 @@
     if(!prestId||!monto){ showToast('⚠️ Completá todos los campos'); return; }
 
     const prest = PRESTADORES.find(p=>p.id===prestId);
-    const hoy = new Date();
-    const venc = new Date(hoy); venc.setDate(venc.getDate()+dias);
+    const hoy   = new Date();
+
+    // Renovación anticipada: si tiene vencimiento futuro, extendemos desde ahí
+    let fechaBase = hoy;
+    if(prest?.vencimiento) {
+      const vencActual = new Date(prest.vencimiento);
+      if(vencActual > hoy) fechaBase = vencActual;
+    }
+
+    const venc    = new Date(fechaBase);
+    venc.setDate(venc.getDate() + dias);
     const vencStr = venc.toISOString().split('T')[0];
 
-    // Actualizar prestador
-    await updateDoc(doc(db,'prestadores',prestId), {
-      estado: 'activo', plan, vencimiento: vencStr
-    });
-
-    // Registrar pago
-    await addDoc(collection(db,'pagos'), {
-      prestadorId: prestId, nombre: prest?.nombre||'',
-      monto: Number(monto), plan, duracion: dias,
-      vencimiento: vencStr, fecha: serverTimestamp()
-    });
-
-    cerrarMod('pago');
-    showToast(`✅ Pago registrado · ${prest?.nombre} activado hasta ${vencStr}`);
+    try {
+      await updateDoc(doc(db,'prestadores',prestId), {
+        estado: 'activo', plan, vencimiento: vencStr
+      });
+      await addDoc(collection(db,'pagos'), {
+        prestadorId: prestId,
+        nombre:      prest?.nombre||'',
+        monto:       Number(monto),
+        plan, duracion: dias,
+        vencimiento: vencStr,
+        fecha:       serverTimestamp()
+      });
+      cerrarMod('pago');
+      const renovado = fechaBase > hoy ? ' (renovación anticipada)' : '';
+      showToast(`✅ Pago registrado · ${prest?.nombre} activo hasta ${vencStr}${renovado}`);
+    } catch(e) {
+      showToast('❌ Error al registrar pago.');
+      console.error(e);
+    }
   };
 
   // ── RESEÑAS ──
   window.aprobarResena = async function(id) {
-    const r = RESENAS.find(r=>r.id===id);
+    const r = RESENAS.find(x=>x.id===id);
     if(!r) return;
-    await updateDoc(doc(db,'resenas',id), { aprobada: true });
-    // actualizar promedio del prestador
-    const delPrest = RESENAS.filter(x=>x.prestadorId===r.prestadorId&&x.aprobada).concat([{...r,aprobada:true}]);
-    const prom = delPrest.reduce((a,x)=>a+(x.estrellas||5),0)/delPrest.length;
-    await updateDoc(doc(db,'prestadores',r.prestadorId), {
-      estrellas: Math.round(prom*10)/10,
-      totalReseñas: delPrest.length
-    });
-    showToast('✅ Reseña aprobada');
+
+    const resenaRef    = doc(db,'resenas',id);
+    const prestadorRef = doc(db,'prestadores',r.prestadorId);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const prestSnap = await transaction.get(prestadorRef);
+        if(!prestSnap.exists()) throw 'Prestador no encontrado';
+
+        const data = prestSnap.data();
+        const totalPrevio   = data.totalReseñas || 0;
+        const estrellasPrev = data.estrellas    || 0;
+        const nuevoTotal    = totalPrevio + 1;
+
+        // Primera reseña → promedio directo, sin dividir por cero
+        const nuevoProm = totalPrevio === 0
+          ? r.estrellas
+          : ((estrellasPrev * totalPrevio) + r.estrellas) / nuevoTotal;
+
+        transaction.update(resenaRef, { aprobada: true });
+        transaction.update(prestadorRef, {
+          totalReseñas: nuevoTotal,
+          estrellas:    parseFloat(nuevoProm.toFixed(1))
+        });
+      });
+      showToast('✅ Reseña aprobada y promedio actualizado');
+    } catch(e) {
+      showToast('❌ Error al aprobar: ' + e);
+      console.error(e);
+    }
   };
 
   window.eliminarResena = async function(id) {
