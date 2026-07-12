@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Términos y Condiciones – ZIPPY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #F5F0E8;
+      --bg-soft: #EDE8DE;
+      --white:   #FFFFFF;
+      --ink:     #111111;
+      --mid:     #444444;
+      --soft:    #888888;
+      --border:  #DDDDD5;
+      --accent:  #FACC15;
+      --radius:  10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--ink);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .logo-box {
+      background: var(--accent);
+      border-radius: 7px;
+      padding: 2px 8px;
+      display: inline-flex;
+    }
+    .logo-z  { color: var(--ink); }
+    .logo-r  { color: var(--ink); }
+
+    .btn-volver {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 8px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-volver:hover { background: rgba(255,255,255,.16); }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--ink);
+      padding: 56px 32px 48px;
+      text-align: center;
+      border-bottom: 3px solid var(--accent);
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 99px;
+      padding: 4px 14px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 15px;
+      color: rgba(255,255,255,.55);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .hero-meta {
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,.35);
+      letter-spacing: .5px;
+    }
+
+    /* ── ÍNDICE ── */
+    .indice-wrap {
+      max-width: 860px;
+      margin: 48px auto 0;
+      padding: 0 24px;
+    }
+    .indice {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+    }
+    .indice h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--soft);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .indice ol {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      counter-reset: idx;
+    }
+    .indice ol li { counter-increment: idx; }
+    .indice ol li a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--mid);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color .15s;
+    }
+    .indice ol li a::before {
+      content: counter(idx, decimal-leading-zero);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--bg-soft);
+      border-radius: 4px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+    .indice ol li a:hover { color: var(--ink); }
+
+    /* ── CONTENIDO ── */
+    .content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .seccion {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .sec-head {
+      background: var(--ink);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sec-num {
+      background: var(--accent);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 4px;
+      padding: 2px 8px;
+      letter-spacing: .5px;
+    }
+    .sec-head h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.2px;
+    }
+
+    .sec-body {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sec-body p {
+      font-size: 14px;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+
+    .sec-body strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .sec-body ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-left: 4px;
+    }
+    .sec-body ul li {
+      font-size: 14px;
+      color: var(--mid);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.65;
+    }
+    .sec-body ul li::before {
+      content: '→';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .alerta {
+      background: #FFFBEA;
+      border: 1.5px solid #FDE68A;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #92400E;
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .alerta .ai { font-size: 18px; flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      border-top: 3px solid var(--accent);
+      padding: 36px 24px;
+      text-align: center;
+    }
+    .foot-logo {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      margin-bottom: 10px;
+    }
+    .foot-logo .fz { color: var(--accent); }
+    .foot-logo .fr { color: #fff; }
+    footer p {
+      font-size: 12px;
+      color: rgba(255,255,255,.35);
+      line-height: 1.8;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    @media(max-width:600px){
+      header { padding: 0 16px; }
+      .hero { padding: 40px 16px 36px; }
+      .sec-body { padding: 18px 18px; }
+      .sec-head { padding: 14px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="zippy.html">
+    <div class="logo-box">
+      <span class="logo-z">Z</span><span class="logo-r">IPPY</span>
+    </div>
+  </a>
+  <a class="btn-volver" href="zippy.html">← Volver a ZIPPY</a>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Documento Legal</div>
+  <h1>Términos y Condiciones<br/>de Uso</h1>
+  <p>Leé atentamente antes de utilizar la plataforma, ya sea como usuario o como prestador de servicios.</p>
+  <div class="hero-meta">Última actualización: Julio de 2026 · Versión 1.0</div>
+</div>
+
+<!-- ÍNDICE -->
+<div class="indice-wrap">
+  <div class="indice">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#s1">Naturaleza del servicio</a></li>
+      <li><a href="#s2">Exclusión de relación laboral</a></li>
+      <li><a href="#s3">Exclusión de responsabilidad</a></li>
+      <li><a href="#s4">Condiciones para prestadores</a></li>
+      <li><a href="#s5">Moderación y baja de perfiles</a></li>
+      <li><a href="#s6">Datos personales y privacidad</a></li>
+      <li><a href="#s7">Reseñas y calificaciones</a></li>
+      <li><a href="#s8">Modificaciones a estos términos</a></li>
+      <li><a href="#s9">Jurisdicción y legislación aplicable</a></li>
+      <li><a href="#s10">Contacto</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="content">
+
+  <!-- 1 -->
+  <div class="seccion" id="s1">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>Naturaleza del Servicio</h2>
+    </div>
+    <div class="sec-body">
+      <p><strong>ZIPPY</strong> es una plataforma digital de cartelería e intermediación que opera en Córdoba, Argentina. Su único propósito es facilitar el contacto entre personas que requieren servicios del hogar y profesionales independientes que ofrecen dichos servicios.</p>
+      <p>ZIPPY <strong>no presta servicios de plomería, electricidad, cerrajería, herrería, albañilería, mecánica, pintura, gasista ni ningún otro oficio</strong>. La plataforma actúa exclusivamente como un medio de visibilidad y conexión digital entre partes.</p>
+      <p>El uso de la plataforma implica la aceptación plena e incondicional de los presentes Términos y Condiciones de Uso por parte de usuarios y prestadores.</p>
+      <div class="alerta">
+        <span class="ai">💡</span>
+        Al navegar, registrarse o contactar a un profesional a través de ZIPPY, el usuario acepta automáticamente los presentes términos en su totalidad.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="seccion" id="s2">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>Exclusión de Relación Laboral</h2>
+    </div>
+    <div class="sec-body">
+      <p>Los prestadores de servicios que se publican en ZIPPY son <strong>profesionales independientes y autónomos</strong>. No existe entre ellos y la plataforma ningún tipo de:</p>
+      <ul>
+        <li>Relación laboral, de dependencia o subordinación</li>
+        <li>Vínculo societario, asociativo o de representación</li>
+        <li>Relación de agencia, mandato o franquicia</li>
+        <li>Obligación de exclusividad o disponibilidad</li>
+      </ul>
+      <p>ZIPPY no fija los precios de los servicios, no establece metodologías de trabajo, no controla los horarios de los prestadores ni interviene en ninguna etapa del vínculo contractual entre el usuario y el profesional.</p>
+      <p>Cada prestador es el único responsable de su actividad, del cumplimiento de las normas fiscales aplicables y de cualquier obligación legal que derive de los servicios que presta.</p>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="seccion" id="s3">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Exclusión de Responsabilidad</h2>
+    </div>
+    <div class="sec-body">
+      <p>ZIPPY <strong>no asume ninguna responsabilidad</strong> por situaciones derivadas del vínculo directo entre usuarios y prestadores. En particular, y sin que esto implique limitación alguna, ZIPPY queda expresamente excluida de toda responsabilidad por:</p>
+      <ul>
+        <li>La calidad, idoneidad o resultado de los trabajos realizados</li>
+        <li>Incumplimientos, demoras o ausencias del prestador</li>
+        <li>Daños materiales, personales o patrimoniales ocurridos durante o después de la prestación</li>
+        <li>Discrepancias entre el presupuesto acordado y el monto final cobrado</li>
+        <li>Fraudes, estafas o conductas dolosas de cualquiera de las partes</li>
+        <li>Información inexacta, desactualizada o falsa provista por el prestador en su perfil</li>
+        <li>Disputas económicas, contractuales o de cualquier otra índole entre usuarios y prestadores</li>
+      </ul>
+      <div class="alerta">
+        <span class="ai">⚠️</span>
+        El contacto, la negociación y la contratación del servicio se realizan de forma directa y exclusiva entre el usuario y el prestador. ZIPPY no interviene en ninguna de estas instancias.
+      </div>
+      <p>Se recomienda a los usuarios verificar la identidad y habilitaciones del profesional antes de contratar sus servicios, solicitar presupuesto por escrito y conservar comprobantes de los trabajos realizados.</p>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="seccion" id="s4">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>Condiciones para Prestadores</h2>
+    </div>
+    <div class="sec-body">
+      <p>Para publicar un perfil en ZIPPY, el prestador declara y garantiza que:</p>
+      <ul>
+        <li>Tiene capacidad legal para ejercer el oficio declarado en la plataforma</li>
+        <li>La información provista en su perfil es verídica, actual y no induce a error</li>
+        <li>Abonará la suscripción vigente en la plataforma para mantener su perfil activo</li>
+        <li>No utilizará la plataforma para actividades ilegales, engañosas o contrarias a las buenas costumbres</li>
+        <li>Acepta que su perfil puede ser dado de baja sin previo aviso en caso de incumplimiento</li>
+      </ul>
+      <p>La publicación del perfil está sujeta al pago de una suscripción periódica. El impago de la misma resultará en la desactivación automática del perfil hasta que se regularice la situación. <strong>ZIPPY no reembolsará suscripciones abonadas bajo ningún concepto.</strong></p>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="seccion" id="s5">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>Moderación y Baja de Perfiles</h2>
+    </div>
+    <div class="sec-body">
+      <p>ZIPPY se reserva el derecho de <strong>suspender, modificar o eliminar cualquier perfil</strong> de prestador, sin necesidad de notificación previa ni obligación de fundar la decisión, en los siguientes supuestos:</p>
+      <ul>
+        <li>Información falsa, engañosa o que suplante la identidad de otra persona</li>
+        <li>Reiteradas quejas de usuarios sobre la conducta o el trabajo del prestador</li>
+        <li>Comportamiento que afecte la reputación de la plataforma o de terceros</li>
+        <li>Falta de pago de la suscripción</li>
+        <li>Solicitud expresa y fundada del propio prestador</li>
+        <li>Cualquier otra causa que ZIPPY considere suficiente a su exclusivo criterio</li>
+      </ul>
+      <p>La baja de un perfil no genera derecho a indemnización ni reembolso de ningún tipo.</p>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="seccion" id="s6">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>Datos Personales y Privacidad</h2>
+    </div>
+    <div class="sec-body">
+      <p>Al registrarse en ZIPPY, el prestador <strong>autoriza expresa y voluntariamente</strong> la publicación de los siguientes datos en la plataforma, con fines estrictamente laborales y de visibilidad comercial:</p>
+      <ul>
+        <li>Nombre completo o nombre comercial del negocio</li>
+        <li>Número de teléfono celular o WhatsApp</li>
+        <li>Zona o barrios de cobertura declarados</li>
+        <li>Descripción del servicio ofrecido</li>
+        <li>Calificación y reseñas recibidas de usuarios</li>
+      </ul>
+      <p>ZIPPY no comercializa, cede ni transfiere los datos personales de usuarios o prestadores a terceros con fines publicitarios o de marketing. Los datos se utilizan exclusivamente para el funcionamiento de la plataforma.</p>
+      <p>El prestador puede solicitar la baja de su perfil y la eliminación de sus datos en cualquier momento, contactándose con ZIPPY por los canales habilitados. La baja no implica la eliminación de reseñas ya publicadas por terceros.</p>
+      <p>La plataforma se rige por las disposiciones de la <strong>Ley Nacional N° 25.326 de Protección de Datos Personales</strong> de la República Argentina y sus normas reglamentarias.</p>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="seccion" id="s7">
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <h2>Reseñas y Calificaciones</h2>
+    </div>
+    <div class="sec-body">
+      <p>Los usuarios pueden dejar reseñas y calificaciones sobre los prestadores. ZIPPY se reserva el derecho de:</p>
+      <ul>
+        <li>Moderar y aprobar las reseñas antes de su publicación</li>
+        <li>Rechazar o eliminar reseñas que contengan lenguaje ofensivo, discriminatorio o falso</li>
+        <li>Rechazar reseñas que parezcan generadas de manera fraudulenta o malintencionada</li>
+        <li>Eliminar reseñas a pedido fundado del prestador evaluado</li>
+      </ul>
+      <p>Las reseñas publicadas representan la opinión personal de los usuarios y <strong>no constituyen la posición oficial de ZIPPY</strong> sobre la calidad de ningún prestador. La plataforma no verifica la veracidad de los comentarios ni avala el contenido de los mismos.</p>
+      <div class="alerta">
+        <span class="ai">⚠️</span>
+        La publicación de reseñas falsas, difamatorias o con la intención de dañar la reputación de un prestador puede dar lugar a acciones legales por parte del afectado, sin perjuicio alguno para ZIPPY.
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="seccion" id="s8">
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <h2>Modificaciones a estos Términos</h2>
+    </div>
+    <div class="sec-body">
+      <p>ZIPPY se reserva el derecho de <strong>modificar los presentes Términos y Condiciones en cualquier momento</strong>, sin necesidad de notificación previa individual a los usuarios o prestadores.</p>
+      <p>Las modificaciones entrarán en vigencia desde el momento de su publicación en la plataforma. La fecha de última actualización indicada al inicio del documento permitirá identificar la versión vigente.</p>
+      <p>El uso continuado de la plataforma por parte de usuarios o prestadores, con posterioridad a la publicación de los nuevos términos, implicará la aceptación tácita de los mismos.</p>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="seccion" id="s9">
+    <div class="sec-head">
+      <span class="sec-num">09</span>
+      <h2>Jurisdicción y Legislación Aplicable</h2>
+    </div>
+    <div class="sec-body">
+      <p>Los presentes Términos y Condiciones se rigen por las leyes de la <strong>República Argentina</strong>. Cualquier controversia que surja entre las partes en relación con la plataforma será sometida a la jurisdicción de los <strong>Tribunales Ordinarios de la Ciudad de Córdoba</strong>, con renuncia expresa a cualquier otro fuero que pudiera corresponder.</p>
+      <p>En particular, resultan de aplicación:</p>
+      <ul>
+        <li>Ley N° 25.326 — Protección de Datos Personales</li>
+        <li>Ley N° 24.240 — Defensa del Consumidor y sus modificatorias</li>
+        <li>Ley N° 25.065 — Comercio Electrónico</li>
+        <li>Código Civil y Comercial de la Nación Argentina</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="seccion" id="s10">
+    <div class="sec-head">
+      <span class="sec-num">10</span>
+      <h2>Contacto</h2>
+    </div>
+    <div class="sec-body">
+      <p>Para consultas, solicitudes de baja de perfil, reclamos o cualquier comunicación relacionada con estos Términos y Condiciones, podés contactarte con ZIPPY a través de los canales oficiales disponibles en la plataforma.</p>
+      <p>ZIPPY responderá las consultas dentro de un plazo razonable y a su exclusivo criterio, sin que ello implique el reconocimiento de obligación alguna.</p>
+      <div class="alerta">
+        <span class="ai">📋</span>
+        Al utilizar ZIPPY declarás haber leído, comprendido y aceptado en su totalidad los presentes Términos y Condiciones de Uso.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">
+    <span class="fz">Z</span><span class="fr">IPPY</span>
+  </div>
+  <p>
+    Plataforma de oficios para Córdoba, Argentina<br/>
+    <a href="zippy.html">← Volver a la plataforma</a><br/><br/>
+    <span style="opacity:.5">© 2026 ZIPPY · Todos los derechos reservados</span>
+  </p>
+</footer>
+
+</body>
+</html>
