@@ -752,6 +752,7 @@
           <option value="mecanica">🔧 Mecánica</option>
           <option value="pintura">🖌️ Pintura</option>
           <option value="gasista">🔥 Gasista</option>
+          <option value="aires">❄️ Aire Acondicionado</option>
         </select>
       </div>
     </div>
@@ -806,6 +807,7 @@
         <a href="#" onclick="filterBy('mecanica')">Mecánica</a>
         <a href="#" onclick="filterBy('pintura')">Pintura</a>
         <a href="#" onclick="filterBy('gasista')">Gasista</a>
+        <a href="#" onclick="filterBy('aires')">Aire Acond.</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -839,6 +841,7 @@
     {id:'mecanica',    label:'Mecánica',    emoji:'🔧'},
     {id:'pintura',     label:'Pintura',     emoji:'🖌️'},
     {id:'gasista',     label:'Gasista',     emoji:'🔥'},
+    {id:'aires',       label:'Aire Acond.', emoji:'❄️'},
   ];
   const CM={}; CATS.forEach(c=>CM[c.id]=c);
   window.CATS=CATS; window.CM=CM;
