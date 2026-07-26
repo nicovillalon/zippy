@@ -248,6 +248,19 @@
     .btn-cancel { background: var(--bg-soft); border: 1px solid var(--border); color: var(--ink); border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-ok { background: var(--ink); border: none; color: #fff; border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
 
+    /* FINANCIERO */
+    .fin-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:8px; }
+    @media(max-width:768px){ .fin-grid{grid-template-columns:repeat(2,1fr);} }
+    .fin-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--radius); padding:18px 20px;
+    }
+    .fin-card.ok { border-left:3px solid var(--success); }
+    .fin-label { font-size:11px; font-weight:700; color:var(--soft); text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+    .fin-val { font-size:26px; font-weight:800; letter-spacing:-1px; color:var(--ink); }
+    .fin-card.ok .fin-val { color:var(--success); }
+    .fin-sub { font-size:12px; color:var(--soft); margin-top:3px; }
+
     /* TOAST */
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; border-radius: 99px; padding: 12px 24px; font-size: 13px; font-weight: 500; z-index: 500; display: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
     .toast.show { display: block; animation: tIn .2s ease; }
@@ -341,6 +354,30 @@
       <div class="sec-title">⚠️ Pendientes de activación <span>Registrados que esperan pago</span></div>
       <div id="dashPend"></div>
 
+      <div class="sec-title" style="margin-top:32px">💰 Resumen financiero</div>
+      <div class="fin-grid">
+        <div class="fin-card ok">
+          <div class="fin-label">Hoy</div>
+          <div class="fin-val" id="finHoy">$0</div>
+          <div class="fin-sub" id="finHoyN">0 pagos</div>
+        </div>
+        <div class="fin-card">
+          <div class="fin-label">Este mes</div>
+          <div class="fin-val" id="finMes">$0</div>
+          <div class="fin-sub" id="finMesN">0 pagos</div>
+        </div>
+        <div class="fin-card">
+          <div class="fin-label">Este año</div>
+          <div class="fin-val" id="finAnio">$0</div>
+          <div class="fin-sub" id="finAnioN">0 pagos</div>
+        </div>
+        <div class="fin-card ok">
+          <div class="fin-label">Total histórico</div>
+          <div class="fin-val" id="finTotal">$0</div>
+          <div class="fin-sub" id="finTotalN">0 pagos</div>
+        </div>
+      </div>
+
       <div class="sec-title" style="margin-top:32px">🔔 Vencen esta semana <span>Contactalos para renovar</span></div>
       <div id="dashVenc"></div>
     </div>
@@ -379,7 +416,30 @@
 
     <!-- PAGOS -->
     <div class="panel" id="panel-pagos">
-      <div class="sec-title">💰 Historial de pagos</div>
+      <!-- Filtros de período -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
+        <div class="filtros" style="margin-bottom:0">
+          <div class="filtro active" onclick="setPeriodoPago('todos',this)">Todo</div>
+          <div class="filtro" onclick="setPeriodoPago('hoy',this)">Hoy</div>
+          <div class="filtro" onclick="setPeriodoPago('semana',this)">Esta semana</div>
+          <div class="filtro" onclick="setPeriodoPago('mes',this)">Este mes</div>
+          <div class="filtro" onclick="setPeriodoPago('anio',this)">Este año</div>
+        </div>
+      </div>
+      <!-- Totales del período -->
+      <div class="fin-grid" style="margin-bottom:24px">
+        <div class="fin-card ok" style="grid-column:span 2">
+          <div class="fin-label" id="periodoLabel">Total período</div>
+          <div class="fin-val" id="periodoTotal">$0</div>
+          <div class="fin-sub" id="periodoN">0 pagos</div>
+        </div>
+        <div class="fin-card" style="grid-column:span 2">
+          <div class="fin-label">Promedio por pago</div>
+          <div class="fin-val" id="periodoPromedio">$0</div>
+          <div class="fin-sub">en el período seleccionado</div>
+        </div>
+      </div>
+      <div class="sec-title">📋 Detalle de pagos</div>
       <div id="listaPagos"></div>
     </div>
 
@@ -534,6 +594,7 @@
     onSnapshot(query(collection(db,'pagos'), orderBy('fecha','desc')), snap => {
       PAGOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderPagos();
+      renderFinanciero();
     });
 
     // Reseñas
@@ -656,19 +717,91 @@
   }
 
   // ── PAGOS ──
+  let periodoActivo = 'todos';
+
+  function getTs(p) {
+    if(!p.fecha) return 0;
+    return p.fecha.toMillis ? p.fecha.toMillis() : new Date(p.fecha).getTime();
+  }
+
+  function pagosFiltradosPorPeriodo(periodo) {
+    const hoy   = new Date();
+    const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const lunesMs = hoyMs - (hoy.getDay()===0?6:hoy.getDay()-1)*86400000;
+    const inicioMes  = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1).getTime();
+
+    return PAGOS.filter(p => {
+      const ts = getTs(p);
+      if(periodo === 'hoy')   return ts >= hoyMs;
+      if(periodo === 'semana')return ts >= lunesMs;
+      if(periodo === 'mes')   return ts >= inicioMes;
+      if(periodo === 'anio')  return ts >= inicioAnio;
+      return true;
+    });
+  }
+
+  function formatPeso(n) {
+    return '$' + Number(n||0).toLocaleString('es-AR');
+  }
+
+  function renderFinanciero() {
+    const hoy    = new Date();
+    const hoyMs  = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const inicioMes  = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1).getTime();
+
+    const calcular = (lista) => ({
+      total: lista.reduce((a,p)=>a+(p.monto||0),0),
+      n: lista.length
+    });
+
+    const dHoy   = calcular(PAGOS.filter(p=>getTs(p)>=hoyMs));
+    const dMes   = calcular(PAGOS.filter(p=>getTs(p)>=inicioMes));
+    const dAnio  = calcular(PAGOS.filter(p=>getTs(p)>=inicioAnio));
+    const dTotal = calcular(PAGOS);
+
+    document.getElementById('finHoy').textContent    = formatPeso(dHoy.total);
+    document.getElementById('finHoyN').textContent   = dHoy.n + ' pago' + (dHoy.n!==1?'s':'');
+    document.getElementById('finMes').textContent    = formatPeso(dMes.total);
+    document.getElementById('finMesN').textContent   = dMes.n + ' pago' + (dMes.n!==1?'s':'');
+    document.getElementById('finAnio').textContent   = formatPeso(dAnio.total);
+    document.getElementById('finAnioN').textContent  = dAnio.n + ' pago' + (dAnio.n!==1?'s':'');
+    document.getElementById('finTotal').textContent  = formatPeso(dTotal.total);
+    document.getElementById('finTotalN').textContent = dTotal.n + ' pago' + (dTotal.n!==1?'s':'') + ' histórico';
+  }
+
   function renderPagos() {
+    const lista = pagosFiltradosPorPeriodo(periodoActivo);
+    const totalPeriodo = lista.reduce((a,p)=>a+(p.monto||0),0);
+    const promedio = lista.length ? Math.round(totalPeriodo/lista.length) : 0;
+
+    const labelMap = {todos:'Total histórico',hoy:'Total hoy',semana:'Total esta semana',mes:'Total este mes',anio:'Total este año'};
+    document.getElementById('periodoLabel').textContent   = labelMap[periodoActivo]||'Total';
+    document.getElementById('periodoTotal').textContent   = formatPeso(totalPeriodo);
+    document.getElementById('periodoN').textContent       = lista.length + ' pago' + (lista.length!==1?'s':'');
+    document.getElementById('periodoPromedio').textContent= formatPeso(promedio);
+
     const el = document.getElementById('listaPagos');
-    if(!PAGOS.length){ el.innerHTML='<div class="empty"><div class="ei">💰</div><p>No hay pagos registrados aún</p></div>'; return; }
-    el.innerHTML = PAGOS.map(p=>`
+    if(!lista.length){ el.innerHTML='<div class="empty"><div class="ei">💰</div><p>No hay pagos en este período</p></div>'; return; }
+
+    el.innerHTML = lista.map(p=>`
       <div class="pago-card">
         <div class="pago-info">
           <div class="pago-nombre">${esc(p.nombre||'—')}</div>
           <div class="pago-detalle">${p.plan==='pro'?'⭐ Plan PRO':'Plan Básico'} · ${p.duracion||30} días · ${fmtFecha(p.fecha)}</div>
         </div>
-        <div class="pago-monto">$${Number(p.monto||0).toLocaleString('es-AR')}</div>
+        <div class="pago-monto">${formatPeso(p.monto)}</div>
         <div class="pago-fecha">Vence: ${p.vencimiento||'—'}</div>
       </div>`).join('');
   }
+
+  window.setPeriodoPago = function(periodo, el) {
+    periodoActivo = periodo;
+    document.querySelectorAll('#panel-pagos .filtro').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    renderPagos();
+  };
 
   // ── RESEÑAS ──
   function renderResenas() {
