@@ -272,10 +272,67 @@
     .empty p { font-size: 14px; }
 
     @media(max-width:768px){
-      .content { padding: 20px 16px; }
-      .admin-header { padding: 0 16px; }
-      table { font-size: 12px; }
-      th, td { padding: 10px 12px; }
+      /* GENERAL */
+      .content { padding: 16px; }
+      .admin-header { padding: 0 16px; gap: 10px; }
+      .admin-logo .tag { display: none; }
+      .admin-user span { display: none; }
+
+      /* TABS */
+      .nav-tabs { padding: 0 8px; }
+      .nav-tab { padding: 12px 10px; font-size: 12px; }
+
+      /* STATS */
+      .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .stat-val { font-size: 28px; }
+      .fin-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .fin-val { font-size: 22px; }
+
+      /* TABLA → CARDS en mobile */
+      .table-wrap { border: none; background: transparent; border-radius: 0; }
+      table thead { display: none; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      tr {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius); margin-bottom: 12px;
+        padding: 14px; position: relative;
+      }
+      td { padding: 4px 0; border: none; font-size: 13px; }
+      td::before {
+        content: attr(data-label);
+        font-size: 10px; font-weight: 700; color: var(--soft);
+        text-transform: uppercase; letter-spacing: .5px;
+        display: block; margin-bottom: 2px;
+      }
+      td:empty { display: none; }
+
+      /* ACCIONES en mobile */
+      .actions { flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .btn-sm { padding: 7px 10px; font-size: 11px; }
+
+      /* FILTROS */
+      .filtros { gap: 6px; }
+      .filtro { padding: 5px 12px; font-size: 12px; }
+
+      /* SEARCH BAR */
+      .search-bar { max-width: 100%; }
+
+      /* PAGO CARDS */
+      .pago-card { flex-direction: column; gap: 8px; align-items: flex-start; }
+      .pago-fecha { text-align: left; }
+
+      /* MODALES */
+      .modal { padding: 20px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+
+      /* SEC TITLE */
+      .sec-title { font-size: 14px; flex-wrap: wrap; }
+    }
+
+    @media(max-width:480px){
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .nav-tab { padding: 10px 8px; font-size: 11px; }
+      .admin-logo { font-size: 18px; }
     }
   </style>
 </head>
@@ -704,14 +761,14 @@
       btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
 
       return `<tr>
-        <td><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
-        <td>${CAT[p.cat]||p.cat||'—'}</td>
-        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.zona||'—')}</td>
-        <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">${p.telefono}</a></td>
-        <td><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span></td>
-        <td><span class="badge ${p.plan||'gratis'}">${p.plan==='pro'?'⭐ PRO':'Básico'}</span></td>
-        <td><span class="${vencClass}">${p.vencimiento||'—'}</span></td>
-        <td><div class="actions">${btns.join('')}</div></td>
+        <td data-label="Prestador"><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
+        <td data-label="Rubro">${CAT[p.cat]||p.cat||'—'}</td>
+        <td data-label="Zona" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.zona||'—')}</td>
+        <td data-label="Teléfono" class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">${p.telefono}</a></td>
+        <td data-label="Estado"><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span></td>
+        <td data-label="Plan"><span class="badge ${p.plan||'gratis'}">${p.plan==='pro'?'⭐ PRO':'Básico'}</span></td>
+        <td data-label="Vencimiento"><span class="${vencClass}">${p.vencimiento||'—'}</span></td>
+        <td data-label="Acciones"><div class="actions">${btns.join('')}</div></td>
       </tr>`;
     }).join('');
   }
