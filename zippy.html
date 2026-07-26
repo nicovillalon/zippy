@@ -1030,7 +1030,7 @@
       const c=CM[p.cat]||{};
       const tel=(p.telefono||'').replace(/\D/g,'');
       const wa='549'+tel;
-      const msg=encodeURIComponent(`Hola ${esc(p.nombre)}, te encuentro en ZIPPY. Necesito un servicio de ${c.label||p.cat}.`);
+      const msg=encodeURIComponent(`Hola ${esc(p.nombre)}, te contacto desde ZIPPY. Necesito un servicio de ${c.label||p.cat}.`);
       const ts=p.creado?(p.creado.toMillis?p.creado.toMillis():new Date(p.creado).getTime()):0;
       const isNew=(now-ts)<86400000*3;
       const r=p.estrellas;
