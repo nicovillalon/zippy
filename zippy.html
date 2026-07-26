@@ -175,6 +175,18 @@
     }
     .hs-btn:hover { background: #222; }
 
+    /* wrapper field — transparente en desktop, visible en mobile */
+    .hs-field { display: contents; }
+
+    /* BUSCADOR — estructura nueva */
+    .hero-search { width: 100%; max-width: 600px; position: relative; }
+
+    /* desktop: los wrappers son invisibles, el hs-box maneja el layout */
+    .hs-row { display: contents; }
+    .hs-input-wrap { display: contents; }
+    .hs-ico2 { display: none; }
+
+    /* DROPDOWN */
     .b-drop {
       position: absolute; top: calc(100% + 6px); left: 0; right: 0;
       background: var(--bg); border: 1.5px solid var(--border);
@@ -556,18 +568,91 @@
     .footer-bottom p { font-size: 13px; color: var(--ink-soft); }
 
     /* ══════════════════════════════
-       RESPONSIVE
+       RESPONSIVE MOBILE
     ══════════════════════════════ */
     @media(max-width:768px){
-      .header-top { padding: 0 16px; height: 64px; }
+
+      /* HEADER */
+      .header-top { padding: 12px 16px; height: auto; justify-content: space-between; gap: 12px; }
       .search-pill { display: none; }
       .btn-link { display: none; }
-      .hero { padding: 40px 16px 36px; }
-      .main { padding: 24px 16px 48px; }
-      .banner-section { padding: 40px 16px; }
-      .how-section { padding: 40px 16px; }
-      footer { padding: 32px 16px; }
-      .cats-bar { top: 64px; }
+      .logo { font-size: 22px; letter-spacing: -1.5px; }
+      .btn-pub { padding: 9px 14px; font-size: 13px; border-radius: 10px; }
+
+      /* HERO */
+      .hero { padding: 28px 16px 24px; }
+      .hero-inner { gap: 14px; align-items: flex-start; }
+      .hero h1 { font-size: 34px; letter-spacing: -1.5px; line-height: 1.05; }
+      .hero-sub { font-size: 15px; color: #222222; max-width: 100%; }
+
+      /* BUSCADOR mobile — columna apilada */
+      .hero-search { max-width: 100%; display: flex; flex-direction: column; gap: 10px; }
+      .hs-row { display: block; position: relative; width: 100%; }
+      .hs-input-wrap {
+        display: flex; align-items: center;
+        background: #ffffff; border: 1.5px solid var(--border);
+        border-radius: var(--radius); overflow: hidden; width: 100%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      }
+      .hs-input-wrap:focus-within { border-color: var(--ink); }
+      .hs-ico2 {
+        display: flex; align-items: center;
+        padding: 0 14px; flex-shrink: 0; color: var(--ink-soft);
+      }
+      .hs-input-wrap input {
+        flex: 1; padding: 16px 14px 16px 0;
+        font-size: 15px; min-width: 0; color: var(--ink);
+        border: none; outline: none; background: transparent;
+        font-family: 'Outfit', sans-serif;
+      }
+      .hs-input-wrap input::placeholder { color: var(--ink-soft); }
+      /* ocultar el hs-box original en mobile */
+      .hs-box { display: none !important; }
+      .hs-btn {
+        display: flex !important; align-items: center; justify-content: center; gap: 8px;
+        width: 100% !important; border-radius: var(--radius) !important;
+        padding: 16px !important; font-size: 15px !important; height: auto !important;
+        font-weight: 700;
+      }
+
+      /* TRUST ROW */
+      .trust-row { flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 6px; }
+      .trust-item { font-size: 14px; color: var(--ink); gap: 10px; font-weight: 500; }
+      .trust-item svg { color: var(--ink); flex-shrink: 0; }
+
+      /* GPS */
+      .btn-gps { font-size: 13px; padding: 9px 16px; }
+
+      /* CATEGORÍAS — bottom nav fijo */
+      .cats-bar {
+        position: fixed !important;
+        bottom: 0; left: 0; right: 0;
+        top: auto !important;
+        z-index: 250;
+        border-top: 1px solid var(--border);
+        border-bottom: none;
+        background: rgba(245,240,232,0.97);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.07);
+        padding-bottom: env(safe-area-inset-bottom, 8px);
+      }
+      .cats-inner { padding: 0 4px; }
+      .cat-tab { padding: 10px 12px; min-width: 60px; gap: 4px; }
+      .cat-tab-icon { font-size: 22px; }
+      .cat-tab-label { font-size: 10px; font-weight: 600; color: var(--ink-mid); }
+      .cat-tab-n { display: none !important; }
+
+      /* CONTENIDO — espacio para el bottom nav */
+      .main { padding: 20px 16px 90px; }
+      .banner-section { padding: 32px 16px; }
+      .how-section { padding: 32px 16px; }
+      footer { padding: 28px 16px 90px; }
+    }
+
+    @media(max-width:400px){
+      .hero h1 { font-size: 30px; }
+      .cat-tab { padding: 8px 10px; min-width: 54px; }
+      .cat-tab-label { font-size: 9px; }
     }
   </style>
 </head>
@@ -611,20 +696,34 @@
     <p class="hero-sub">Plomeros, electricistas, cerrajeros y más — verificados, con reseñas reales, en tu barrio.</p>
 
     <div class="hero-search" id="heroSearch">
-      <div class="hs-box">
-        <span class="hs-icon">🔧</span>
-        <input type="text" id="hsRubro" placeholder="¿Qué servicio necesitás?" autocomplete="off"
-          oninput="filtrarRubros(this.value)" onfocus="abrirDropRubro()" onblur="cerrarDropRubro()"
-          style="min-width:0"/>
-        <div class="b-drop" id="rubroDrop" style="left:0;right:auto;width:260px"></div>
-        <span class="hs-sep"></span>
-        <span class="hs-icon" style="position:relative;left:auto;transform:none;padding:0 10px">📍</span>
-        <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
-          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"
-          style="min-width:0"/>
-        <button class="hs-btn" onclick="applySearch()">Buscar</button>
+
+      <!-- CAMPO RUBRO -->
+      <div class="hs-row" style="position:relative">
+        <div class="hs-input-wrap">
+          <span class="hs-ico2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
+          <input type="text" id="hsRubro" placeholder="¿Qué servicio necesitás?" autocomplete="off"
+            oninput="filtrarRubros(this.value)" onfocus="abrirDropRubro()" onblur="cerrarDropRubro()"/>
+        </div>
+        <div class="b-drop" id="rubroDrop"></div>
       </div>
-      <div class="b-drop" id="bDrop"></div>
+
+      <!-- CAMPO BARRIO -->
+      <div class="hs-row" style="position:relative">
+        <div class="hs-input-wrap">
+          <span class="hs-ico2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
+            oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
+        </div>
+        <div class="b-drop" id="bDrop"></div>
+      </div>
+
+      <!-- BOTÓN -->
+      <button class="hs-btn" onclick="applySearch()">Buscar</button>
+
     </div>
 
     <div id="locTag" style="display:none">
@@ -642,9 +741,18 @@
     </button>
 
     <div class="trust-row">
-      <div class="trust-item"><span class="ti">✅</span> Profesionales verificados</div>
-      <div class="trust-item"><span class="ti">💬</span> Reseñas reales de vecinos</div>
-      <div class="trust-item"><span class="ti">📞</span> Contacto directo, sin intermediarios</div>
+      <div class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Profesionales verificados
+      </div>
+      <div class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Reseñas reales de vecinos
+      </div>
+      <div class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+        Contacto directo, sin intermediarios
+      </div>
     </div>
   </div>
 </section>
