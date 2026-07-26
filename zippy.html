@@ -504,21 +504,22 @@
     .btn-submit:hover { background: #222; }
     .btn-submit:disabled { opacity: .6; cursor: default; }
 
+    /* GPS inline dentro del campo barrio */
+    .btn-gps-inline {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--ink); border: none; color: #fff;
+      border-radius: 8px; margin: 6px 8px;
+      padding: 8px 12px; font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
+      transition: background .2s; letter-spacing: .2px;
+    }
+    .btn-gps-inline:hover { background: #333; }
+    .btn-gps-inline.activo { background: var(--success); }
+    .btn-gps-inline.loading { opacity: .7; cursor: wait; }
+
     /* GPS */
-    .btn-gps {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      color: var(--ink); border-radius: 99px;
-      padding: 10px 20px; font-family: 'Outfit', sans-serif;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all .2s; margin-top: 4px;
-    }
-    .btn-gps:hover { border-color: var(--ink); background: var(--bg-hover); }
-    .btn-gps.loading { opacity: .7; cursor: wait; }
-    .btn-gps.activo {
-      background: var(--ink); color: #fff;
-      border-color: var(--ink);
-    }
+    .btn-gps { display: none; }
 
     /* ══════════════════════════════
        TOAST
@@ -693,7 +694,7 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">⚡ Córdoba Capital</div>
     <h1>Encontrá el profesional<br/>que necesitás, hoy.</h1>
-    <p class="hero-sub"></p>
+    <p class="hero-sub">Plomeros, electricistas, cerrajeros y más — verificados, con reseñas reales, en tu barrio.</p>
 
     <div class="hero-search" id="heroSearch">
 
@@ -717,6 +718,12 @@
           </span>
           <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
             oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
+          <button class="btn-gps-inline" id="btnGps" onclick="usarUbicacion()">
+            <span id="gpsIcon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg>
+            </span>
+            <span id="gpsTxt">Mi ubicación</span>
+          </button>
         </div>
         <div class="b-drop" id="bDrop"></div>
       </div>
@@ -733,12 +740,6 @@
         <span class="lx">×</span>
       </span>
     </div>
-
-    <!-- BOTÓN GPS -->
-    <button class="btn-gps" id="btnGps" onclick="usarUbicacion()">
-      <span id="gpsIcon">📍</span>
-      <span id="gpsTxt">Usar mi ubicación</span>
-    </button>
 
     <div class="trust-row">
       <div class="trust-item">
@@ -1402,15 +1403,13 @@
       return;
     }
 
-    const btn = document.getElementById('btnGps');
+    const btn  = document.getElementById('btnGps');
     const icon = document.getElementById('gpsIcon');
     const txt  = document.getElementById('gpsTxt');
-    btn.classList.add('loading');
-    icon.textContent = '⏳';
-    txt.textContent  = 'Detectando ubicación…';
+    if(btn) btn.classList.add('loading');
+    if(txt) txt.textContent = 'Buscando…';
 
     navigator.geolocation.getCurrentPosition(
-      // ÉXITO
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
@@ -1418,30 +1417,23 @@
 
         if(!barrio){
           showToast('⚠️ No pudimos detectar tu barrio.');
-          btn.classList.remove('loading');
-          icon.textContent = '📍';
-          txt.textContent  = 'Usar mi ubicación';
+          if(btn){ btn.classList.remove('loading'); }
+          if(txt) txt.textContent = 'Mi ubicación';
           return;
         }
 
-        // Actualizar UI
-        btn.classList.remove('loading');
-        btn.classList.add('activo');
-        icon.textContent = '✅';
-        txt.textContent  = barrio.nombre;
+        if(btn){ btn.classList.remove('loading'); btn.classList.add('activo'); }
+        if(txt) txt.textContent = barrio.nombre;
 
-        // Aplicar filtro igual que si lo hubiera escrito
         elegirBarrio(barrio.nombre);
       },
-      // ERROR
       (err) => {
-        btn.classList.remove('loading');
-        icon.textContent = '📍';
-        txt.textContent  = 'Usar mi ubicación';
+        if(btn){ btn.classList.remove('loading'); }
+        if(txt) txt.textContent = 'Mi ubicación';
         if(err.code === 1){
-          showToast('⚠️ Permiso de ubicación denegado. Buscá tu barrio manualmente.');
+          showToast('⚠️ Permiso denegado. Buscá tu barrio manualmente.');
         } else {
-          showToast('⚠️ No pudimos obtener tu ubicación. Intentá de nuevo.');
+          showToast('⚠️ No pudimos obtener tu ubicación.');
         }
       },
       { timeout: 10000, maximumAge: 60000 }
