@@ -178,13 +178,38 @@
     /* wrapper field — transparente en desktop, visible en mobile */
     .hs-field { display: contents; }
 
-    /* BUSCADOR — estructura nueva */
-    .hero-search { width: 100%; max-width: 600px; position: relative; }
-
-    /* desktop: los wrappers son invisibles, el hs-box maneja el layout */
-    .hs-row { display: contents; }
-    .hs-input-wrap { display: contents; }
-    .hs-ico2 { display: none; }
+    /* BUSCADOR — estructura nueva, funciona en ambos */
+    .hero-search {
+      width: 100%; max-width: 600px; position: relative;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .hs-row { display: block; position: relative; width: 100%; }
+    .hs-input-wrap {
+      display: flex; align-items: center;
+      background: #ffffff; border: 1.5px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; width: 100%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .hs-input-wrap:focus-within { border-color: var(--ink); }
+    .hs-ico2 {
+      display: flex; align-items: center;
+      padding: 0 14px; flex-shrink: 0; color: var(--ink-soft);
+    }
+    .hs-input-wrap input {
+      flex: 1; padding: 16px 12px 16px 0;
+      font-size: 15px; min-width: 0; color: var(--ink);
+      border: none; outline: none; background: transparent;
+      font-family: 'Outfit', sans-serif;
+    }
+    .hs-input-wrap input::placeholder { color: var(--ink-soft); }
+    .hs-btn {
+      background: var(--ink); border: none; color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      padding: 16px; cursor: pointer; width: 100%;
+      border-radius: var(--radius); transition: background .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .hs-btn:hover { background: #222; }
 
     /* DROPDOWN */
     .b-drop {
@@ -586,35 +611,11 @@
       .hero h1 { font-size: 34px; letter-spacing: -1.5px; line-height: 1.05; }
       .hero-sub { font-size: 15px; color: #222222; max-width: 100%; }
 
-      /* BUSCADOR mobile — columna apilada */
-      .hero-search { max-width: 100%; display: flex; flex-direction: column; gap: 10px; }
-      .hs-row { display: block; position: relative; width: 100%; }
-      .hs-input-wrap {
-        display: flex; align-items: center;
-        background: #ffffff; border: 1.5px solid var(--border);
-        border-radius: var(--radius); overflow: hidden; width: 100%;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      }
-      .hs-input-wrap:focus-within { border-color: var(--ink); }
-      .hs-ico2 {
-        display: flex; align-items: center;
-        padding: 0 14px; flex-shrink: 0; color: var(--ink-soft);
-      }
-      .hs-input-wrap input {
-        flex: 1; padding: 16px 14px 16px 0;
-        font-size: 15px; min-width: 0; color: var(--ink);
-        border: none; outline: none; background: transparent;
-        font-family: 'Outfit', sans-serif;
-      }
-      .hs-input-wrap input::placeholder { color: var(--ink-soft); }
-      /* ocultar el hs-box original en mobile */
+      /* BUSCADOR mobile — ya tiene los estilos base, solo ajustes */
+      .hero-search { max-width: 100%; }
+      .hs-btn { border-radius: var(--radius) !important; }
+      /* ocultar hs-box viejo */
       .hs-box { display: none !important; }
-      .hs-btn {
-        display: flex !important; align-items: center; justify-content: center; gap: 8px;
-        width: 100% !important; border-radius: var(--radius) !important;
-        padding: 16px !important; font-size: 15px !important; height: auto !important;
-        font-weight: 700;
-      }
 
       /* TRUST ROW */
       .trust-row { flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 6px; }
