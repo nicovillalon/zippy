@@ -3,1513 +3,1123 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ZIPPY – Encontrá el profesional que necesitás</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <title>ZIPPY Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:       #F5F0E8;
-      --bg-soft:  #EDE8DE;
-      --bg-hover: #E4DDD0;
-      --ink:      #111111;
-      --ink-mid:  #555555;
-      --ink-soft: #999999;
-      --border:   #EBEBEB;
-      --accent:   #FACC15;
-      --accent-d: #E6B800;
-      --danger:   #E02020;
-      --success:  #008A05;
-      --wsp:      #25D366;
-      --radius:   14px;
-      --radius-sm:8px;
-      --shadow-card: 0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
-      --shadow-hover: 0 6px 32px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06);
+      --bg:      #F5F0E8;
+      --bg-soft: #EDE8DE;
+      --white:   #FFFFFF;
+      --ink:     #111111;
+      --mid:     #555555;
+      --soft:    #999999;
+      --border:  #E0D8CC;
+      --accent:  #FACC15;
+      --success: #16A34A;
+      --danger:  #DC2626;
+      --warning: #D97706;
+      --info:    #2563EB;
+      --radius:  10px;
+      --shadow:  0 2px 12px rgba(0,0,0,0.08);
     }
-
     html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg); color: var(--ink);
-      font-family: 'Outfit', sans-serif; font-size: 14px;
-      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    body { background: var(--bg); color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px; min-height: 100vh; }
+
+    /* LOGIN */
+    .login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--ink);
+    }
+    .login-box {
+      background: var(--white); border-radius: 20px; padding: 48px 40px;
+      width: 100%; max-width: 400px; text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    }
+    .login-logo { font-size: 32px; font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; }
+    .login-logo .z { color: var(--accent); background: var(--ink); border-radius: 8px; padding: 2px 8px; }
+    .login-sub { font-size: 14px; color: var(--soft); margin-bottom: 36px; }
+    .login-tag { font-size: 12px; font-weight: 700; color: var(--soft); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .btn-google {
+      width: 100%; background: var(--white); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 14px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--ink); cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 12px; transition: border-color .2s, background .2s;
+    }
+    .btn-google:hover { border-color: var(--ink); background: var(--bg); }
+    .login-note { font-size: 12px; color: var(--soft); margin-top: 20px; line-height: 1.5; }
+
+    /* ACCESO DENEGADO */
+    .denied-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--ink); flex-direction: column; gap: 16px; text-align: center; padding: 24px;
+    }
+    .denied-screen h2 { color: #fff; font-size: 24px; font-weight: 700; }
+    .denied-screen p { color: rgba(255,255,255,.6); font-size: 14px; }
+    .btn-logout-denied {
+      background: var(--danger); border: none; color: #fff;
+      border-radius: var(--radius); padding: 10px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;
     }
 
-    /* ══════════════════════════════
-       HEADER
-    ══════════════════════════════ */
-    header {
-      position: sticky; top: 0; z-index: 300;
-      background: rgba(245,240,232,0.97);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
+    /* APP */
+    .app { display: none; }
+    .app.visible { display: block; }
 
-    .header-top {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; align-items: center;
-      padding: 0 24px; height: 80px; gap: 24px;
+    /* HEADER ADMIN */
+    .admin-header {
+      background: var(--ink); height: 60px;
+      display: flex; align-items: center; padding: 0 24px;
+      gap: 16px; position: sticky; top: 0; z-index: 100;
     }
+    .admin-logo { font-size: 20px; font-weight: 900; letter-spacing: -1.5px; }
+    .admin-logo .z { color: var(--accent); }
+    .admin-logo .tag { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.4); letter-spacing: 2px; text-transform: uppercase; margin-left: 8px; }
+    .admin-user { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .admin-user span { font-size: 13px; color: rgba(255,255,255,.6); }
+    .btn-logout {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: #fff; border-radius: var(--radius); padding: 6px 14px;
+      font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,.15); }
 
-    /* Logo */
-    .logo {
-      font-size: 28px; font-weight: 900;
-      letter-spacing: -2px; white-space: nowrap;
-      display: flex; align-items: center; gap: 0;
-      text-decoration: none; flex-shrink: 0;
+    /* NAV TABS */
+    .nav-tabs {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      display: flex; padding: 0 24px; gap: 0; overflow-x: auto;
     }
-    .logo-bg {
-      background: var(--ink); border-radius: 10px;
-      padding: 4px 10px; display: flex; align-items: center;
+    .nav-tab {
+      padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+      border-bottom: 2px solid transparent; color: var(--soft); white-space: nowrap;
+      transition: color .2s, border-color .2s;
     }
-    .logo-z { color: var(--accent); }
-    .logo-rest { color: #fff; }
+    .nav-tab:hover { color: var(--ink); }
+    .nav-tab.active { color: var(--ink); border-color: var(--ink); }
+    .nav-tab .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--danger); color: #fff; border-radius: 99px;
+      width: 18px; height: 18px; font-size: 10px; font-weight: 700;
+      margin-left: 6px;
+    }
+    .nav-tab .badge.warn { background: var(--warning); }
+    .nav-tab .badge.ok { background: var(--success); }
 
-    /* Search pill */
-    .search-pill {
-      flex: 1; max-width: 580px; margin: 0 auto;
-      display: flex; align-items: center;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: 99px; height: 52px;
-      box-shadow: var(--shadow-card);
-      transition: box-shadow .2s;
-      overflow: hidden; cursor: text;
-    }
-    .search-pill:focus-within {
-      box-shadow: var(--shadow-hover);
-      border-color: var(--ink);
-    }
+    /* CONTENT */
+    .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
 
-    .sp-section {
-      display: flex; flex-direction: column;
-      padding: 0 20px; flex: 1; min-width: 0;
-      border-right: 1px solid var(--border);
-    }
-    .sp-section:last-of-type { border-right: none; }
-    .sp-label { font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--ink); text-transform: uppercase; }
-    .sp-input {
-      border: none; outline: none; background: transparent;
-      font-family: 'Outfit', sans-serif; font-size: 13px;
-      color: var(--ink-mid); padding: 0; width: 100%;
-    }
-    .sp-input::placeholder { color: var(--ink-soft); }
+    /* STATS CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+    @media(max-width:900px){ .stats-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:480px){ .stats-grid{grid-template-columns:1fr;} }
 
-    .sp-btn {
-      background: var(--ink); border: none;
-      width: 40px; height: 40px; border-radius: 99px; margin-right: 6px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; transition: background .2s;
-      font-size: 16px; color: #fff;
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      display: flex; flex-direction: column; gap: 6px;
     }
-    .sp-btn:hover { background: #333; }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; }
+    .stat-val { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
+    .stat-sub { font-size: 12px; color: var(--soft); }
+    .stat-card.danger .stat-val { color: var(--danger); }
+    .stat-card.warn .stat-val { color: var(--warning); }
+    .stat-card.ok .stat-val { color: var(--success); }
 
-    .h-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .btn-link {
-      background: none; border: none; color: var(--ink);
-      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
-      padding: 10px 14px; border-radius: 10px; cursor: pointer;
-      transition: background .15s; white-space: nowrap;
-    }
-    .btn-link:hover { background: var(--bg-hover); }
-    .btn-pub {
-      background: var(--ink); border: none; color: #fff;
-      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
-      padding: 11px 20px; border-radius: 10px; cursor: pointer;
-      transition: background .15s; white-space: nowrap;
-    }
-    .btn-pub:hover { background: #222; }
+    /* SECTION TITLE */
+    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .sec-title span { font-size: 12px; color: var(--soft); font-weight: 500; }
 
-    /* ══════════════════════════════
-       HERO
-    ══════════════════════════════ */
-    .hero {
-      background: var(--bg-soft);
-      border-bottom: 1px solid var(--border);
-      padding: 64px 24px 56px;
+    /* FILTROS */
+    .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filtro {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 99px; padding: 6px 16px; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: var(--soft); transition: all .15s;
+      font-family: 'Outfit', sans-serif;
     }
-    .hero-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; flex-direction: column; gap: 20px; align-items: flex-start;
-    }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent); color: var(--ink);
-      border-radius: 99px; padding: 5px 14px;
-      font-size: 12px; font-weight: 700; letter-spacing: .3px;
-    }
-    .hero h1 {
-      font-size: clamp(38px, 5.5vw, 64px);
-      font-weight: 800; line-height: 1.05;
-      letter-spacing: -2px; color: var(--ink);
-      max-width: 720px;
-    }
-    .hero-sub {
-      font-size: 17px; color: var(--ink-mid);
-      max-width: 500px; line-height: 1.65; font-weight: 400;
-    }
+    .filtro:hover { border-color: var(--ink); color: var(--ink); }
+    .filtro.active { background: var(--ink); border-color: var(--ink); color: #fff; }
 
-    /* buscador mobile hero */
-    .hero-search {
-      width: 100%; max-width: 600px; position: relative;
-    }
-    .hs-box {
-      display: flex; align-items: center;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      box-shadow: var(--shadow-card); transition: box-shadow .2s;
-    }
-    .hs-box:focus-within { box-shadow: var(--shadow-hover); border-color: var(--ink); }
-    .hs-icon { padding: 0 16px; color: var(--ink-soft); font-size: 18px; flex-shrink: 0; }
-    .hs-box input {
-      flex: 1; border: none; outline: none; background: transparent;
+    .search-bar {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
       font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--ink);
-      padding: 16px 0; min-width: 0;
+      outline: none; width: 100%; max-width: 320px; margin-bottom: 20px;
+      transition: border-color .2s;
     }
-    .hs-box input::placeholder { color: var(--ink-soft); }
-    .hs-sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
-    .hs-btn {
-      background: var(--ink); border: none; color: #fff;
-      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
-      padding: 0 24px; cursor: pointer; height: 100%; white-space: nowrap;
-      transition: background .15s;
-    }
-    .hs-btn:hover { background: #222; }
+    .search-bar:focus { border-color: var(--ink); }
+    .search-bar::placeholder { color: var(--soft); }
 
-    /* wrapper field — transparente en desktop, visible en mobile */
-    .hs-field {
-      display: contents; /* en desktop no afecta el layout */
-    }
-      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: var(--radius); z-index: 100;
-      max-height: 260px; overflow-y: auto; display: none;
-      box-shadow: var(--shadow-hover);
-    }
-    .b-drop.open { display: block; }
-    .b-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 18px; cursor: pointer; color: var(--ink-mid);
-      font-size: 14px; border-bottom: 1px solid var(--border);
-      transition: background .1s;
-    }
-    .b-item:hover { background: var(--bg-soft); color: var(--ink); }
-    .b-item:last-child { border-bottom: none; }
-    .b-ico { color: var(--ink-soft); font-size: 14px; }
-    .b-none { padding: 16px 18px; color: var(--ink-soft); font-size: 13px; text-align: center; }
+    /* TABLA PRESTADORES */
+    .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--bg-soft); }
+    th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
+    td { padding: 14px 16px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    tr:hover td { background: var(--bg); }
 
-    .loc-chip {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: 99px; padding: 6px 14px 6px 10px;
-      font-size: 13px; color: var(--ink-mid); cursor: pointer;
-      transition: border-color .15s, background .15s; margin-top: 6px;
-    }
-    .loc-chip:hover { border-color: var(--ink); color: var(--ink); background: var(--bg-soft); }
-    .loc-chip .ldot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
-    .loc-chip .lx { color: var(--ink-soft); font-size: 16px; line-height: 1; }
+    .td-name { font-weight: 600; color: var(--ink); }
+    .td-biz { font-size: 12px; color: var(--soft); }
+    .td-tel a { color: var(--info); text-decoration: none; font-weight: 500; }
+    .td-tel a:hover { text-decoration: underline; }
 
-    /* trust row */
-    .trust-row {
-      display: flex; gap: 24px; flex-wrap: wrap; margin-top: 4px;
+    /* BADGES ESTADO */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 700;
+      white-space: nowrap;
     }
-    .trust-item {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 13px; color: var(--ink-mid);
-    }
-    .trust-item .ti { font-size: 16px; }
+    .badge.activo   { background: rgba(22,163,74,.1);  color: var(--success); }
+    .badge.pendiente{ background: rgba(217,119,6,.1);  color: var(--warning); }
+    .badge.inactivo { background: rgba(220,38,38,.1);  color: var(--danger);  }
+    .badge.pro      { background: rgba(250,204,21,.15); color: #92400E; }
+    .badge.gratis   { background: var(--bg-soft); color: var(--soft); }
 
-    /* ══════════════════════════════
-       CATS SCROLL (estilo Airbnb)
-    ══════════════════════════════ */
-    .cats-bar {
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 80px; z-index: 200;
-      background: var(--bg);
+    /* ACCIONES */
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm {
+      border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700;
+      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+      transition: opacity .15s; white-space: nowrap;
     }
-    .cats-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; gap: 0; overflow-x: auto;
-      scrollbar-width: none; padding: 0 24px;
-    }
-    .cats-inner::-webkit-scrollbar { display: none; }
+    .btn-sm:hover { opacity: .85; }
+    .btn-activar   { background: var(--success); color: #fff; }
+    .btn-desactivar{ background: var(--danger);  color: #fff; }
+    .btn-pro       { background: var(--accent);  color: var(--ink); }
+    .btn-gratis    { background: var(--bg-soft); color: var(--mid); border: 1px solid var(--border); }
+    .btn-wsp       { background: #25D366; color: #fff; }
+    .btn-eliminar  { background: var(--bg-soft); color: var(--danger); border: 1px solid rgba(220,38,38,.2); }
 
-    .cat-tab {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 14px 20px; cursor: pointer; white-space: nowrap;
-      border-bottom: 2px solid transparent; margin-bottom: -1px;
-      transition: border-color .2s, color .2s; color: var(--ink-soft);
-      min-width: 80px;
-    }
-    .cat-tab:hover { color: var(--ink); border-color: var(--border); }
-    .cat-tab.active { color: var(--ink); border-color: var(--ink); }
-    .cat-tab-icon { font-size: 22px; line-height: 1; }
-    .cat-tab-label { font-size: 11px; font-weight: 600; letter-spacing: .2px; }
-    .cat-tab-n { font-size: 10px; color: var(--ink-soft); }
+    /* VENCIMIENTO */
+    .venc-ok   { color: var(--success); font-weight: 600; }
+    .venc-warn { color: var(--warning); font-weight: 600; }
+    .venc-bad  { color: var(--danger);  font-weight: 600; }
 
-    /* ══════════════════════════════
-       SECCIÓN PRINCIPAL
-    ══════════════════════════════ */
-    .main {
-      max-width: 1280px; margin: 0 auto;
-      padding: 40px 24px 64px;
+    /* RESEÑAS */
+    .resena-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
     }
+    .resena-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .resena-autor { font-weight: 700; font-size: 14px; }
+    .resena-prestador { font-size: 12px; color: var(--soft); }
+    .resena-stars { color: var(--accent); font-size: 14px; }
+    .resena-txt { font-size: 13px; color: var(--mid); line-height: 1.6; margin: 8px 0; }
+    .resena-fecha { font-size: 11px; color: var(--soft); }
+    .resena-acts { display: flex; gap: 8px; margin-top: 12px; }
 
-    .main-header {
-      display: flex; align-items: baseline;
-      justify-content: space-between; margin-bottom: 28px;
+    /* PAGOS */
+    .pago-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
-    .main-title { font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
-    .main-count { font-size: 14px; color: var(--ink-soft); margin-left: 8px; font-weight: 400; }
-    .main-link { font-size: 14px; color: var(--ink); font-weight: 600; cursor: pointer; text-decoration: underline; }
+    .pago-info { flex: 1; min-width: 200px; }
+    .pago-nombre { font-weight: 700; font-size: 14px; }
+    .pago-detalle { font-size: 12px; color: var(--soft); margin-top: 2px; }
+    .pago-monto { font-size: 20px; font-weight: 800; color: var(--success); white-space: nowrap; }
+    .pago-fecha { font-size: 12px; color: var(--soft); text-align: right; }
 
-    /* GRID */
-    .pros-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-    }
-    @media(max-width:1100px){ .pros-grid{grid-template-columns:repeat(3,1fr);} }
-    @media(max-width:760px){ .pros-grid{grid-template-columns:repeat(2,1fr); gap:16px;} }
-    @media(max-width:480px){ .pros-grid{grid-template-columns:1fr;} }
-
-    /* CARD */
-    .pro-card {
-      display: flex; flex-direction: column;
-      cursor: pointer; border-radius: var(--radius);
-      transition: transform .2s;
-    }
-    .pro-card:hover { transform: translateY(-2px); }
-    .pro-card:hover .card-img-wrap { box-shadow: var(--shadow-hover); }
-
-    .card-img-wrap {
-      aspect-ratio: 4/3; border-radius: var(--radius);
-      overflow: hidden; position: relative;
-      background: var(--bg-soft);
-      box-shadow: var(--shadow-card);
-      transition: box-shadow .2s;
-    }
-    .card-img-wrap .card-emoji {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 56px;
-      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-    }
-    .card-pro-badge {
-      position: absolute; top: 12px; left: 12px;
-      background: var(--ink); color: #fff;
-      font-size: 10px; font-weight: 700; letter-spacing: .5px;
-      border-radius: 6px; padding: 3px 8px;
-      display: flex; align-items: center; gap: 4px;
-    }
-    .card-pro-badge .star { color: var(--accent); }
-    .card-urg {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--danger); color: #fff;
-      font-size: 10px; font-weight: 700;
-      border-radius: 6px; padding: 3px 8px;
-    }
-    .card-new {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--accent); color: var(--ink);
-      font-size: 10px; font-weight: 700;
-      border-radius: 6px; padding: 3px 8px;
-    }
-
-    .card-body { padding: 14px 4px 0; display: flex; flex-direction: column; gap: 6px; }
-
-    .card-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-    .card-name { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.3; }
-    .card-rating { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; white-space: nowrap; }
-    .card-rating .star { font-size: 12px; }
-
-    .card-cat { font-size: 13px; color: var(--ink-mid); }
-    .card-zona { font-size: 13px; color: var(--ink-soft); }
-    .card-desc {
-      font-size: 12px; color: var(--ink-mid); line-height: 1.5;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .card-nreseñas { font-size: 12px; color: var(--ink-soft); }
-
-    .card-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .card-actions a {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
-      padding: 10px 8px; border-radius: var(--radius-sm);
-      font-size: 12px; font-weight: 600; text-decoration: none;
-      font-family: 'Outfit', sans-serif; transition: all .15s;
-    }
-    .a-call {
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      color: var(--ink);
-    }
-    .a-call:hover { background: var(--bg-hover); border-color: var(--ink); }
-    .a-wsp { background: var(--wsp); color: #fff; }
-    .a-wsp:hover { opacity: .88; }
-
-    /* estado vacío / loading */
-    .state-box {
-      grid-column: 1/-1;
-      padding: 64px 24px; text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
-    }
-    .state-box .s-ico { font-size: 48px; }
-    .state-box h3 { font-size: 20px; font-weight: 700; }
-    .state-box p { font-size: 14px; color: var(--ink-soft); max-width: 320px; line-height: 1.6; }
-    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg);} }
-
-    /* ══════════════════════════════
-       BANNER URGENCIAS
-    ══════════════════════════════ */
-    .banner-section { background: var(--ink); padding: 56px 24px; }
-    .banner-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; align-items: center; gap: 40px; flex-wrap: wrap;
-    }
-    .banner-text { flex: 1; min-width: 260px; }
-    .banner-text h2 {
-      font-size: clamp(26px,4vw,42px); font-weight: 800;
-      letter-spacing: -1.5px; color: #fff; margin-bottom: 10px; line-height: 1.1;
-    }
-    .banner-text h2 em { font-style: normal; color: var(--accent); }
-    .banner-text p { font-size: 15px; color: rgba(255,255,255,.65); line-height: 1.6; }
-    .btn-urg {
-      background: var(--accent); border: none; color: var(--ink);
-      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
-      padding: 16px 32px; border-radius: var(--radius); cursor: pointer;
-      transition: background .15s; white-space: nowrap; flex-shrink: 0;
-    }
-    .btn-urg:hover { background: var(--accent-d); }
-
-    /* ══════════════════════════════
-       CÓMO FUNCIONA
-    ══════════════════════════════ */
-    .how-section { padding: 64px 24px; background: var(--bg-soft); border-top: 1px solid var(--border); }
-    .how-inner { max-width: 1280px; margin: 0 auto; }
-    .how-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 36px; }
-    .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
-    @media(max-width:640px){ .how-grid{grid-template-columns:1fr; gap:24px;} }
-    .how-item { display: flex; flex-direction: column; gap: 14px; }
-    .how-num {
-      width: 44px; height: 44px; border-radius: 50%;
-      border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 800; color: var(--ink);
-    }
-    .how-item h4 { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
-    .how-item p { font-size: 14px; color: var(--ink-mid); line-height: 1.65; }
-
-    .a-resena {
-      width: 100%; margin-top: 8px; padding: 9px;
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); font-family: 'Outfit', sans-serif;
-      font-size: 12px; font-weight: 600; color: var(--ink-mid);
-      cursor: pointer; transition: all .15s; text-align: center;
-    }
-    .a-resena:hover { border-color: var(--accent); color: var(--ink); background: #FFFBEA; }
-
-    .card-resenas { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border); padding-top: 10px; }
-    .resena-mini { font-size: 12px; color: var(--ink-mid); line-height: 1.5; }
-    .resena-stars { color: var(--accent); font-size: 11px; margin-right: 4px; }
-    .resena-autor { font-weight: 600; color: var(--ink); margin-right: 4px; }
-    .resena-txt { color: var(--ink-mid); }
-
-    /* estrellas interactivas */
-    .star-picker { display: flex; gap: 6px; margin: 8px 0; }
-    .star-picker span {
-      font-size: 28px; cursor: pointer; color: var(--border);
-      transition: color .15s; line-height: 1;
-    }
-    .star-picker span.on { color: var(--accent); }
-    .overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.5); z-index: 400;
-      align-items: center; justify-content: center; padding: 16px;
-    }
+    /* MODAL */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
     .overlay.open { display: flex; }
     .modal {
-      background: #F5F0E8; border-radius: 20px;
-      padding: 32px; width: 100%; max-width: 520px;
-      max-height: 92vh; overflow-y: auto;
-      animation: popIn .25s cubic-bezier(.16,1,.3,1);
-      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+      background: var(--white); border-radius: 16px; padding: 28px;
+      width: 100%; max-width: 460px; animation: popIn .2s ease;
+      box-shadow: 0 24px 64px rgba(0,0,0,.2);
     }
-    @keyframes popIn { from{transform:scale(.96) translateY(8px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
-
-    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
-    .modal-head h3 { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
-    .modal-x {
-      background: var(--bg-soft); border: none; color: var(--ink);
-      width: 34px; height: 34px; border-radius: 50%; font-size: 18px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: background .15s; flex-shrink: 0;
+    @keyframes popIn { from{transform:scale(.95);opacity:0;} to{transform:scale(1);opacity:1;} }
+    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .modal p { font-size: 13px; color: var(--mid); margin-bottom: 20px; line-height: 1.5; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field label { font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .8px; }
+    .field input, .field select {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; color: var(--ink); font-family: 'Outfit', sans-serif;
+      font-size: 14px; outline: none; transition: border-color .15s; width: 100%;
     }
-    .modal-x:hover { background: var(--bg-hover); }
-    .modal-sub { font-size: 14px; color: var(--ink-mid); margin-bottom: 24px; line-height: 1.5; }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media(max-width:480px){ .form-row{grid-template-columns:1fr;} }
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-    .field label { font-size: 12px; font-weight: 700; color: var(--ink); }
-    .field input, .field select, .field textarea {
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); padding: 12px 14px;
-      color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px;
-      outline: none; transition: border-color .15s, background .15s; width: 100%;
-    }
-    .field input::placeholder, .field textarea::placeholder { color: var(--ink-soft); }
-    .field input:focus, .field select:focus, .field textarea:focus {
-      border-color: var(--ink); background: var(--bg);
-    }
-    .field select {
-      appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 14px center;
-      background-color: var(--bg-soft); padding-right: 36px;
-    }
-    .field select option { background: var(--bg); }
-    .field textarea { resize: vertical; min-height: 88px; }
-    .field .hint { font-size: 11px; color: var(--ink-soft); }
-
-    .info-note {
-      background: #FFFBEA; border: 1.5px solid #FDE68A;
-      border-radius: var(--radius-sm); padding: 14px 16px;
-      font-size: 13px; color: #92400E; line-height: 1.6;
-      display: flex; gap: 10px; align-items: flex-start;
-    }
-    .info-note .ni { font-size: 18px; flex-shrink: 0; }
-
+    .field input:focus, .field select:focus { border-color: var(--ink); }
+    .field select { appearance: none; cursor: pointer; }
     .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-    .btn-cancel {
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      color: var(--ink); font-family: 'Outfit', sans-serif;
-      font-size: 14px; font-weight: 600; padding: 11px 20px;
-      border-radius: var(--radius-sm); cursor: pointer; transition: background .15s;
-    }
-    .btn-cancel:hover { background: var(--bg-hover); }
-    .btn-submit {
-      background: var(--ink); border: none; color: #fff;
-      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
-      padding: 11px 24px; border-radius: var(--radius-sm); cursor: pointer;
-      transition: background .15s;
-    }
-    .btn-submit:hover { background: #222; }
-    .btn-submit:disabled { opacity: .6; cursor: default; }
+    .btn-cancel { background: var(--bg-soft); border: 1px solid var(--border); color: var(--ink); border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-ok { background: var(--ink); border: none; color: #fff; border-radius: var(--radius); padding: 9px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
 
-    /* GPS */
-    .btn-gps {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--bg-soft); border: 1.5px solid var(--border);
-      color: var(--ink); border-radius: 99px;
-      padding: 10px 20px; font-family: 'Outfit', sans-serif;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all .2s; margin-top: 4px;
+    /* FINANCIERO */
+    .fin-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:8px; }
+    @media(max-width:768px){ .fin-grid{grid-template-columns:repeat(2,1fr);} }
+    .fin-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--radius); padding:18px 20px;
     }
-    .btn-gps:hover { border-color: var(--ink); background: var(--bg-hover); }
-    .btn-gps.loading { opacity: .7; cursor: wait; }
-    .btn-gps.activo {
-      background: var(--ink); color: #fff;
-      border-color: var(--ink);
-    }
+    .fin-card.ok { border-left:3px solid var(--success); }
+    .fin-label { font-size:11px; font-weight:700; color:var(--soft); text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+    .fin-val { font-size:26px; font-weight:800; letter-spacing:-1px; color:var(--ink); }
+    .fin-card.ok .fin-val { color:var(--success); }
+    .fin-sub { font-size:12px; color:var(--soft); margin-top:3px; }
 
-    /* ══════════════════════════════
-       TOAST
-    ══════════════════════════════ */
-    .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--ink); color: #fff;
-      border-radius: 99px; padding: 13px 24px;
-      font-size: 14px; font-weight: 500; z-index: 500;
-      display: none; white-space: nowrap;
-      box-shadow: 0 8px 32px rgba(0,0,0,.3);
-    }
-    .toast.show { display: block; animation: toastIn .25s ease; }
-    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(8px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; border-radius: 99px; padding: 12px 24px; font-size: 13px; font-weight: 500; z-index: 500; display: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+    .toast.show { display: block; animation: tIn .2s ease; }
+    @keyframes tIn { from{opacity:0;transform:translateX(-50%) translateY(8px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
 
-    /* ══════════════════════════════
-       FOOTER
-    ══════════════════════════════ */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 24px;
-      background: var(--bg);
-    }
-    .footer-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; flex-direction: column; gap: 24px;
-    }
-    .footer-top {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 20px;
-    }
-    .foot-logo {
-      font-size: 22px; font-weight: 900; letter-spacing: -1.5px;
-      display: flex; align-items: center;
-    }
-    .foot-logo-bg { background: var(--ink); border-radius: 8px; padding: 3px 8px; display: flex; }
-    .flz { color: var(--accent); }
-    .flr { color: #fff; }
-    .foot-cats { display: flex; gap: 20px; flex-wrap: wrap; }
-    .foot-cats a { font-size: 13px; color: var(--ink-mid); text-decoration: none; transition: color .15s; }
-    .foot-cats a:hover { color: var(--ink); }
-    .footer-bottom {
-      border-top: 1px solid var(--border); padding-top: 20px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
-    }
-    .footer-bottom p { font-size: 13px; color: var(--ink-soft); }
+    /* EMPTY */
+    .empty { text-align: center; padding: 48px 24px; color: var(--soft); }
+    .empty .ei { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
 
-    /* ══════════════════════════════
-       RESPONSIVE MOBILE
-    ══════════════════════════════ */
     @media(max-width:768px){
+      /* GENERAL */
+      .content { padding: 16px; }
+      .admin-header { padding: 0 16px; gap: 10px; }
+      .admin-logo .tag { display: none; }
+      .admin-user span { display: none; }
 
-      /* HEADER */
-      .header-top { padding: 12px 16px; height: auto; justify-content: space-between; gap: 12px; }
-      .search-pill { display: none; }
-      .btn-link { display: none; }
-      .logo { font-size: 22px; letter-spacing: -1.5px; }
-      .btn-pub { padding: 9px 14px; font-size: 13px; border-radius: 10px; }
+      /* TABS */
+      .nav-tabs { padding: 0 8px; }
+      .nav-tab { padding: 12px 10px; font-size: 12px; }
 
-      /* HERO */
-      .hero { padding: 28px 16px 24px; }
-      .hero-inner { gap: 14px; align-items: flex-start; }
-      .hero h1 { font-size: 34px; letter-spacing: -1.5px; line-height: 1.05; }
-      .hero-sub { font-size: 15px; color: #222222; max-width: 100%; }
+      /* STATS */
+      .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .stat-val { font-size: 28px; }
+      .fin-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .fin-val { font-size: 22px; }
 
-      /* BUSCADOR — apilado en columna */
-      .hero-search { max-width: 100%; position: relative; }
-      .hs-box {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        gap: 8px;
-        overflow: visible !important;
+      /* TABLA → CARDS en mobile */
+      .table-wrap { border: none; background: transparent; border-radius: 0; }
+      table thead { display: none; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      tr {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius); margin-bottom: 12px;
+        padding: 14px; position: relative;
       }
-      .hs-field {
-        display: flex !important;
-        align-items: center;
-        background: #ffffff;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        overflow: hidden;
-        width: 100%;
+      td { padding: 4px 0; border: none; font-size: 13px; }
+      td::before {
+        content: attr(data-label);
+        font-size: 10px; font-weight: 700; color: var(--soft);
+        text-transform: uppercase; letter-spacing: .5px;
+        display: block; margin-bottom: 2px;
       }
-      .hs-field:focus-within { border-color: var(--ink); }
-      .hs-box .hs-icon { padding: 0 14px; flex-shrink: 0; color: var(--ink-soft); display: flex; align-items: center; }
-      .hs-box input { flex: 1; padding: 15px 0; font-size: 15px; min-width: 0; border: none; outline: none; background: transparent; font-family: 'Outfit', sans-serif; color: var(--ink); }
-      .hs-sep { display: none !important; }
-      .hs-btn {
-        width: 100% !important;
-        border-radius: var(--radius) !important;
-        padding: 15px 24px !important;
-        font-size: 15px !important;
-        height: auto !important;
-        display: flex !important;
-        align-items: center; justify-content: center; gap: 8px;
-      }
-      #bDrop { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 200; }
+      td:empty { display: none; }
 
-      /* TRUST ROW */
-      .trust-row { flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 6px; }
-      .trust-item { font-size: 14px; color: var(--ink); gap: 10px; font-weight: 500; }
-      .trust-item svg { color: var(--ink); flex-shrink: 0; }
+      /* ACCIONES en mobile */
+      .actions { flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .btn-sm { padding: 7px 10px; font-size: 11px; }
 
-      /* GPS */
-      .btn-gps { font-size: 13px; padding: 9px 16px; }
+      /* FILTROS */
+      .filtros { gap: 6px; }
+      .filtro { padding: 5px 12px; font-size: 12px; }
 
-      /* CATEGORÍAS — bottom nav fijo */
-      .cats-bar {
-        position: fixed !important;
-        bottom: 0; left: 0; right: 0;
-        top: auto !important;
-        z-index: 250;
-        border-top: 1px solid var(--border);
-        border-bottom: none;
-        background: rgba(245,240,232,0.97);
-        backdrop-filter: blur(12px);
-        box-shadow: 0 -4px 16px rgba(0,0,0,0.07);
-        padding-bottom: env(safe-area-inset-bottom, 8px);
-      }
-      .cats-inner { padding: 0 4px; }
-      .cat-tab { padding: 10px 12px; min-width: 60px; gap: 4px; }
-      .cat-tab-icon { font-size: 22px; }
-      .cat-tab-label { font-size: 10px; font-weight: 600; color: var(--ink-mid); }
-      .cat-tab-n { display: none !important; }
+      /* SEARCH BAR */
+      .search-bar { max-width: 100%; }
 
-      /* CONTENIDO — espacio para el bottom nav */
-      .main { padding: 20px 16px 90px; }
-      .banner-section { padding: 32px 16px; }
-      .how-section { padding: 32px 16px; }
-      footer { padding: 28px 16px 90px; }
+      /* PAGO CARDS */
+      .pago-card { flex-direction: column; gap: 8px; align-items: flex-start; }
+      .pago-fecha { text-align: left; }
+
+      /* MODALES */
+      .modal { padding: 20px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+
+      /* SEC TITLE */
+      .sec-title { font-size: 14px; flex-wrap: wrap; }
     }
 
-    @media(max-width:400px){
-      .hero h1 { font-size: 30px; }
-      .cat-tab { padding: 8px 10px; min-width: 54px; }
-      .cat-tab-label { font-size: 9px; }
+    @media(max-width:480px){
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .nav-tab { padding: 10px 8px; font-size: 11px; }
+      .admin-logo { font-size: 18px; }
     }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="header-top">
-    <a class="logo" href="#">
-      <div class="logo-bg">
-        <span class="logo-z">Z</span>
-        <span class="logo-rest">IPPY</span>
-      </div>
-    </a>
-
-    <div class="search-pill">
-      <div class="sp-section">
-        <span class="sp-label">Rubro</span>
-        <input class="sp-input" type="text" id="spRubro" placeholder="Plomería, electricidad…" oninput="handleSearch(this.value)"/>
-      </div>
-      <div class="sp-section" style="max-width:180px">
-        <span class="sp-label">Barrio</span>
-        <input class="sp-input" type="text" id="spBarrio" placeholder="¿Dónde estás?" autocomplete="off"
-          oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('sp')" onblur="cerrarDrop()"/>
-      </div>
-      <button class="sp-btn" onclick="applySearch()">🔍</button>
-    </div>
-
-    <div class="h-right">
-      <button class="btn-link" onclick="focusBarrio()">📍 Mi barrio</button>
-      <button class="btn-pub" onclick="abrirModal('registro')">Publicar servicio</button>
-    </div>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">⚡ Córdoba Capital</div>
-    <h1>Encontrá el profesional<br/>que necesitás, hoy.</h1>
-    <p class="hero-sub">Plomeros, electricistas, cerrajeros y más — verificados, con reseñas reales, en tu barrio.</p>
-
-    <div class="hero-search" id="heroSearch">
-      <div class="hs-box">
-        <div class="hs-field">
-          <span class="hs-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          </span>
-          <input type="text" id="hsRubro" placeholder="¿Qué servicio necesitás?" autocomplete="off"
-            oninput="filtrarRubros(this.value)" onfocus="abrirDropRubro()" onblur="cerrarDropRubro()"
-            style="min-width:0"/>
-        </div>
-        <div class="b-drop" id="rubroDrop" style="left:0;right:auto;width:260px"></div>
-        <span class="hs-sep"></span>
-        <div class="hs-field">
-          <span class="hs-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
-            oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"
-            style="min-width:0"/>
-        </div>
-        <button class="hs-btn" onclick="applySearch()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          Buscar
-        </button>
-      </div>
-      <div class="b-drop" id="bDrop"></div>
-    </div>
-
-    <div id="locTag" style="display:none">
-      <span class="loc-chip" onclick="limpiarBarrio()">
-        <span class="ldot"></span>
-        <span id="locTxt"></span>
-        <span class="lx">×</span>
-      </span>
-    </div>
-
-    <!-- BOTÓN GPS -->
-    <button class="btn-gps" id="btnGps" onclick="usarUbicacion()">
-      <span id="gpsIcon">📍</span>
-      <span id="gpsTxt">Usar mi ubicación</span>
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><span class="z">Z</span>IPPY</div>
+    <p class="login-sub">Panel de administración</p>
+    <p class="login-tag">Acceso restringido</p>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Ingresar con Google
     </button>
-
-    <div class="trust-row">
-      <div class="trust-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Profesionales verificados
-      </div>
-      <div class="trust-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Reseñas reales de vecinos
-      </div>
-      <div class="trust-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
-        Contacto directo, sin intermediarios
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CATS BAR (estilo Airbnb) -->
-<div class="cats-bar">
-  <div class="cats-inner" id="catsInner">
-    <!-- generado por JS -->
+    <p class="login-note">Solo la cuenta autorizada puede acceder a este panel.</p>
   </div>
 </div>
 
-<!-- MAIN GRID -->
-<div class="main">
-  <div class="main-header">
-    <div>
-      <span class="main-title" id="mainTitle">Todos los profesionales</span>
-      <span class="main-count" id="mainCount"></span>
+<!-- ACCESO DENEGADO -->
+<div class="denied-screen" id="deniedScreen" style="display:none">
+  <div style="font-size:48px">🚫</div>
+  <h2>Acceso denegado</h2>
+  <p>Tu cuenta no tiene permisos para acceder al panel de ZIPPY.</p>
+  <button class="btn-logout-denied" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- APP ADMIN -->
+<div class="app" id="adminApp">
+
+  <header class="admin-header">
+    <div class="admin-logo">
+      <span class="z">Z</span>IPPY
+      <span class="tag">Admin</span>
     </div>
-    <span class="main-link" onclick="filterBy(null)">Ver todos</span>
+    <div class="admin-user">
+      <span id="adminEmail"></span>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPanel('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="showPanel('prestadores')">👥 Prestadores <span class="badge" id="badgePend">0</span></div>
+    <div class="nav-tab" onclick="showPanel('pagos')">💰 Pagos</div>
+    <div class="nav-tab" onclick="showPanel('resenas')">⭐ Reseñas <span class="badge warn" id="badgeRes">0</span></div>
   </div>
-  <div class="pros-grid" id="prosGrid">
-    <div class="state-box">
-      <div class="spinner"></div>
-      <p>Cargando profesionales…</p>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card ok">
+          <div class="stat-label">Activos</div>
+          <div class="stat-val" id="stActivos">—</div>
+          <div class="stat-sub">Prestadores en línea</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Pendientes</div>
+          <div class="stat-val" id="stPend">—</div>
+          <div class="stat-sub">Esperando activación</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Vencen pronto</div>
+          <div class="stat-val" id="stVenc">—</div>
+          <div class="stat-sub">En los próximos 7 días</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plan PRO</div>
+          <div class="stat-val" id="stPro">—</div>
+          <div class="stat-sub">Destacados activos</div>
+        </div>
+      </div>
+
+      <div class="sec-title">⚠️ Pendientes de activación <span>Registrados que esperan pago</span></div>
+      <div id="dashPend"></div>
+
+      <div class="sec-title" style="margin-top:32px">💰 Resumen financiero</div>
+      <div class="fin-grid">
+        <div class="fin-card ok">
+          <div class="fin-label">Hoy</div>
+          <div class="fin-val" id="finHoy">$0</div>
+          <div class="fin-sub" id="finHoyN">0 pagos</div>
+        </div>
+        <div class="fin-card">
+          <div class="fin-label">Este mes</div>
+          <div class="fin-val" id="finMes">$0</div>
+          <div class="fin-sub" id="finMesN">0 pagos</div>
+        </div>
+        <div class="fin-card">
+          <div class="fin-label">Este año</div>
+          <div class="fin-val" id="finAnio">$0</div>
+          <div class="fin-sub" id="finAnioN">0 pagos</div>
+        </div>
+        <div class="fin-card ok">
+          <div class="fin-label">Total histórico</div>
+          <div class="fin-val" id="finTotal">$0</div>
+          <div class="fin-sub" id="finTotalN">0 pagos</div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:32px">🔔 Vencen esta semana <span>Contactalos para renovar</span></div>
+      <div id="dashVenc"></div>
     </div>
+
+    <!-- PRESTADORES -->
+    <div class="panel" id="panel-prestadores">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+        <input class="search-bar" type="text" placeholder="🔍 Buscar por nombre, rubro, barrio…" oninput="filtrarPrestadores(this.value)" style="margin-bottom:0"/>
+        <button class="btn-sm btn-activar" style="padding:9px 16px;font-size:13px" onclick="abrirModalPago()">+ Registrar pago</button>
+      </div>
+      <div class="filtros">
+        <div class="filtro active" onclick="setFiltro('todos',this)">Todos</div>
+        <div class="filtro" onclick="setFiltro('pendiente',this)">Pendientes</div>
+        <div class="filtro" onclick="setFiltro('activo',this)">Activos</div>
+        <div class="filtro" onclick="setFiltro('inactivo',this)">Inactivos</div>
+        <div class="filtro" onclick="setFiltro('pro',this)">PRO</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Prestador</th>
+              <th>Rubro</th>
+              <th>Zona</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Plan</th>
+              <th>Vencimiento</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPrestadores"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGOS -->
+    <div class="panel" id="panel-pagos">
+      <!-- Filtros de período -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
+        <div class="filtros" style="margin-bottom:0">
+          <div class="filtro active" onclick="setPeriodoPago('todos',this)">Todo</div>
+          <div class="filtro" onclick="setPeriodoPago('hoy',this)">Hoy</div>
+          <div class="filtro" onclick="setPeriodoPago('semana',this)">Esta semana</div>
+          <div class="filtro" onclick="setPeriodoPago('mes',this)">Este mes</div>
+          <div class="filtro" onclick="setPeriodoPago('anio',this)">Este año</div>
+        </div>
+      </div>
+      <!-- Totales del período -->
+      <div class="fin-grid" style="margin-bottom:24px">
+        <div class="fin-card ok" style="grid-column:span 2">
+          <div class="fin-label" id="periodoLabel">Total período</div>
+          <div class="fin-val" id="periodoTotal">$0</div>
+          <div class="fin-sub" id="periodoN">0 pagos</div>
+        </div>
+        <div class="fin-card" style="grid-column:span 2">
+          <div class="fin-label">Promedio por pago</div>
+          <div class="fin-val" id="periodoPromedio">$0</div>
+          <div class="fin-sub">en el período seleccionado</div>
+        </div>
+      </div>
+      <div class="sec-title">📋 Detalle de pagos</div>
+      <div id="listaPagos"></div>
+    </div>
+
+    <!-- RESEÑAS -->
+    <div class="panel" id="panel-resenas">
+      <div class="sec-title">⭐ Reseñas pendientes de aprobación</div>
+      <div id="listaResenas"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- BANNER -->
-<div class="banner-section">
-  <div class="banner-inner">
-    <div class="banner-text">
-      <h2>¿Emergencia<br/><em>ahora mismo?</em></h2>
-      <p>Cerrajeros, gasistas y plomeros con guardia activa las 24 horas en Córdoba. Contacto directo, sin esperas.</p>
-    </div>
-    <button class="btn-urg" onclick="filterBy('cerrajeria')">Ver guardias activas →</button>
-  </div>
-</div>
-
-<!-- CÓMO FUNCIONA -->
-<div class="how-section">
-  <div class="how-inner">
-    <h2 class="how-title">¿Cómo funciona?</h2>
-    <div class="how-grid">
-      <div class="how-item">
-        <div class="how-num">1</div>
-        <h4>Elegí el rubro</h4>
-        <p>Seleccioná la categoría y tu barrio. ZIPPY te muestra los profesionales disponibles cerca tuyo.</p>
-      </div>
-      <div class="how-item">
-        <div class="how-num">2</div>
-        <h4>Revisá reseñas</h4>
-        <p>Leé la experiencia de otros vecinos, mirá la calificación y elegí el que más confianza te dé.</p>
-      </div>
-      <div class="how-item">
-        <div class="how-num">3</div>
-        <h4>Contactá directo</h4>
-        <p>Llamá o escribí por WhatsApp sin intermediarios. Acordás precio y horario vos directamente.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL RESEÑA -->
-<div class="overlay" id="ov-resena" onclick="closeMod('resena',event)">
+<!-- MODAL EDITAR PRESTADOR -->
+<div class="overlay" id="ov-editar" onclick="closeMod('editar',event)">
   <div class="modal">
-    <div class="modal-head">
-      <h3>Dejar reseña</h3>
-      <button class="modal-x" onclick="cerrarModal('resena')">×</button>
-    </div>
-    <p class="modal-sub" id="resena-para">Tu opinión ayuda a otros vecinos a elegir mejor.</p>
-    <input type="hidden" id="rv_id"/>
-    <input type="hidden" id="rv_nombre_prestador"/>
-    <div class="field">
-      <label>Tu nombre</label>
-      <input type="text" id="rv_autor" placeholder="Ej: Juan García"/>
-    </div>
-    <div class="field">
-      <label>Calificación *</label>
-      <div class="star-picker" id="starPicker">
-        <span onclick="setStar(1)">★</span>
-        <span onclick="setStar(2)">★</span>
-        <span onclick="setStar(3)">★</span>
-        <span onclick="setStar(4)">★</span>
-        <span onclick="setStar(5)">★</span>
-      </div>
-    </div>
-    <div class="field">
-      <label>Comentario *</label>
-      <textarea id="rv_comentario" placeholder="Contá cómo fue tu experiencia con este profesional…" style="resize:vertical;min-height:90px"></textarea>
-    </div>
-    <div class="modal-foot">
-      <button class="btn-cancel" onclick="cerrarModal('resena')">Cancelar</button>
-      <button class="btn-submit" id="btnResena" onclick="enviarResena()">Enviar reseña</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL REGISTRO -->
-<div class="overlay" id="ov-registro" onclick="closeMod('registro',event)">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>Publicar mi servicio</h3>
-      <button class="modal-x" onclick="cerrarModal('registro')">×</button>
-    </div>
-    <p class="modal-sub">Completá el formulario. Tu perfil quedará pendiente hasta que confirmemos el pago de la suscripción.</p>
-
+    <h3>Editar prestador</h3>
+    <p>Modificá los datos básicos. El rubro y el plan se manejan desde la tabla.</p>
+    <input type="hidden" id="e_id"/>
     <div class="form-row">
-      <div class="field"><label>Nombre completo *</label><input type="text" id="r_nombre" placeholder="Marcelo Ruiz"/></div>
-      <div class="field"><label>Nombre del negocio</label><input type="text" id="r_negocio" placeholder="Cerrajería Ruiz"/></div>
+      <div class="field"><label>Nombre *</label><input type="text" id="e_nombre" placeholder="Marcelo Ruiz"/></div>
+      <div class="field"><label>Negocio</label><input type="text" id="e_negocio" placeholder="Cerrajería Ruiz"/></div>
     </div>
-    <div class="form-row">
-      <div class="field">
-        <label>Celular / WhatsApp *</label>
-        <input type="tel" id="r_tel" placeholder="3516001234"/>
-        <span class="hint">Sin 0 ni 15 — solo números</span>
-      </div>
-      <div class="field">
-        <label>Rubro *</label>
-        <select id="r_cat">
-          <option value="">— Seleccioná —</option>
-          <option value="plomeria">🚿 Plomería</option>
-          <option value="electricidad">⚡ Electricidad</option>
-          <option value="cerrajeria">🔑 Cerrajería</option>
-          <option value="herreria">⚙️ Herrería</option>
-          <option value="albanileria">🧱 Albañilería</option>
-          <option value="mecanica">🔧 Mecánica</option>
-          <option value="pintura">🖌️ Pintura</option>
-          <option value="gasista">🔥 Gasista</option>
-          <option value="aires">❄️ Aire Acondicionado</option>
-        </select>
-      </div>
-    </div>
+    <div class="field"><label>Teléfono *</label><input type="tel" id="e_tel" placeholder="3516001234"/></div>
+    <div class="field"><label>Barrios donde trabaja</label><input type="text" id="e_zona" placeholder="Nueva Córdoba, Centro, Alberdi"/></div>
+    <div class="field"><label>Descripción</label><textarea id="e_desc" style="resize:vertical;min-height:80px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%" placeholder="Descripción del servicio…"></textarea></div>
     <div class="field">
-      <label>Barrios donde trabajás *</label>
-      <div id="zonaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;min-height:0"></div>
-      <div style="position:relative">
-        <input type="text" id="r_zona_input" placeholder="Escribí un barrio y seleccionalo…" autocomplete="off"
-          oninput="filtrarZona(this.value)" onfocus="abrirDropZona()" onblur="cerrarDropZona()"
-          style="background:var(--bg-soft);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color .15s"/>
-        <div id="zonaDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);z-index:999;max-height:180px;overflow-y:auto;box-shadow:var(--shadow-hover)"></div>
-      </div>
-      <input type="hidden" id="r_zona"/>
-      <span class="hint">Podés agregar varios barrios</span>
-    </div>
-    <div class="field"><label>Descripción del servicio</label><textarea id="r_desc" placeholder="Contá tu experiencia, especialidades, años en el rubro…"></textarea></div>
-    <div class="field">
-      <label>¿Atendés urgencias 24 hs?</label>
-      <select id="r_urg">
-        <option value="no">No, solo horario comercial</option>
-        <option value="si">Sí, atiendo emergencias</option>
+      <label>¿Urgencias 24hs?</label>
+      <select id="e_urg">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
       </select>
     </div>
-
-    <div class="info-note">
-      <span class="ni">💛</span>
-      Tu perfil quedará <strong>pendiente de activación</strong> hasta confirmar el pago de la suscripción. Te contactamos por WhatsApp al número que ingresaste.
-    </div>
-
     <div class="modal-foot">
-      <button class="btn-cancel" onclick="cerrarModal('registro')">Cancelar</button>
-      <button class="btn-submit" id="btnReg" onclick="registrarPrestador()">Enviar solicitud</button>
+      <button class="btn-cancel" onclick="cerrarMod('editar')">Cancelar</button>
+      <button class="btn-ok" onclick="guardarEdicion()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGO -->
+<div class="overlay" id="ov-pago" onclick="closeMod('pago',event)">
+  <div class="modal">
+    <h3>Registrar pago</h3>
+    <p>Completá los datos del pago para activar o renovar al prestador.</p>
+    <div class="field">
+      <label>Prestador</label>
+      <select id="p_prestador"></select>
+    </div>
+    <div class="field">
+      <label>Monto ($)</label>
+      <input type="number" id="p_monto" placeholder="Ej: 5000"/>
+    </div>
+    <div class="field">
+      <label>Duración</label>
+      <select id="p_dur">
+        <option value="30">1 mes</option>
+        <option value="60">2 meses</option>
+        <option value="90">3 meses</option>
+        <option value="180">6 meses</option>
+        <option value="365">1 año</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Plan</label>
+      <select id="p_plan">
+        <option value="gratis">Básico</option>
+        <option value="pro">PRO (aparece primero)</option>
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarMod('pago')">Cancelar</button>
+      <button class="btn-ok" onclick="confirmarPago()">Confirmar pago</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="foot-logo">
-        <div class="foot-logo-bg"><span class="flz">Z</span><span class="flr">IPPY</span></div>
-      </div>
-      <div class="foot-cats">
-        <a href="#" onclick="filterBy('plomeria')">Plomería</a>
-        <a href="#" onclick="filterBy('electricidad')">Electricidad</a>
-        <a href="#" onclick="filterBy('cerrajeria')">Cerrajería</a>
-        <a href="#" onclick="filterBy('herreria')">Herrería</a>
-        <a href="#" onclick="filterBy('albanileria')">Albañilería</a>
-        <a href="#" onclick="filterBy('mecanica')">Mecánica</a>
-        <a href="#" onclick="filterBy('pintura')">Pintura</a>
-        <a href="#" onclick="filterBy('gasista')">Gasista</a>
-        <a href="#" onclick="filterBy('aires')">Aire Acond.</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 ZIPPY · Córdoba, Argentina</p>
-      <p>Todos los profesionales son independientes · <a href="zippy-terminos.html" style="color:var(--ink-mid);text-decoration:underline;">Términos y condiciones</a></p>
-    </div>
-  </div>
-</footer>
-
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, doc, addDoc, setDoc, onSnapshot, serverTimestamp }
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const db = getFirestore(initializeApp({
+  // Admins autorizados
+  const ADMIN_EMAILS = ["villalon242@gmail.com", "valebarreto03.vb@gmail.com"];
+
+  const app = initializeApp({
     apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
     authDomain:"servicio-ece5d.firebaseapp.com",
     projectId:"servicio-ece5d",
     storageBucket:"servicio-ece5d.firebasestorage.app",
     messagingSenderId:"729691529118",
     appId:"1:729691529118:web:7eeff9104496b7fb29c08f"
-  }));
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-  const CATS = [
-    {id:'plomeria',    label:'Plomería',    emoji:'🚿'},
-    {id:'electricidad',label:'Electricidad',emoji:'⚡'},
-    {id:'cerrajeria',  label:'Cerrajería',  emoji:'🔑'},
-    {id:'herreria',    label:'Herrería',    emoji:'⚙️'},
-    {id:'albanileria', label:'Albañilería', emoji:'🧱'},
-    {id:'mecanica',    label:'Mecánica',    emoji:'🔧'},
-    {id:'pintura',     label:'Pintura',     emoji:'🖌️'},
-    {id:'gasista',     label:'Gasista',     emoji:'🔥'},
-    {id:'aires',       label:'Aire Acond.', emoji:'❄️'},
-  ];
-  const CM={}; CATS.forEach(c=>CM[c.id]=c);
-  window.CATS=CATS; window.CM=CM;
+  const CAT = {
+    plomeria:'🚿 Plomería', electricidad:'⚡ Electricidad',
+    cerrajeria:'🔑 Cerrajería', herreria:'⚙️ Herrería',
+    albanileria:'🧱 Albañilería', mecanica:'🔧 Mecánica',
+    pintura:'🖌️ Pintura', gasista:'🔥 Gasista',
+    aires:'❄️ Aire Acond.'
+  };
 
-  let TODOS=[], activeCat=null, activeBarrio=null, searchQ='';
+  // ── AUTH ──
+  window.loginGoogle = async function() {
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch(e){ showToast('❌ Error al iniciar sesión'); }
+  };
+  window.logout = async function() {
+    await signOut(auth);
+    location.reload();
+  };
 
-  function getList(){
-    let l=[...TODOS];
-    if(activeCat) l=l.filter(p=>p.cat===activeCat);
-    if(activeBarrio) l=l.filter(p=>(p.zona||'').toLowerCase().includes(activeBarrio.toLowerCase()));
+  onAuthStateChanged(auth, user => {
+    document.getElementById('loginScreen').style.display = 'none';
+    if (!user) {
+      document.getElementById('loginScreen').style.display = 'flex';
+      return;
+    }
+    if (!ADMIN_EMAILS.includes(user.email)) {
+      document.getElementById('deniedScreen').style.display = 'flex';
+      return;
+    }
+    document.getElementById('adminApp').classList.add('visible');
+    document.getElementById('adminEmail').textContent = user.email;
+    iniciarListeners();
+  });
+
+  // ── DATA ──
+  let PRESTADORES = [];
+  let PAGOS = [];
+  let RESENAS = [];
+  let filtroActivo = 'todos';
+  let searchQ = '';
+
+  function iniciarListeners() {
+    // Prestadores
+    onSnapshot(query(collection(db,'prestadores'), orderBy('creado','desc')), snap => {
+      PRESTADORES = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDashboard();
+      renderPrestadores();
+      actualizarBadges();
+      llenarSelectPrestadores();
+    });
+
+    // Pagos
+    onSnapshot(query(collection(db,'pagos'), orderBy('fecha','desc')), snap => {
+      PAGOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPagos();
+      renderFinanciero();
+    });
+
+    // Reseñas
+    onSnapshot(collection(db,'resenas'), snap => {
+      RESENAS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderResenas();
+      actualizarBadges();
+    });
+  }
+
+  // ── DASHBOARD ──
+  function renderDashboard() {
+    const hoy = new Date();
+    const en7 = new Date(); en7.setDate(en7.getDate()+7);
+
+    const activos   = PRESTADORES.filter(p=>p.estado==='activo').length;
+    const pendientes= PRESTADORES.filter(p=>p.estado==='pendiente').length;
+    const pro       = PRESTADORES.filter(p=>p.plan==='pro'&&p.estado==='activo').length;
+    const vencProx  = PRESTADORES.filter(p=>{
+      if(!p.vencimiento||p.estado!=='activo') return false;
+      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+    }).length;
+
+    document.getElementById('stActivos').textContent = activos;
+    document.getElementById('stPend').textContent    = pendientes;
+    document.getElementById('stVenc').textContent    = vencProx;
+    document.getElementById('stPro').textContent     = pro;
+
+    // Pendientes
+    const pend = PRESTADORES.filter(p=>p.estado==='pendiente');
+    const dp = document.getElementById('dashPend');
+    if(!pend.length){ dp.innerHTML='<div class="empty"><div class="ei">✅</div><p>No hay prestadores pendientes</p></div>'; }
+    else {
+      dp.innerHTML=`<div class="table-wrap"><table>
+        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Fecha registro</th><th>Acciones</th></tr></thead>
+        <tbody>${pend.map(p=>`<tr>
+          <td><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
+          <td>${CAT[p.cat]||p.cat}</td>
+          <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
+          <td>${fmtFecha(p.creado)}</td>
+          <td><div class="actions">
+            <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">✅ Activar</button>
+            <button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+
+    // Vencen pronto
+    const venc = PRESTADORES.filter(p=>{
+      if(!p.vencimiento||p.estado!=='activo') return false;
+      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+    });
+    const dv = document.getElementById('dashVenc');
+    if(!venc.length){ dv.innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nadie vence esta semana</p></div>'; }
+    else {
+      dv.innerHTML=`<div class="table-wrap"><table>
+        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Vence</th><th>Acciones</th></tr></thead>
+        <tbody>${venc.map(p=>`<tr>
+          <td><div class="td-name">${esc(p.nombre)}</div></td>
+          <td>${CAT[p.cat]||p.cat}</td>
+          <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
+          <td><span class="venc-warn">${p.vencimiento||'—'}</span></td>
+          <td><div class="actions">
+            <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence pronto. ¿Renovamos?')}','_blank')">💬 Recordatorio</button>
+            <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+  }
+
+  // ── PRESTADORES ──
+  function getListaFiltrada() {
+    let l = PRESTADORES;
+    if(filtroActivo==='pro') l=l.filter(p=>p.plan==='pro');
+    else if(filtroActivo!=='todos') l=l.filter(p=>p.estado===filtroActivo);
     if(searchQ) l=l.filter(p=>
       (p.nombre||'').toLowerCase().includes(searchQ)||
-      (CM[p.cat]?.label||'').toLowerCase().includes(searchQ)||
-      (p.desc||'').toLowerCase().includes(searchQ)||
+      (p.negocio||'').toLowerCase().includes(searchQ)||
+      (CAT[p.cat]||'').toLowerCase().includes(searchQ)||
       (p.zona||'').toLowerCase().includes(searchQ)||
-      (p.negocio||'').toLowerCase().includes(searchQ)
+      (p.telefono||'').includes(searchQ)
     );
-    l.sort((a,b)=>(a.plan==='pro'&&b.plan!=='pro')?-1:(b.plan==='pro'&&a.plan!=='pro')?1:0);
     return l;
   }
 
-  function esc(s){return s?String(s).replace(/[&<>'"]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)):''}
+  function renderPrestadores() {
+    const list = getListaFiltrada();
+    const tbody = document.getElementById('tablaPrestadores');
+    if(!list.length){ tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><p>No hay prestadores con este filtro</p></div></td></tr>`; return; }
 
-  function renderCats(counts){
-    const el=document.getElementById('catsInner');
-    el.innerHTML=`<div class="cat-tab active" id="cat-all" onclick="filterBy(null)">
-      <span class="cat-tab-icon">🏠</span>
-      <span class="cat-tab-label">Todos</span>
-      <span class="cat-tab-n">${TODOS.length}</span>
-    </div>`+CATS.map(c=>`
-      <div class="cat-tab" id="cat-${c.id}" onclick="filterBy('${c.id}')">
-        <span class="cat-tab-icon">${c.emoji}</span>
-        <span class="cat-tab-label">${c.label}</span>
-        <span class="cat-tab-n">${counts[c.id]||0}</span>
-      </div>`).join('');
-  }
+    const hoy=new Date();
+    tbody.innerHTML = list.map(p=>{
+      const vencClass = !p.vencimiento ? '' :
+        new Date(p.vencimiento) < hoy ? 'venc-bad' :
+        (new Date(p.vencimiento)-hoy)<7*86400000 ? 'venc-warn' : 'venc-ok';
 
-  function renderPros(){
-    const list=getList();
-    const el=document.getElementById('prosGrid');
-    document.getElementById('mainCount').textContent=`(${list.length})`;
+      const btns = [];
+      if(p.estado==='pendiente') btns.push(`<button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">✅ Activar</button>`);
+      if(p.estado==='activo')    btns.push(`<button class="btn-sm btn-desactivar" onclick="cambiarEstado('${p.id}','inactivo','${esc(p.nombre)}')">⏸ Pausar</button>`);
+      if(p.estado==='inactivo')  btns.push(`<button class="btn-sm btn-activar" onclick="cambiarEstado('${p.id}','activo','${esc(p.nombre)}')">▶️ Reactivar</button>`);
+      if(p.plan!=='pro')         btns.push(`<button class="btn-sm btn-pro" onclick="cambiarPlan('${p.id}','pro','${esc(p.nombre)}')">⭐ PRO</button>`);
+      if(p.plan==='pro')         btns.push(`<button class="btn-sm btn-gratis" onclick="cambiarPlan('${p.id}','gratis','${esc(p.nombre)}')">↓ Básico</button>`);
+      btns.push(`<button class="btn-sm" style="background:#2563EB;color:#fff" onclick="abrirEditar('${p.id}')">✏️ Editar</button>`);
+      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}','_blank')">💬</button>`);
+      btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
 
-    if(!list.length){
-      el.innerHTML=`<div class="state-box">
-        <div class="s-ico">🔍</div>
-        <h3>No encontramos resultados</h3>
-        <p>Probá con otro barrio o rubro. Si sos profesional, ¡publicá tu servicio gratis!</p>
-      </div>`;
-      return;
-    }
-
-    const now=Date.now();
-    el.innerHTML=list.map(p=>{
-      const c=CM[p.cat]||{};
-      const tel=(p.telefono||'').replace(/\D/g,'');
-      const wa='549'+tel;
-      const msg=encodeURIComponent(`Hola ${esc(p.nombre)}, te encuentro en ZIPPY. Necesito un servicio de ${c.label||p.cat}.`);
-      const ts=p.creado?(p.creado.toMillis?p.creado.toMillis():new Date(p.creado).getTime()):0;
-      const isNew=(now-ts)<86400000*3;
-      const r=p.estrellas;
-      const nr=p.totalReseñas||0;
-      const isPro=p.plan==='pro';
-
-      return `<div class="pro-card">
-        <div class="card-img-wrap">
-          <div class="card-emoji">${c.emoji||'🔧'}</div>
-          ${isPro?`<div class="card-pro-badge"><span class="star">★</span> PRO</div>`:''}
-          ${p.urgencias&&!isPro?'<div class="card-urg">24h</div>':''}
-          ${isNew&&!p.urgencias&&!isPro?'<div class="card-new">NUEVO</div>':''}
-        </div>
-        <div class="card-body">
-          <div class="card-row1">
-            <div class="card-name">${esc(p.nombre||p.negocio)}</div>
-            ${r?`<div class="card-rating"><span class="star">★</span>${r}</div>`:''}
-          </div>
-          <div class="card-cat">${c.label||''}${p.negocio?` · ${esc(p.negocio)}`:''}</div>
-          <div class="card-zona">📍 ${esc(p.zona||'Córdoba')}</div>
-          ${p.desc?`<div class="card-desc">${esc(p.desc)}</div>`:''}
-          ${nr?`<div class="card-nreseñas">${nr} reseña${nr!==1?'s':''}</div>`:''}
-          <div class="card-actions">
-            <a class="a-call" href="tel:${tel}">📞 Llamar</a>
-            <a class="a-wsp" href="https://wa.me/${wa}?text=${msg}" target="_blank">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-              WhatsApp
-            </a>
-          </div>
-          <button class="a-resena" onclick="abrirResena('${p.id}','${esc(p.nombre||p.negocio)}')">⭐ Dejar reseña</button>
-          ${RESENAS_MAP[p.id]&&RESENAS_MAP[p.id].length?`
-          <div class="card-resenas">
-            ${RESENAS_MAP[p.id].slice(0,2).map(r=>`
-              <div class="resena-mini">
-                <span class="resena-stars">${'★'.repeat(r.estrellas||5)}</span>
-                <span class="resena-autor">${esc(r.autor||'Cliente')}</span>
-                <span class="resena-txt">"${esc(r.comentario)}"</span>
-              </div>`).join('')}
-          </div>`:''}
-        </div>
-      </div>`;
+      return `<tr>
+        <td data-label="Prestador"><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
+        <td data-label="Rubro">${CAT[p.cat]||p.cat||'—'}</td>
+        <td data-label="Zona" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.zona||'—')}</td>
+        <td data-label="Teléfono" class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">${p.telefono}</a></td>
+        <td data-label="Estado"><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span></td>
+        <td data-label="Plan"><span class="badge ${p.plan||'gratis'}">${p.plan==='pro'?'⭐ PRO':'Básico'}</span></td>
+        <td data-label="Vencimiento"><span class="${vencClass}">${p.vencimiento||'—'}</span></td>
+        <td data-label="Acciones"><div class="actions">${btns.join('')}</div></td>
+      </tr>`;
     }).join('');
   }
 
+  // ── PAGOS ──
+  let periodoActivo = 'todos';
+
+  function getTs(p) {
+    if(!p.fecha) return 0;
+    return p.fecha.toMillis ? p.fecha.toMillis() : new Date(p.fecha).getTime();
+  }
+
+  function pagosFiltradosPorPeriodo(periodo) {
+    const hoy   = new Date();
+    const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const lunesMs = hoyMs - (hoy.getDay()===0?6:hoy.getDay()-1)*86400000;
+    const inicioMes  = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1).getTime();
+
+    return PAGOS.filter(p => {
+      const ts = getTs(p);
+      if(periodo === 'hoy')   return ts >= hoyMs;
+      if(periodo === 'semana')return ts >= lunesMs;
+      if(periodo === 'mes')   return ts >= inicioMes;
+      if(periodo === 'anio')  return ts >= inicioAnio;
+      return true;
+    });
+  }
+
+  function formatPeso(n) {
+    return '$' + Number(n||0).toLocaleString('es-AR');
+  }
+
+  function renderFinanciero() {
+    const hoy    = new Date();
+    const hoyMs  = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const inicioMes  = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1).getTime();
+
+    const calcular = (lista) => ({
+      total: lista.reduce((a,p)=>a+(p.monto||0),0),
+      n: lista.length
+    });
+
+    const dHoy   = calcular(PAGOS.filter(p=>getTs(p)>=hoyMs));
+    const dMes   = calcular(PAGOS.filter(p=>getTs(p)>=inicioMes));
+    const dAnio  = calcular(PAGOS.filter(p=>getTs(p)>=inicioAnio));
+    const dTotal = calcular(PAGOS);
+
+    document.getElementById('finHoy').textContent    = formatPeso(dHoy.total);
+    document.getElementById('finHoyN').textContent   = dHoy.n + ' pago' + (dHoy.n!==1?'s':'');
+    document.getElementById('finMes').textContent    = formatPeso(dMes.total);
+    document.getElementById('finMesN').textContent   = dMes.n + ' pago' + (dMes.n!==1?'s':'');
+    document.getElementById('finAnio').textContent   = formatPeso(dAnio.total);
+    document.getElementById('finAnioN').textContent  = dAnio.n + ' pago' + (dAnio.n!==1?'s':'');
+    document.getElementById('finTotal').textContent  = formatPeso(dTotal.total);
+    document.getElementById('finTotalN').textContent = dTotal.n + ' pago' + (dTotal.n!==1?'s':'') + ' histórico';
+  }
+
+  function renderPagos() {
+    const lista = pagosFiltradosPorPeriodo(periodoActivo);
+    const totalPeriodo = lista.reduce((a,p)=>a+(p.monto||0),0);
+    const promedio = lista.length ? Math.round(totalPeriodo/lista.length) : 0;
+
+    const labelMap = {todos:'Total histórico',hoy:'Total hoy',semana:'Total esta semana',mes:'Total este mes',anio:'Total este año'};
+    document.getElementById('periodoLabel').textContent   = labelMap[periodoActivo]||'Total';
+    document.getElementById('periodoTotal').textContent   = formatPeso(totalPeriodo);
+    document.getElementById('periodoN').textContent       = lista.length + ' pago' + (lista.length!==1?'s':'');
+    document.getElementById('periodoPromedio').textContent= formatPeso(promedio);
+
+    const el = document.getElementById('listaPagos');
+    if(!lista.length){ el.innerHTML='<div class="empty"><div class="ei">💰</div><p>No hay pagos en este período</p></div>'; return; }
+
+    el.innerHTML = lista.map(p=>`
+      <div class="pago-card">
+        <div class="pago-info">
+          <div class="pago-nombre">${esc(p.nombre||'—')}</div>
+          <div class="pago-detalle">${p.plan==='pro'?'⭐ Plan PRO':'Plan Básico'} · ${p.duracion||30} días · ${fmtFecha(p.fecha)}</div>
+        </div>
+        <div class="pago-monto">${formatPeso(p.monto)}</div>
+        <div class="pago-fecha">Vence: ${p.vencimiento||'—'}</div>
+      </div>`).join('');
+  }
+
+  window.setPeriodoPago = function(periodo, el) {
+    periodoActivo = periodo;
+    document.querySelectorAll('#panel-pagos .filtro').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    renderPagos();
+  };
+
   // ── RESEÑAS ──
-  let RESENAS_MAP = {}; // { prestadorId: [resenas aprobadas] }
+  function renderResenas() {
+    const pendientes = RESENAS.filter(r=>!r.aprobada);
+    const aprobadas  = RESENAS.filter(r=>r.aprobada);
+    const el = document.getElementById('listaResenas');
 
-  onSnapshot(collection(db,'resenas'), snap => {
-    RESENAS_MAP = {};
-    snap.docs.forEach(d => {
-      const r = { id: d.id, ...d.data() };
-      if(!r.aprobada) return;
-      if(!RESENAS_MAP[r.prestadorId]) RESENAS_MAP[r.prestadorId] = [];
-      RESENAS_MAP[r.prestadorId].push(r);
-    });
-    renderPros();
-  });
+    let html = '';
+    if(pendientes.length){
+      html += `<div class="sec-title" style="margin-bottom:12px">Pendientes de aprobación (${pendientes.length})</div>`;
+      html += pendientes.map(r=>`
+        <div class="resena-card">
+          <div class="resena-head">
+            <div>
+              <div class="resena-autor">${esc(r.autor||'Anónimo')}</div>
+              <div class="resena-prestador">Para: ${esc(r.prestadorNombre||r.prestadorId||'—')}</div>
+            </div>
+            <div class="resena-stars">${'★'.repeat(r.estrellas||5)}</div>
+          </div>
+          <div class="resena-txt">${esc(r.comentario||'')}</div>
+          <div class="resena-fecha">${fmtFecha(r.fecha)}</div>
+          <div class="resena-acts">
+            <button class="btn-sm btn-activar" onclick="aprobarResena('${r.id}')">✅ Aprobar</button>
+            <button class="btn-sm btn-eliminar" onclick="eliminarResena('${r.id}')">🗑️ Rechazar</button>
+          </div>
+        </div>`).join('');
+    } else {
+      html += '<div class="empty"><div class="ei">✅</div><p>No hay reseñas pendientes</p></div>';
+    }
 
-  window.abrirResena = function(id, nombre) {
-    document.getElementById('rv_id').value = id;
-    document.getElementById('rv_nombre_prestador').value = nombre;
-    document.getElementById('resena-para').textContent = `Tu opinión sobre ${nombre} ayuda a otros vecinos.`;
-    document.getElementById('rv_autor').value = '';
-    document.getElementById('rv_comentario').value = '';
-    estrellasSel = 0;
-    setStar(0);
-    abrirModal('resena');
+    if(aprobadas.length){
+      html += `<div class="sec-title" style="margin-top:32px;margin-bottom:12px">Aprobadas (${aprobadas.length})</div>`;
+      html += aprobadas.map(r=>`
+        <div class="resena-card" style="opacity:.7">
+          <div class="resena-head">
+            <div>
+              <div class="resena-autor">${esc(r.autor||'Anónimo')}</div>
+              <div class="resena-prestador">Para: ${esc(r.prestadorNombre||'—')}</div>
+            </div>
+            <div class="resena-stars">${'★'.repeat(r.estrellas||5)}</div>
+          </div>
+          <div class="resena-txt">${esc(r.comentario||'')}</div>
+          <div class="resena-acts">
+            <button class="btn-sm btn-eliminar" onclick="eliminarResena('${r.id}')">🗑️ Eliminar</button>
+          </div>
+        </div>`).join('');
+    }
+    el.innerHTML = html;
+  }
+
+  // ── ACCIONES PRESTADORES ──
+  window.cambiarEstado = async function(id, estado, nombre) {
+    await updateDoc(doc(db,'prestadores',id), { estado });
+    showToast(`✅ ${nombre} → ${estado}`);
   };
 
-  let estrellasSel = 0;
-  window.setStar = function(n) {
-    estrellasSel = n;
-    document.querySelectorAll('#starPicker span').forEach((s,i) => {
-      s.classList.toggle('on', i < n);
-    });
+  window.cambiarPlan = async function(id, plan, nombre) {
+    await updateDoc(doc(db,'prestadores',id), { plan });
+    showToast(`⭐ ${nombre} → Plan ${plan==='pro'?'PRO':'Básico'}`);
   };
 
-  window.enviarResena = async function() {
-    const prestadorId    = document.getElementById('rv_id').value;
-    const prestadorNombre= document.getElementById('rv_nombre_prestador').value;
-    const autor          = document.getElementById('rv_autor').value.trim();
-    const comentario     = document.getElementById('rv_comentario').value.trim();
+  window.eliminarPrestador = async function(id, nombre) {
+    if(!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    await deleteDoc(doc(db,'prestadores',id));
+    showToast(`🗑️ ${nombre} eliminado`);
+  };
 
-    if(!estrellasSel){ showToast('⚠️ Elegí una calificación.'); return; }
-    if(!comentario){ showToast('⚠️ Escribí un comentario.'); return; }
+  // ── EDITAR PRESTADOR ──
+  window.abrirEditar = function(id) {
+    const p = PRESTADORES.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('e_id').value     = id;
+    document.getElementById('e_nombre').value = p.nombre||'';
+    document.getElementById('e_negocio').value= p.negocio||'';
+    document.getElementById('e_tel').value    = p.telefono||'';
+    document.getElementById('e_zona').value   = p.zona||'';
+    document.getElementById('e_desc').value   = p.desc||'';
+    document.getElementById('e_urg').value    = p.urgencias?'si':'no';
+    document.getElementById('ov-editar').classList.add('open');
+  };
 
-    const btn = document.getElementById('btnResena');
-    btn.textContent = 'Enviando…'; btn.disabled = true;
+  window.guardarEdicion = async function() {
+    const id     = document.getElementById('e_id').value;
+    const nombre = document.getElementById('e_nombre').value.trim();
+    const negocio= document.getElementById('e_negocio').value.trim();
+    const tel    = document.getElementById('e_tel').value.trim().replace(/\D/g,'');
+    const zona   = document.getElementById('e_zona').value.trim();
+    const desc   = document.getElementById('e_desc').value.trim();
+    const urg    = document.getElementById('e_urg').value;
+
+    if(!nombre||!tel){ showToast('⚠️ Nombre y teléfono son obligatorios.'); return; }
 
     try {
-      await addDoc(collection(db,'resenas'), {
-        prestadorId, prestadorNombre,
-        autor: autor || 'Anónimo',
-        estrellas: estrellasSel,
-        comentario,
-        aprobada: false,
-        fecha: serverTimestamp()
-      });
-      cerrarModal('resena');
-      showToast('✅ ¡Gracias! Tu reseña será publicada después de ser revisada.');
+      await updateDoc(doc(db,'prestadores',id), { nombre, negocio, telefono:tel, zona, desc, urgencias:urg==='si' });
+      cerrarMod('editar');
+      showToast('✅ Datos actualizados correctamente.');
     } catch(e) {
-      showToast('❌ Error al enviar. Intentá de nuevo.');
+      showToast('❌ Error al guardar. Intentá de nuevo.');
       console.error(e);
     }
-    btn.textContent = 'Enviar reseña'; btn.disabled = false;
   };
 
-  onSnapshot(collection(db,'prestadores'),snap=>{
-    const counts={};
-    TODOS=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.estado==='activo');
-    TODOS.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
-    renderCats(counts);
-    renderPros();
-  });
+  // ── MODAL PAGO ──
+  let pagoPreId = null;
 
-  window.registrarPrestador=async function(){
-    const nombre=document.getElementById('r_nombre').value.trim();
-    const negocio=document.getElementById('r_negocio').value.trim();
-    const tel=document.getElementById('r_tel').value.trim().replace(/\D/g,'');
-    const cat=document.getElementById('r_cat').value;
-    const zona=document.getElementById('r_zona').value.trim();
-    const desc=document.getElementById('r_desc').value.trim();
-    const urg=document.getElementById('r_urg').value;
-    if(!nombre||!tel||!cat||!zona){showToast('⚠️ Completá nombre, celular, rubro y barrios.');return;}
-    if(!/^\d{8,12}$/.test(tel)){showToast('⚠️ Número inválido, solo dígitos sin espacios.');return;}
-    const btn=document.getElementById('btnReg');
-    btn.textContent='Enviando…';btn.disabled=true;
-    try{
-      // ID = teléfono → fácil de buscar en Firestore
-      await setDoc(doc(db,'prestadores',tel),{nombre,negocio,telefono:tel,cat,zona,desc,urgencias:urg==='si',estado:'pendiente',plan:'gratis',estrellas:null,totalReseñas:0,creado:serverTimestamp()});
-      zonaSeleccionada=[];
-      renderZonaChips();
-      ['r_nombre','r_negocio','r_tel','r_zona','r_zona_input','r_desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      document.getElementById('r_cat').value='';
-      cerrarModal('registro');
-      showToast('✅ Solicitud enviada. Te contactamos pronto por WhatsApp.');
-    }catch(e){showToast('❌ Error al enviar. Intentá de nuevo.');console.error(e);}
-    btn.textContent='Enviar solicitud';btn.disabled=false;
+  window.abrirModalPago = function() {
+    pagoPreId = null;
+    document.getElementById('p_prestador').value='';
+    document.getElementById('ov-pago').classList.add('open');
   };
 
-  window.filterBy=function(cat){
-    activeCat=cat; renderPros();
-    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
-    document.getElementById(cat?'cat-'+cat:'cat-all')?.classList.add('active');
-    const label=cat?CM[cat]?.label:'Todos los profesionales';
-    document.getElementById('mainTitle').textContent=label;
-    if(cat) window.scrollTo({top:document.querySelector('.cats-bar').offsetTop+120,behavior:'smooth'});
+  window.abrirModalPagoId = function(id) {
+    pagoPreId = id;
+    document.getElementById('p_prestador').value = id;
+    document.getElementById('ov-pago').classList.add('open');
   };
 
-  window.handleSearch=function(v){searchQ=v.toLowerCase().trim();renderPros();};
-
-  window.applySearch=function(){
-    const barrio=(document.getElementById('hsInput')?.value.trim()||document.getElementById('spBarrio')?.value.trim());
-    const rubroInput=document.getElementById('hsRubro')?.value.trim()||document.getElementById('spRubro')?.value.trim();
-    // aplicar barrio
-    if(barrio) elegirBarrio(barrio);
-    // aplicar rubro si escribieron algo que no eligieron del dropdown
-    if(rubroInput && !rubroSeleccionado) {
-      const match = RUBROS_LIST.find(r=>r.label.toLowerCase().includes(rubroInput.toLowerCase().replace(/[^\w]/g,'')));
-      if(match){ window.filterBy && window.filterBy(match.id); rubroSeleccionado=match.id; }
-      else { window.handleSearch && window.handleSearch(rubroInput); }
-    }
-    if(!barrio && !rubroInput) showToast('⚠️ Escribí un rubro o barrio para buscar');
-  };
-
-  window._setBarrio=function(b){activeBarrio=b;renderPros();};
-</script>
-
-<script>
-  const BARRIOS=["Alberdi","Alta Córdoba","Arguello","Ayacucho","Bajo Palermo","Bella Vista","Botanico","Boulevares","Buen Pastor","Cañitas","Carbó","Caseros","Centro","Cerro Chico","Cerro Las Rosas","Colón","Dean Funes","El Velódromo","Empalme","Estación Flores","Ferreyra","General Bustos","General Paz","General Urquiza","Guiñazú","Güemes","Hipódromo","Ituzaingó","Iturraspe","Jardín Claret","Jardín Espinosa","Jardín Hipódromo","José Ignacio Díaz","La France","La Rambla","Las Violetas","Los Boulevares","Los Cedros","Lourdes","Maipú","Maldonado","Marqués de Sobremonte","Mataderos","Monserrat","Müller","Nazca","Nueva Córdoba","Nueva Italia","Observatorio","Palermo","Parque Azul","Parque Capital","Parque Chacabuco","Parque Liceo","Parque San Vicente","Parque Vélez Sarsfield","Patricias Argentinas","Poeta Lugones","Pueyrredón","Remedios de Escalada","Ricardo Rojas","Rivadavia","San Ignacio","San Martín","San Vicente","Santa Isabel","Talleres Este","Talleres Oeste","Terminal","Urca","Valle del Cerro","Vélez Sarsfield","Villa Adela","Villa Cabrera","Villa del Parque","Villa Dora","Villa El Libertador","Villa Esquiú","Villa General Mitre","Villa Los Álamos","Villa Páez","Villa Peñaloza","Villa Rivadavia","Villa Siburu","Villa Urquiza","Villa Warcalde","Yapeyú","Yofre Norte","Yofre Sud"].sort();
-
-  let activeDropSrc=null, dT;
-
-  // ── DROPDOWN RUBROS EN HERO ──
-  const RUBROS_LIST = [
-    {id:'plomeria',    label:'Plomería',    emoji:'🚿'},
-    {id:'electricidad',label:'Electricidad',emoji:'⚡'},
-    {id:'cerrajeria',  label:'Cerrajería',  emoji:'🔑'},
-    {id:'herreria',    label:'Herrería',    emoji:'⚙️'},
-    {id:'albanileria', label:'Albañilería', emoji:'🧱'},
-    {id:'mecanica',    label:'Mecánica',    emoji:'🔧'},
-    {id:'pintura',     label:'Pintura',     emoji:'🖌️'},
-    {id:'gasista',     label:'Gasista',     emoji:'🔥'},
-  ];
-  let rubroDropT, rubroSeleccionado=null;
-
-  function filtrarRubros(v) {
-    const q = v.toLowerCase().trim();
-    const drop = document.getElementById('rubroDrop');
-    const matches = q ? RUBROS_LIST.filter(r=>r.label.toLowerCase().includes(q)) : RUBROS_LIST;
-    if(!matches.length){ drop.classList.remove('open'); return; }
-    drop.classList.add('open');
-    drop.innerHTML = matches.map(r =>
-      `<div class="b-item" onmousedown="elegirRubro('${r.id}','${r.label}','${r.emoji}')">
-        <span class="b-ico">${r.emoji}</span>${r.label}
-      </div>`
-    ).join('');
+  function llenarSelectPrestadores() {
+    const sel = document.getElementById('p_prestador');
+    sel.innerHTML = '<option value="">— Seleccioná un prestador —</option>' +
+      PRESTADORES.map(p=>`<option value="${p.id}">${esc(p.nombre)} (${CAT[p.cat]||p.cat})</option>`).join('');
+    if(pagoPreId) sel.value = pagoPreId;
   }
 
-  function abrirDropRubro() {
-    clearTimeout(rubroDropT);
-    filtrarRubros(document.getElementById('hsRubro').value);
-  }
+  window.confirmarPago = async function() {
+    const prestId = document.getElementById('p_prestador').value;
+    const monto   = document.getElementById('p_monto').value;
+    const dias    = parseInt(document.getElementById('p_dur').value);
+    const plan    = document.getElementById('p_plan').value;
 
-  function cerrarDropRubro() {
-    rubroDropT = setTimeout(()=>document.getElementById('rubroDrop').classList.remove('open'), 180);
-  }
+    if(!prestId||!monto){ showToast('⚠️ Completá todos los campos'); return; }
 
-  function elegirRubro(id, label, emoji) {
-    rubroSeleccionado = id;
-    document.getElementById('hsRubro').value = emoji + ' ' + label;
-    document.getElementById('rubroDrop').classList.remove('open');
-    window.filterBy && window.filterBy(id);
-    showToast(emoji + ' Mostrando ' + label);
-    setTimeout(()=>document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'}),300);
-  }
+    const prest = PRESTADORES.find(p=>p.id===prestId);
+    const hoy   = new Date();
 
-  function filtrarBarrios(v){
-    const q=v.toLowerCase().trim();
-    const m=q?BARRIOS.filter(b=>b.toLowerCase().includes(q)):BARRIOS.slice(0,8);
-    const drop=document.getElementById('bDrop');
-    drop.innerHTML=m.length
-      ?m.slice(0,8).map(b=>`<div class="b-item" onmousedown="elegirBarrio('${b.replace(/'/g,"\\'")}')"><span class="b-ico">📍</span>${b}</div>`).join('')
-      :'<div class="b-none">No encontramos ese barrio</div>';
-  }
-
-  function abrirDrop(src){
-    clearTimeout(dT); activeDropSrc=src;
-    const inp=src==='sp'?document.getElementById('spBarrio'):document.getElementById('hsInput');
-    filtrarBarrios(inp?.value||'');
-    document.getElementById('bDrop').classList.add('open');
-  }
-  function cerrarDrop(){dT=setTimeout(()=>document.getElementById('bDrop').classList.remove('open'),180);}
-
-  function elegirBarrio(b){
-    document.getElementById('bDrop').classList.remove('open');
-    const hs=document.getElementById('hsInput');
-    const sp=document.getElementById('spBarrio');
-    if(hs) hs.value=b;
-    if(sp) sp.value=b;
-    document.getElementById('locTxt').textContent=b;
-    document.getElementById('locTag').style.display='block';
-    window._setBarrio&&window._setBarrio(b);
-    showToast('📍 Mostrando profesionales en '+b);
-    setTimeout(()=>document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'}),300);
-  }
-
-  function limpiarBarrio(){
-    document.getElementById('locTag').style.display='none';
-    const hs=document.getElementById('hsInput');
-    const sp=document.getElementById('spBarrio');
-    if(hs) hs.value='';
-    if(sp) sp.value='';
-    window._setBarrio&&window._setBarrio(null);
-  }
-
-  function focusBarrio(){
-    document.getElementById('hsInput').focus();
-    abrirDrop('hs');
-    document.getElementById('heroSearch').scrollIntoView({behavior:'smooth',block:'center'});
-  }
-
-  // ── GPS Y DETECCIÓN DE BARRIO ──
-  // Coordenadas aproximadas del centro de cada barrio de Córdoba Capital
-  const BARRIOS_GEO = [
-    {nombre:'Centro',              lat:-31.4167, lng:-64.1833},
-    {nombre:'Nueva Córdoba',       lat:-31.4267, lng:-64.1867},
-    {nombre:'Güemes',              lat:-31.4200, lng:-64.1950},
-    {nombre:'Alberdi',             lat:-31.4050, lng:-64.2050},
-    {nombre:'General Paz',         lat:-31.3950, lng:-64.1950},
-    {nombre:'Alta Córdoba',        lat:-31.3867, lng:-64.1933},
-    {nombre:'Observatorio',        lat:-31.4267, lng:-64.1933},
-    {nombre:'San Martín',          lat:-31.4000, lng:-64.1833},
-    {nombre:'Monserrat',           lat:-31.4133, lng:-64.1867},
-    {nombre:'Maipú',               lat:-31.3933, lng:-64.1767},
-    {nombre:'Palermo',             lat:-31.3983, lng:-64.1700},
-    {nombre:'Pueyrredón',          lat:-31.3867, lng:-64.1833},
-    {nombre:'Talleres Oeste',      lat:-31.4050, lng:-64.2133},
-    {nombre:'Talleres Este',       lat:-31.4000, lng:-64.1667},
-    {nombre:'Villa Cabrera',       lat:-31.3767, lng:-64.1700},
-    {nombre:'Cerro Las Rosas',     lat:-31.3683, lng:-64.2183},
-    {nombre:'Arguello',            lat:-31.3500, lng:-64.2333},
-    {nombre:'Villa Warcalde',      lat:-31.3400, lng:-64.2267},
-    {nombre:'Jardín Hipódromo',    lat:-31.3817, lng:-64.2150},
-    {nombre:'Hipódromo',           lat:-31.3900, lng:-64.2000},
-    {nombre:'Ituzaingó',           lat:-31.4150, lng:-64.2200},
-    {nombre:'Villa El Libertador', lat:-31.4517, lng:-64.2183},
-    {nombre:'José Ignacio Díaz',   lat:-31.4433, lng:-64.2050},
-    {nombre:'Parque Chacabuco',    lat:-31.4333, lng:-64.2033},
-    {nombre:'San Vicente',         lat:-31.4367, lng:-64.1700},
-    {nombre:'Ferreyra',            lat:-31.4667, lng:-64.1667},
-    {nombre:'Bajo Palermo',        lat:-31.4050, lng:-64.1783},
-    {nombre:'Iturraspe',           lat:-31.4083, lng:-64.1917},
-    {nombre:'Villa Páez',          lat:-31.4117, lng:-64.2117},
-    {nombre:'Caseros',             lat:-31.4233, lng:-64.2083},
-    {nombre:'Ayacucho',            lat:-31.4300, lng:-64.2000},
-    {nombre:'Villa Siburu',        lat:-31.4383, lng:-64.1983},
-    {nombre:'Parque San Vicente',  lat:-31.4450, lng:-64.1750},
-    {nombre:'General Urquiza',     lat:-31.4133, lng:-64.1750},
-    {nombre:'Rivadavia',           lat:-31.4217, lng:-64.1750},
-    {nombre:'Empalme',             lat:-31.3967, lng:-64.1567},
-    {nombre:'Yofre Norte',         lat:-31.3800, lng:-64.1583},
-    {nombre:'Yofre Sud',           lat:-31.3933, lng:-64.1567},
-    {nombre:'Villa Urquiza',       lat:-31.3717, lng:-64.1817},
-    {nombre:'Los Boulevares',      lat:-31.3617, lng:-64.1883},
-    {nombre:'Dean Funes',          lat:-31.3750, lng:-64.1950},
-    {nombre:'Boulevares',          lat:-31.3650, lng:-64.1950},
-    {nombre:'Villa del Parque',    lat:-31.3817, lng:-64.1983},
-    {nombre:'Villa Dora',          lat:-31.3883, lng:-64.2117},
-    {nombre:'Guiñazú',             lat:-31.3683, lng:-64.2067},
-    {nombre:'Santa Isabel',        lat:-31.4550, lng:-64.2100},
-    {nombre:'Parque Capital',      lat:-31.3783, lng:-64.2033},
-    {nombre:'Lourdes',             lat:-31.3933, lng:-64.2250},
-    {nombre:'Cerro Chico',         lat:-31.3617, lng:-64.2250},
-    {nombre:'Bella Vista',         lat:-31.3550, lng:-64.2100},
-    {nombre:'Terminal',            lat:-31.4083, lng:-64.1817},
-    {nombre:'Cañitas',             lat:-31.4233, lng:-64.1783},
-    {nombre:'La Rambla',           lat:-31.3633, lng:-64.1733},
-    {nombre:'Müller',              lat:-31.3700, lng:-64.2283},
-    {nombre:'Poeta Lugones',       lat:-31.3800, lng:-64.2300},
-    {nombre:'Nazca',               lat:-31.3867, lng:-64.2300},
-    {nombre:'Maldonado',           lat:-31.4150, lng:-64.2300},
-    {nombre:'Yapeyú',              lat:-31.4283, lng:-64.2133},
-    {nombre:'Mataderos',           lat:-31.3983, lng:-64.2317},
-    {nombre:'Marqués de Sobremonte',lat:-31.3983, lng:-64.1933},
-    {nombre:'Estación Flores',     lat:-31.4117, lng:-64.1633},
-    {nombre:'Urca',                lat:-31.3683, lng:-64.1633},
-    {nombre:'El Velódromo',        lat:-31.4217, lng:-64.1633},
-    {nombre:'General Bustos',      lat:-31.3733, lng:-64.1700},
-    {nombre:'Patricias Argentinas',lat:-31.4333, lng:-64.1800},
-    {nombre:'San Ignacio',         lat:-31.3617, lng:-64.2000},
-    {nombre:'Ricardo Rojas',       lat:-31.3550, lng:-64.1933},
-    {nombre:'Remedios de Escalada',lat:-31.4467, lng:-64.1833},
-    {nombre:'Villa General Mitre', lat:-31.4483, lng:-64.1933},
-    {nombre:'Villa Esquiú',        lat:-31.4500, lng:-64.2000},
-    {nombre:'Villa Peñaloza',      lat:-31.4567, lng:-64.2067},
-    {nombre:'Villa Rivadavia',     lat:-31.4550, lng:-64.1967},
-    {nombre:'Villa Los Álamos',    lat:-31.4617, lng:-64.2000},
-    {nombre:'Villa Adela',         lat:-31.4633, lng:-64.1883},
-    {nombre:'Parque Vélez Sarsfield',lat:-31.4450, lng:-64.2267},
-    {nombre:'Parque Liceo',        lat:-31.4133, lng:-64.2283},
-    {nombre:'Parque Azul',         lat:-31.4233, lng:-64.2233},
-    {nombre:'Las Violetas',        lat:-31.4317, lng:-64.2283},
-    {nombre:'Los Cedros',          lat:-31.4383, lng:-64.2233},
-    {nombre:'Botanico',            lat:-31.4483, lng:-64.2150},
-    {nombre:'Valle del Cerro',     lat:-31.3983, lng:-64.2450},
-  ];
-
-  function distanciaKm(lat1, lng1, lat2, lng2) {
-    const R = 6371;
-    const dLat = (lat2-lat1) * Math.PI/180;
-    const dLng = (lng2-lng1) * Math.PI/180;
-    const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
-              Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-              Math.sin(dLng/2)*Math.sin(dLng/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  }
-
-  function barrioMasCercano(lat, lng) {
-    let mejor = null, menorDist = Infinity;
-    BARRIOS_GEO.forEach(b => {
-      const d = distanciaKm(lat, lng, b.lat, b.lng);
-      if(d < menorDist){ menorDist = d; mejor = b; }
-    });
-    return mejor;
-  }
-
-  window.usarUbicacion = function() {
-    if(!navigator.geolocation){
-      showToast('⚠️ Tu navegador no soporta geolocalización.');
-      return;
+    // Renovación anticipada: si tiene vencimiento futuro, extendemos desde ahí
+    let fechaBase = hoy;
+    if(prest?.vencimiento) {
+      const vencActual = new Date(prest.vencimiento);
+      if(vencActual > hoy) fechaBase = vencActual;
     }
 
-    const btn = document.getElementById('btnGps');
-    const icon = document.getElementById('gpsIcon');
-    const txt  = document.getElementById('gpsTxt');
-    btn.classList.add('loading');
-    icon.textContent = '⏳';
-    txt.textContent  = 'Detectando ubicación…';
+    const venc    = new Date(fechaBase);
+    venc.setDate(venc.getDate() + dias);
+    const vencStr = venc.toISOString().split('T')[0];
 
-    navigator.geolocation.getCurrentPosition(
-      // ÉXITO
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        const barrio = barrioMasCercano(lat, lng);
-
-        if(!barrio){
-          showToast('⚠️ No pudimos detectar tu barrio.');
-          btn.classList.remove('loading');
-          icon.textContent = '📍';
-          txt.textContent  = 'Usar mi ubicación';
-          return;
-        }
-
-        // Actualizar UI
-        btn.classList.remove('loading');
-        btn.classList.add('activo');
-        icon.textContent = '✅';
-        txt.textContent  = barrio.nombre;
-
-        // Aplicar filtro igual que si lo hubiera escrito
-        elegirBarrio(barrio.nombre);
-      },
-      // ERROR
-      (err) => {
-        btn.classList.remove('loading');
-        icon.textContent = '📍';
-        txt.textContent  = 'Usar mi ubicación';
-        if(err.code === 1){
-          showToast('⚠️ Permiso de ubicación denegado. Buscá tu barrio manualmente.');
-        } else {
-          showToast('⚠️ No pudimos obtener tu ubicación. Intentá de nuevo.');
-        }
-      },
-      { timeout: 10000, maximumAge: 60000 }
-    );
+    try {
+      await updateDoc(doc(db,'prestadores',prestId), {
+        estado: 'activo', plan, vencimiento: vencStr
+      });
+      await addDoc(collection(db,'pagos'), {
+        prestadorId: prestId,
+        nombre:      prest?.nombre||'',
+        monto:       Number(monto),
+        plan, duracion: dias,
+        vencimiento: vencStr,
+        fecha:       serverTimestamp()
+      });
+      cerrarMod('pago');
+      const renovado = fechaBase > hoy ? ' (renovación anticipada)' : '';
+      showToast(`✅ Pago registrado · ${prest?.nombre} activo hasta ${vencStr}${renovado}`);
+    } catch(e) {
+      showToast('❌ Error al registrar pago.');
+      console.error(e);
+    }
   };
-  let zonaSeleccionada = [];
-  let zonaDropT;
 
-  function filtrarZona(v) {
-    const q = v.toLowerCase().trim();
-    const drop = document.getElementById('zonaDropdown');
-    const matches = q ? BARRIOS.filter(b => b.toLowerCase().includes(q) && !zonaSeleccionada.includes(b)) : BARRIOS.filter(b => !zonaSeleccionada.includes(b)).slice(0,8);
-    if(!matches.length){ drop.style.display='none'; return; }
-    drop.style.display = 'block';
-    drop.innerHTML = matches.slice(0,8).map(b =>
-      `<div onmousedown="agregarZona('${b.replace(/'/g,"\\'")}') "
-        style="padding:10px 14px;cursor:pointer;font-size:13px;color:#555;border-bottom:1px solid #f0ece4;display:flex;align-items:center;gap:8px;"
-        onmouseover="this.style.background='#f5f0e8'" onmouseout="this.style.background=''"
-      >📍 ${b}</div>`
-    ).join('');
+  // ── RESEÑAS ──
+  window.aprobarResena = async function(id) {
+    const r = RESENAS.find(x=>x.id===id);
+    if(!r) return;
+
+    const resenaRef    = doc(db,'resenas',id);
+    const prestadorRef = doc(db,'prestadores',r.prestadorId);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const prestSnap = await transaction.get(prestadorRef);
+        if(!prestSnap.exists()) throw 'Prestador no encontrado';
+
+        const data = prestSnap.data();
+        const totalPrevio   = data.totalReseñas || 0;
+        const estrellasPrev = data.estrellas    || 0;
+        const nuevoTotal    = totalPrevio + 1;
+
+        // Primera reseña → promedio directo, sin dividir por cero
+        const nuevoProm = totalPrevio === 0
+          ? r.estrellas
+          : ((estrellasPrev * totalPrevio) + r.estrellas) / nuevoTotal;
+
+        transaction.update(resenaRef, { aprobada: true });
+        transaction.update(prestadorRef, {
+          totalReseñas: nuevoTotal,
+          estrellas:    parseFloat(nuevoProm.toFixed(1))
+        });
+      });
+      showToast('✅ Reseña aprobada y promedio actualizado');
+    } catch(e) {
+      showToast('❌ Error al aprobar: ' + e);
+      console.error(e);
+    }
+  };
+
+  window.eliminarResena = async function(id) {
+    if(!confirm('¿Eliminar esta reseña?')) return;
+    await deleteDoc(doc(db,'resenas',id));
+    showToast('🗑️ Reseña eliminada');
+  };
+
+  // ── FILTROS Y BÚSQUEDA ──
+  window.setFiltro = function(f, el) {
+    filtroActivo = f;
+    document.querySelectorAll('.filtro').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    renderPrestadores();
+  };
+
+  window.filtrarPrestadores = function(v) {
+    searchQ = v.toLowerCase().trim();
+    renderPrestadores();
+  };
+
+  // ── BADGES ──
+  function actualizarBadges() {
+    const pend = PRESTADORES.filter(p=>p.estado==='pendiente').length;
+    const resP = RESENAS.filter(r=>!r.aprobada).length;
+    document.getElementById('badgePend').textContent = pend;
+    document.getElementById('badgePend').style.display = pend?'inline-flex':'none';
+    document.getElementById('badgeRes').textContent = resP;
+    document.getElementById('badgeRes').style.display = resP?'inline-flex':'none';
   }
 
-  function abrirDropZona() {
-    clearTimeout(zonaDropT);
-    filtrarZona(document.getElementById('r_zona_input').value);
+  // ── HELPERS ──
+  function esc(s){ return s?String(s).replace(/[&<>'"]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)):''; }
+
+  function fmtFecha(ts) {
+    if(!ts) return '—';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    } catch(e){ return '—'; }
   }
 
-  function cerrarDropZona() {
-    zonaDropT = setTimeout(() => {
-      document.getElementById('zonaDropdown').style.display = 'none';
-    }, 180);
-  }
-
-  function agregarZona(b) {
-    if(zonaSeleccionada.includes(b)) return;
-    zonaSeleccionada.push(b);
-    document.getElementById('r_zona_input').value = '';
-    document.getElementById('zonaDropdown').style.display = 'none';
-    document.getElementById('r_zona').value = zonaSeleccionada.join(', ');
-    renderZonaChips();
-  }
-
-  function quitarZona(b) {
-    zonaSeleccionada = zonaSeleccionada.filter(x => x !== b);
-    document.getElementById('r_zona').value = zonaSeleccionada.join(', ');
-    renderZonaChips();
-  }
-
-  function renderZonaChips() {
-    const el = document.getElementById('zonaChips');
-    el.innerHTML = zonaSeleccionada.map(b =>
-      `<span style="display:inline-flex;align-items:center;gap:5px;background:#111;color:#fff;border-radius:99px;padding:4px 12px 4px 10px;font-size:12px;font-weight:600;">
-        📍 ${b}
-        <span onclick="quitarZona('${b.replace(/'/g,"\\'")}') " style="cursor:pointer;font-size:15px;opacity:.6;line-height:1;">×</span>
-      </span>`
-    ).join('');
-  }
-
-  // limpiar chips al cerrar modal
-  const _origCerrarModal = window.cerrarModal;
-
-  function abrirModal(id){
-    if(id==='registro'){ zonaSeleccionada=[]; renderZonaChips(); document.getElementById('r_zona').value=''; }
-    document.getElementById('ov-'+id).classList.add('open');
-  }
-  function cerrarModal(id){document.getElementById('ov-'+id).classList.remove('open');}
-  function closeMod(id,e){if(e.target===document.getElementById('ov-'+id))cerrarModal(id);}
-
+  // ── TOAST ──
   let tT;
-  function showToast(msg){
+  window.showToast = function(msg) {
     const t=document.getElementById('toast');
     t.textContent=msg; t.className='toast show';
     clearTimeout(tT); tT=setTimeout(()=>t.className='toast',4000);
+  };
+</script>
+
+<script>
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('panel-'+id).classList.add('active');
+    event.currentTarget.classList.add('active');
   }
+  function cerrarMod(id){ document.getElementById('ov-'+id).classList.remove('open'); }
+  function closeMod(id,e){ if(e.target===document.getElementById('ov-'+id)) cerrarMod(id); }
 </script>
 </body>
 </html>
