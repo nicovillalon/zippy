@@ -492,6 +492,22 @@
     .btn-submit:hover { background: #222; }
     .btn-submit:disabled { opacity: .6; cursor: default; }
 
+    /* GPS */
+    .btn-gps {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      color: var(--ink); border-radius: 99px;
+      padding: 10px 20px; font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all .2s; margin-top: 4px;
+    }
+    .btn-gps:hover { border-color: var(--ink); background: var(--bg-hover); }
+    .btn-gps.loading { opacity: .7; cursor: wait; }
+    .btn-gps.activo {
+      background: var(--ink); color: #fff;
+      border-color: var(--ink);
+    }
+
     /* ══════════════════════════════
        TOAST
     ══════════════════════════════ */
@@ -618,6 +634,12 @@
         <span class="lx">×</span>
       </span>
     </div>
+
+    <!-- BOTÓN GPS -->
+    <button class="btn-gps" id="btnGps" onclick="usarUbicacion()">
+      <span id="gpsIcon">📍</span>
+      <span id="gpsTxt">Usar mi ubicación</span>
+    </button>
 
     <div class="trust-row">
       <div class="trust-item"><span class="ti">✅</span> Profesionales verificados</div>
@@ -1161,7 +1183,162 @@
     document.getElementById('heroSearch').scrollIntoView({behavior:'smooth',block:'center'});
   }
 
-  // ── ZONA DROPDOWN EN EL FORMULARIO ──
+  // ── GPS Y DETECCIÓN DE BARRIO ──
+  // Coordenadas aproximadas del centro de cada barrio de Córdoba Capital
+  const BARRIOS_GEO = [
+    {nombre:'Centro',              lat:-31.4167, lng:-64.1833},
+    {nombre:'Nueva Córdoba',       lat:-31.4267, lng:-64.1867},
+    {nombre:'Güemes',              lat:-31.4200, lng:-64.1950},
+    {nombre:'Alberdi',             lat:-31.4050, lng:-64.2050},
+    {nombre:'General Paz',         lat:-31.3950, lng:-64.1950},
+    {nombre:'Alta Córdoba',        lat:-31.3867, lng:-64.1933},
+    {nombre:'Observatorio',        lat:-31.4267, lng:-64.1933},
+    {nombre:'San Martín',          lat:-31.4000, lng:-64.1833},
+    {nombre:'Monserrat',           lat:-31.4133, lng:-64.1867},
+    {nombre:'Maipú',               lat:-31.3933, lng:-64.1767},
+    {nombre:'Palermo',             lat:-31.3983, lng:-64.1700},
+    {nombre:'Pueyrredón',          lat:-31.3867, lng:-64.1833},
+    {nombre:'Talleres Oeste',      lat:-31.4050, lng:-64.2133},
+    {nombre:'Talleres Este',       lat:-31.4000, lng:-64.1667},
+    {nombre:'Villa Cabrera',       lat:-31.3767, lng:-64.1700},
+    {nombre:'Cerro Las Rosas',     lat:-31.3683, lng:-64.2183},
+    {nombre:'Arguello',            lat:-31.3500, lng:-64.2333},
+    {nombre:'Villa Warcalde',      lat:-31.3400, lng:-64.2267},
+    {nombre:'Jardín Hipódromo',    lat:-31.3817, lng:-64.2150},
+    {nombre:'Hipódromo',           lat:-31.3900, lng:-64.2000},
+    {nombre:'Ituzaingó',           lat:-31.4150, lng:-64.2200},
+    {nombre:'Villa El Libertador', lat:-31.4517, lng:-64.2183},
+    {nombre:'José Ignacio Díaz',   lat:-31.4433, lng:-64.2050},
+    {nombre:'Parque Chacabuco',    lat:-31.4333, lng:-64.2033},
+    {nombre:'San Vicente',         lat:-31.4367, lng:-64.1700},
+    {nombre:'Ferreyra',            lat:-31.4667, lng:-64.1667},
+    {nombre:'Bajo Palermo',        lat:-31.4050, lng:-64.1783},
+    {nombre:'Iturraspe',           lat:-31.4083, lng:-64.1917},
+    {nombre:'Villa Páez',          lat:-31.4117, lng:-64.2117},
+    {nombre:'Caseros',             lat:-31.4233, lng:-64.2083},
+    {nombre:'Ayacucho',            lat:-31.4300, lng:-64.2000},
+    {nombre:'Villa Siburu',        lat:-31.4383, lng:-64.1983},
+    {nombre:'Parque San Vicente',  lat:-31.4450, lng:-64.1750},
+    {nombre:'General Urquiza',     lat:-31.4133, lng:-64.1750},
+    {nombre:'Rivadavia',           lat:-31.4217, lng:-64.1750},
+    {nombre:'Empalme',             lat:-31.3967, lng:-64.1567},
+    {nombre:'Yofre Norte',         lat:-31.3800, lng:-64.1583},
+    {nombre:'Yofre Sud',           lat:-31.3933, lng:-64.1567},
+    {nombre:'Villa Urquiza',       lat:-31.3717, lng:-64.1817},
+    {nombre:'Los Boulevares',      lat:-31.3617, lng:-64.1883},
+    {nombre:'Dean Funes',          lat:-31.3750, lng:-64.1950},
+    {nombre:'Boulevares',          lat:-31.3650, lng:-64.1950},
+    {nombre:'Villa del Parque',    lat:-31.3817, lng:-64.1983},
+    {nombre:'Villa Dora',          lat:-31.3883, lng:-64.2117},
+    {nombre:'Guiñazú',             lat:-31.3683, lng:-64.2067},
+    {nombre:'Santa Isabel',        lat:-31.4550, lng:-64.2100},
+    {nombre:'Parque Capital',      lat:-31.3783, lng:-64.2033},
+    {nombre:'Lourdes',             lat:-31.3933, lng:-64.2250},
+    {nombre:'Cerro Chico',         lat:-31.3617, lng:-64.2250},
+    {nombre:'Bella Vista',         lat:-31.3550, lng:-64.2100},
+    {nombre:'Terminal',            lat:-31.4083, lng:-64.1817},
+    {nombre:'Cañitas',             lat:-31.4233, lng:-64.1783},
+    {nombre:'La Rambla',           lat:-31.3633, lng:-64.1733},
+    {nombre:'Müller',              lat:-31.3700, lng:-64.2283},
+    {nombre:'Poeta Lugones',       lat:-31.3800, lng:-64.2300},
+    {nombre:'Nazca',               lat:-31.3867, lng:-64.2300},
+    {nombre:'Maldonado',           lat:-31.4150, lng:-64.2300},
+    {nombre:'Yapeyú',              lat:-31.4283, lng:-64.2133},
+    {nombre:'Mataderos',           lat:-31.3983, lng:-64.2317},
+    {nombre:'Marqués de Sobremonte',lat:-31.3983, lng:-64.1933},
+    {nombre:'Estación Flores',     lat:-31.4117, lng:-64.1633},
+    {nombre:'Urca',                lat:-31.3683, lng:-64.1633},
+    {nombre:'El Velódromo',        lat:-31.4217, lng:-64.1633},
+    {nombre:'General Bustos',      lat:-31.3733, lng:-64.1700},
+    {nombre:'Patricias Argentinas',lat:-31.4333, lng:-64.1800},
+    {nombre:'San Ignacio',         lat:-31.3617, lng:-64.2000},
+    {nombre:'Ricardo Rojas',       lat:-31.3550, lng:-64.1933},
+    {nombre:'Remedios de Escalada',lat:-31.4467, lng:-64.1833},
+    {nombre:'Villa General Mitre', lat:-31.4483, lng:-64.1933},
+    {nombre:'Villa Esquiú',        lat:-31.4500, lng:-64.2000},
+    {nombre:'Villa Peñaloza',      lat:-31.4567, lng:-64.2067},
+    {nombre:'Villa Rivadavia',     lat:-31.4550, lng:-64.1967},
+    {nombre:'Villa Los Álamos',    lat:-31.4617, lng:-64.2000},
+    {nombre:'Villa Adela',         lat:-31.4633, lng:-64.1883},
+    {nombre:'Parque Vélez Sarsfield',lat:-31.4450, lng:-64.2267},
+    {nombre:'Parque Liceo',        lat:-31.4133, lng:-64.2283},
+    {nombre:'Parque Azul',         lat:-31.4233, lng:-64.2233},
+    {nombre:'Las Violetas',        lat:-31.4317, lng:-64.2283},
+    {nombre:'Los Cedros',          lat:-31.4383, lng:-64.2233},
+    {nombre:'Botanico',            lat:-31.4483, lng:-64.2150},
+    {nombre:'Valle del Cerro',     lat:-31.3983, lng:-64.2450},
+  ];
+
+  function distanciaKm(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2-lat1) * Math.PI/180;
+    const dLng = (lng2-lng1) * Math.PI/180;
+    const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+              Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+              Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function barrioMasCercano(lat, lng) {
+    let mejor = null, menorDist = Infinity;
+    BARRIOS_GEO.forEach(b => {
+      const d = distanciaKm(lat, lng, b.lat, b.lng);
+      if(d < menorDist){ menorDist = d; mejor = b; }
+    });
+    return mejor;
+  }
+
+  window.usarUbicacion = function() {
+    if(!navigator.geolocation){
+      showToast('⚠️ Tu navegador no soporta geolocalización.');
+      return;
+    }
+
+    const btn = document.getElementById('btnGps');
+    const icon = document.getElementById('gpsIcon');
+    const txt  = document.getElementById('gpsTxt');
+    btn.classList.add('loading');
+    icon.textContent = '⏳';
+    txt.textContent  = 'Detectando ubicación…';
+
+    navigator.geolocation.getCurrentPosition(
+      // ÉXITO
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const barrio = barrioMasCercano(lat, lng);
+
+        if(!barrio){
+          showToast('⚠️ No pudimos detectar tu barrio.');
+          btn.classList.remove('loading');
+          icon.textContent = '📍';
+          txt.textContent  = 'Usar mi ubicación';
+          return;
+        }
+
+        // Actualizar UI
+        btn.classList.remove('loading');
+        btn.classList.add('activo');
+        icon.textContent = '✅';
+        txt.textContent  = barrio.nombre;
+
+        // Aplicar filtro igual que si lo hubiera escrito
+        elegirBarrio(barrio.nombre);
+      },
+      // ERROR
+      (err) => {
+        btn.classList.remove('loading');
+        icon.textContent = '📍';
+        txt.textContent  = 'Usar mi ubicación';
+        if(err.code === 1){
+          showToast('⚠️ Permiso de ubicación denegado. Buscá tu barrio manualmente.');
+        } else {
+          showToast('⚠️ No pudimos obtener tu ubicación. Intentá de nuevo.');
+        }
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  };
   let zonaSeleccionada = [];
   let zonaDropT;
 
