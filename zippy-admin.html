@@ -378,6 +378,7 @@
     <div class="nav-tab active" onclick="showPanel('dashboard')">📊 Dashboard</div>
     <div class="nav-tab" onclick="showPanel('prestadores')">👥 Prestadores <span class="badge" id="badgePend">0</span></div>
     <div class="nav-tab" onclick="showPanel('pagos')">💰 Pagos</div>
+    <div class="nav-tab" onclick="showPanel('contactos')">📊 Contactos</div>
     <div class="nav-tab" onclick="showPanel('resenas')">⭐ Reseñas <span class="badge warn" id="badgeRes">0</span></div>
   </div>
 
@@ -500,6 +501,57 @@
       <div id="listaPagos"></div>
     </div>
 
+    <!-- CONTACTOS -->
+    <div class="panel" id="panel-contactos">
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card ok">
+          <div class="stat-label">Contactos hoy</div>
+          <div class="stat-val" id="ctHoy">—</div>
+          <div class="stat-sub">llamadas + WhatsApp</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Este mes</div>
+          <div class="stat-val" id="ctMes">—</div>
+          <div class="stat-sub">contactos totales</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">📞 Llamadas</div>
+          <div class="stat-val" id="ctLlamadas">—</div>
+          <div class="stat-sub">históricas</div>
+        </div>
+        <div class="stat-card ok">
+          <div class="stat-label">💬 WhatsApp</div>
+          <div class="stat-val" id="ctWsp">—</div>
+          <div class="stat-sub">históricos</div>
+        </div>
+      </div>
+
+      <!-- FILTRO PERÍODO -->
+      <div class="filtros" style="margin-bottom:20px">
+        <div class="filtro active" onclick="setPeriodoCt('todos',this)">Todo</div>
+        <div class="filtro" onclick="setPeriodoCt('hoy',this)">Hoy</div>
+        <div class="filtro" onclick="setPeriodoCt('semana',this)">Esta semana</div>
+        <div class="filtro" onclick="setPeriodoCt('mes',this)">Este mes</div>
+      </div>
+
+      <div class="sec-title">🏆 Ranking de prestadores por contactos</div>
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Prestador</th>
+              <th>Rubro</th>
+              <th>📞 Llamadas</th>
+              <th>💬 WhatsApp</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="tablaContactos"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- RESEÑAS -->
     <div class="panel" id="panel-resenas">
       <div class="sec-title">⭐ Reseñas pendientes de aprobación</div>
@@ -583,9 +635,6 @@
   import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // Admins autorizados
-  const ADMIN_EMAILS = ["villalon242@gmail.com", "valebarreto03.vb@gmail.com"];
-
   const app = initializeApp({
     apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
     authDomain:"servicio-ece5d.firebaseapp.com",
@@ -660,7 +709,84 @@
       renderResenas();
       actualizarBadges();
     });
+
+    // Contactos
+    onSnapshot(query(collection(db,'contactos'), orderBy('fecha','desc')), snap => {
+      CONTACTOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderContactos();
+    });
   }
+
+  // ── CONTACTOS ──
+  let CONTACTOS = [];
+  let periodoCt = 'todos';
+
+  function getTsCt(x) {
+    if(!x.fecha) return 0;
+    return x.fecha.toMillis ? x.fecha.toMillis() : new Date(x.fecha).getTime();
+  }
+
+  function contactosFiltrados(periodo) {
+    const hoy   = new Date();
+    const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const lunMs = hoyMs - (hoy.getDay()===0?6:hoy.getDay()-1)*86400000;
+    const mesMs = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+    return CONTACTOS.filter(c => {
+      const ts = getTsCt(c);
+      if(periodo==='hoy')   return ts >= hoyMs;
+      if(periodo==='semana')return ts >= lunMs;
+      if(periodo==='mes')   return ts >= mesMs;
+      return true;
+    });
+  }
+
+  function renderContactos() {
+    const hoy   = new Date();
+    const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const mesMs = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+
+    document.getElementById('ctHoy').textContent      = CONTACTOS.filter(c=>getTsCt(c)>=hoyMs).length;
+    document.getElementById('ctMes').textContent      = CONTACTOS.filter(c=>getTsCt(c)>=mesMs).length;
+    document.getElementById('ctLlamadas').textContent = CONTACTOS.filter(c=>c.tipo==='llamada').length;
+    document.getElementById('ctWsp').textContent      = CONTACTOS.filter(c=>c.tipo==='whatsapp').length;
+
+    const lista = contactosFiltrados(periodoCt);
+    const mapa  = {};
+    lista.forEach(c => {
+      if(!mapa[c.prestadorId]) mapa[c.prestadorId] = { nombre: c.prestadorNombre, llamadas: 0, wsp: 0 };
+      if(c.tipo==='llamada')   mapa[c.prestadorId].llamadas++;
+      if(c.tipo==='whatsapp')  mapa[c.prestadorId].wsp++;
+    });
+
+    const ranking = Object.entries(mapa)
+      .map(([id,v]) => ({ id, ...v, total: v.llamadas+v.wsp }))
+      .sort((a,b) => b.total - a.total);
+
+    const tbody = document.getElementById('tablaContactos');
+    if(!ranking.length) {
+      tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><p>No hay contactos en este período todavía</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = ranking.map((r,i) => {
+      const p   = PRESTADORES.find(x=>x.id===r.id);
+      const cat = p ? (CAT[p.cat]||p.cat) : '—';
+      return `<tr>
+        <td data-label="#"><strong>${i+1}</strong></td>
+        <td data-label="Prestador"><div class="td-name">${esc(r.nombre||'—')}</div></td>
+        <td data-label="Rubro">${cat}</td>
+        <td data-label="📞 Llamadas"><strong>${r.llamadas}</strong></td>
+        <td data-label="💬 WhatsApp"><strong>${r.wsp}</strong></td>
+        <td data-label="Total"><strong style="color:var(--success)">${r.total}</strong></td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.setPeriodoCt = function(p, el) {
+    periodoCt = p;
+    document.querySelectorAll('#panel-contactos .filtro').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    renderContactos();
+  };
 
   // ── DASHBOARD ──
   function renderDashboard() {
