@@ -980,26 +980,23 @@
   import { getFirestore, collection, doc, addDoc, setDoc, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // ── REGISTRAR CONTACTO ──
-  window.registrarContacto = function(prestadorId, prestadorNombre, tipo) {
-    // No bloqueamos la navegación — registramos en paralelo
-    const db2 = getFirestore();
-    addDoc(collection(db2,'contactos'), {
-      prestadorId,
-      prestadorNombre,
-      tipo, // 'llamada' o 'whatsapp'
-      fecha: serverTimestamp()
-    }).catch(e => console.error('Error registrando contacto:', e));
-  };
-
-  const db = getFirestore(initializeApp({
+  const app = initializeApp({
     apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
     authDomain:"servicio-ece5d.firebaseapp.com",
     projectId:"servicio-ece5d",
     storageBucket:"servicio-ece5d.firebasestorage.app",
     messagingSenderId:"729691529118",
     appId:"1:729691529118:web:7eeff9104496b7fb29c08f"
-  }));
+  });
+  const db = getFirestore(app);
+
+  // ── REGISTRAR CONTACTO ──
+  window.registrarContacto = function(prestadorId, prestadorNombre, tipo) {
+    addDoc(collection(db,'contactos'), {
+      prestadorId, prestadorNombre, tipo,
+      fecha: serverTimestamp()
+    }).catch(e => console.error('Error registrando contacto:', e));
+  };
 
   const CATS = [
     {id:'plomeria',    label:'Plomería',    emoji:'🚿'},
