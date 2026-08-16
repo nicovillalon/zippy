@@ -1207,6 +1207,8 @@
   window.irAlPerfil = function(id) {
     window.location = 'zippy-perfil.html?id=' + encodeURIComponent(id);
   };
+
+  window.filterBy=function(cat){
     activeCat=cat; renderPros();
     document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
     document.getElementById(cat?'cat-'+cat:'cat-all')?.classList.add('active');
