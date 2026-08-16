@@ -65,15 +65,19 @@
     .logo-z { color: var(--accent); }
     .logo-rest { color: #fff; }
 
-    /* Search pill */
+    /* Search pill — oculta al inicio, visible con scroll */
     .search-pill {
       flex: 1; max-width: 580px; margin: 0 auto;
       display: flex; align-items: center;
       background: var(--bg); border: 1.5px solid var(--border);
       border-radius: 99px; height: 52px;
       box-shadow: var(--shadow-card);
-      transition: box-shadow .2s;
+      transition: box-shadow .2s, opacity .3s, transform .3s;
       overflow: hidden; cursor: text;
+      opacity: 0; pointer-events: none; transform: translateY(-4px);
+    }
+    .search-pill.visible {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
     }
     .search-pill:focus-within {
       box-shadow: var(--shadow-hover);
@@ -247,10 +251,15 @@
       display: flex; gap: 24px; flex-wrap: wrap; margin-top: 4px;
     }
     .trust-item {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 13px; color: var(--ink-mid);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; color: #222222; font-weight: 500;
     }
-    .trust-item .ti { font-size: 16px; }
+    .trust-item svg {
+      width: 18px; height: 18px; flex-shrink: 0;
+      stroke: #222222; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .trust-item .ti { display: none; }
 
     /* ══════════════════════════════
        CATS SCROLL (estilo Airbnb)
@@ -278,7 +287,7 @@
     .cat-tab.active { color: var(--ink); border-color: var(--ink); }
     .cat-tab-icon { font-size: 22px; line-height: 1; }
     .cat-tab-label { font-size: 11px; font-weight: 600; letter-spacing: .2px; }
-    .cat-tab-n { font-size: 10px; color: var(--ink-soft); }
+    .cat-tab-n { display: none; } /* contadores ocultos */
 
     /* ══════════════════════════════
        SECCIÓN PRINCIPAL
@@ -316,17 +325,33 @@
     .pro-card:hover .card-img-wrap { box-shadow: var(--shadow-hover); }
 
     .card-img-wrap {
-      aspect-ratio: 4/3; border-radius: var(--radius);
+      height: 140px; width: 100%; border-radius: var(--radius);
       overflow: hidden; position: relative;
       background: var(--bg-soft);
       box-shadow: var(--shadow-card);
       transition: box-shadow .2s;
     }
+    /* foto real del prestador */
+    .card-img-wrap img.card-foto {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    /* placeholder cuando no hay foto */
+    .card-img-wrap .card-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      background: linear-gradient(135deg, #EDEBE6 0%, #E2DDD5 100%);
+    }
+    .card-placeholder .ph-emoji { font-size: 36px; opacity: .6; }
+    .card-placeholder .ph-label {
+      font-size: 11px; font-weight: 600; color: var(--ink-soft);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    /* mantener compatibilidad con .card-emoji anterior */
     .card-img-wrap .card-emoji {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 56px;
-      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      font-size: 36px; opacity: .5;
+      background: linear-gradient(135deg, #EDEBE6 0%, #E2DDD5 100%);
     }
     .card-pro-badge {
       position: absolute; top: 12px; left: 12px;
@@ -1051,7 +1076,10 @@
 
       return `<div class="pro-card" onclick="window.location='zippy-perfil.html?id=${p.id}'" style="cursor:pointer">
         <div class="card-img-wrap">
-          <div class="card-emoji">${c.emoji||'🔧'}</div>
+          ${p.foto
+            ? `<img class="card-foto" src="${esc(p.foto)}" alt="${esc(p.nombre||p.negocio)}" loading="lazy"/>`
+            : `<div class="card-placeholder"><span class="ph-emoji">${c.emoji||'🔧'}</span><span class="ph-label">${c.label||''}</span></div>`
+          }
           ${isPro?`<div class="card-pro-badge"><span class="star">★</span> PRO</div>`:''}
           ${p.urgencias&&!isPro?'<div class="card-urg">24h</div>':''}
           ${isNew&&!p.urgencias&&!isPro?'<div class="card-new">NUEVO</div>':''}
@@ -1516,6 +1544,18 @@
     const t=document.getElementById('toast');
     t.textContent=msg; t.className='toast show';
     clearTimeout(tT); tT=setTimeout(()=>t.className='toast',4000);
+  }
+
+  // ── SEARCH PILL SCROLL ──
+  // Se muestra cuando el usuario hace scroll y el hero ya no es visible
+  const heroEl = document.querySelector('.hero');
+  const pillEl = document.querySelector('.search-pill');
+  if(heroEl && pillEl) {
+    const obs = new IntersectionObserver(entries => {
+      // cuando el hero sale de pantalla → mostramos el pill
+      pillEl.classList.toggle('visible', !entries[0].isIntersecting);
+    }, { threshold: 0.1 });
+    obs.observe(heroEl);
   }
 </script>
 </body>
