@@ -743,7 +743,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </span>
           <input type="text" id="hsInput" placeholder="¿En qué barrio?" autocomplete="off"
-            oninput="filtrarBarrios(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
+            oninput="filtrarBarrios(this.value);onBarrioInput(this.value)" onfocus="abrirDrop('hs')" onblur="cerrarDrop()"/>
           <button class="btn-gps-inline" id="btnGps" onclick="usarUbicacion()">
             <span id="gpsIcon">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg>
@@ -1325,6 +1325,18 @@
     window._setBarrio&&window._setBarrio(b);
     showToast('📍 Mostrando profesionales en '+b);
     setTimeout(()=>document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'}),300);
+  }
+
+  // Filtrar en tiempo real mientras escribe
+  function onBarrioInput(v) {
+    filtrarBarrios(v);
+    // Aplicar filtro inmediatamente con lo que escribió
+    if(v.trim().length >= 3) {
+      window._setBarrio && window._setBarrio(v.trim());
+    } else if(v.trim().length === 0) {
+      window._setBarrio && window._setBarrio(null);
+      document.getElementById('locTag').style.display='none';
+    }
   }
 
   function limpiarBarrio(){
