@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZIPPY – Perfil del prestador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #F5F0E8;
+      --bg-soft:  #EDE8DE;
+      --white:    #FFFFFF;
+      --ink:      #111111;
+      --ink-mid:  #555555;
+      --ink-soft: #999999;
+      --border:   #EBEBEB;
+      --accent:   #FACC15;
+      --danger:   #E02020;
+      --success:  #008A05;
+      --wsp:      #25D366;
+      --radius:   14px;
+      --radius-sm:8px;
+      --shadow:   0 2px 16px rgba(0,0,0,0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* HEADER */
+    header {
+      background: rgba(245,240,232,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+      height: 64px; display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    }
+    .logo { font-size: 22px; font-weight: 900; letter-spacing: -1.5px; text-decoration: none; }
+    .logo-bg { background: var(--ink); border-radius: 8px; padding: 3px 8px; display: inline-flex; }
+    .logo-z { color: var(--accent); }
+    .logo-r { color: #fff; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: none; border: 1.5px solid var(--border); color: var(--ink-mid);
+      border-radius: var(--radius-sm); padding: 8px 14px;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+      text-decoration: none; cursor: pointer; transition: all .15s; margin-left: auto;
+    }
+    .btn-back:hover { border-color: var(--ink); color: var(--ink); }
+
+    /* CONTENIDO */
+    .page { max-width: 760px; margin: 0 auto; padding: 40px 24px 64px; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 80px 24px; color: var(--ink-soft); }
+    .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* CARD PERFIL */
+    .perfil-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .perfil-header {
+      background: var(--ink); padding: 32px;
+      display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap;
+    }
+    .perfil-avatar {
+      width: 80px; height: 80px; border-radius: 16px;
+      background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; flex-shrink: 0;
+    }
+    .perfil-info { flex: 1; min-width: 0; }
+    .perfil-nombre { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -.5px; margin-bottom: 4px; }
+    .perfil-negocio { font-size: 14px; color: rgba(255,255,255,.6); margin-bottom: 8px; }
+    .perfil-cat {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: var(--ink);
+      border-radius: 99px; padding: 4px 12px;
+      font-size: 12px; font-weight: 700;
+    }
+    .perfil-pro {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(250,204,21,.15); color: var(--accent);
+      border: 1px solid rgba(250,204,21,.3);
+      border-radius: 99px; padding: 4px 12px;
+      font-size: 11px; font-weight: 700; margin-left: 8px;
+    }
+
+    .perfil-body { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+
+    .info-row { display: flex; align-items: flex-start; gap: 12px; }
+    .info-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .info-content { flex: 1; }
+    .info-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
+    .info-val { font-size: 14px; color: var(--ink); line-height: 1.5; }
+
+    .rating-big { display: flex; align-items: center; gap: 12px; }
+    .rating-num { font-size: 48px; font-weight: 900; color: var(--ink); letter-spacing: -2px; }
+    .rating-right { display: flex; flex-direction: column; gap: 4px; }
+    .stars-big { color: var(--accent); font-size: 20px; letter-spacing: 2px; }
+    .rating-sub { font-size: 12px; color: var(--ink-soft); }
+
+    /* BOTONES ACCIÓN */
+    .action-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-call-big {
+      flex: 1; min-width: 140px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      color: var(--ink); border-radius: var(--radius);
+      padding: 14px 20px; font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700; text-decoration: none;
+      transition: all .15s; cursor: pointer;
+    }
+    .btn-call-big:hover { border-color: var(--ink); background: var(--bg); }
+    .btn-wsp-big {
+      flex: 1; min-width: 140px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--wsp); border: none; color: #fff;
+      border-radius: var(--radius); padding: 14px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      text-decoration: none; transition: opacity .15s; cursor: pointer;
+    }
+    .btn-wsp-big:hover { opacity: .9; }
+
+    /* RESEÑAS */
+    .resenas-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .resenas-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .resenas-title { font-size: 17px; font-weight: 700; }
+    .resenas-count { font-size: 13px; color: var(--ink-soft); }
+    .resenas-list { padding: 0; }
+
+    .resena-item {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .resena-item:last-child { border-bottom: none; }
+    .resena-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .resena-autor-name { font-weight: 700; font-size: 14px; }
+    .resena-fecha { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+    .resena-stars { color: var(--accent); font-size: 14px; letter-spacing: 1px; }
+    .resena-comment { font-size: 14px; color: var(--ink-mid); line-height: 1.6; }
+
+    .resenas-empty { padding: 40px 24px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+    /* BOTÓN DEJAR RESEÑA */
+    .btn-resena-big {
+      width: 100%; padding: 14px;
+      background: var(--bg-soft); border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 16px;
+    }
+    .btn-resena-big:hover { border-color: var(--accent); background: #FFFBEA; }
+
+    /* URGENCIA BADGE */
+    .urg-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(224,32,32,.08); color: var(--danger);
+      border-radius: 99px; padding: 5px 12px;
+      font-size: 12px; font-weight: 700;
+    }
+
+    /* MODAL RESEÑA */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 20px; padding: 28px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; animation: popIn .25s ease; box-shadow: 0 24px 64px rgba(0,0,0,.2); }
+    @keyframes popIn { from{transform:scale(.96);opacity:0;} to{transform:scale(1);opacity:1;} }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    .modal-head h3 { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+    .modal-x { background: var(--bg-soft); border: none; color: var(--ink); width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-sub { font-size: 13px; color: var(--ink-mid); margin-bottom: 20px; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field label { font-size: 11px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .8px; }
+    .field input, .field textarea { background: var(--bg-soft); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; width: 100%; transition: border-color .15s; }
+    .field input:focus, .field textarea:focus { border-color: var(--ink); background: var(--white); }
+    .field textarea { resize: vertical; min-height: 88px; }
+    .star-picker { display: flex; gap: 6px; margin: 8px 0; }
+    .star-picker span { font-size: 30px; cursor: pointer; color: var(--border); transition: color .15s; }
+    .star-picker span.on { color: var(--accent); }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .btn-cancel { background: var(--bg-soft); border: 1px solid var(--border); color: var(--ink); border-radius: var(--radius-sm); padding: 10px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-submit { background: var(--ink); border: none; color: #fff; border-radius: var(--radius-sm); padding: 10px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-submit:disabled { opacity: .6; cursor: default; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; border-radius: 99px; padding: 12px 24px; font-size: 13px; font-weight: 500; z-index: 300; display: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+    .toast.show { display: block; animation: tIn .2s ease; }
+    @keyframes tIn { from{opacity:0;transform:translateX(-50%) translateY(8px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+
+    @media(max-width:600px){
+      .page { padding: 24px 16px 48px; }
+      .perfil-header { padding: 24px; }
+      .perfil-body { padding: 20px; }
+      .perfil-nombre { font-size: 20px; }
+      .action-btns { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="zippy.html">
+    <div class="logo-bg"><span class="logo-z">Z</span><span class="logo-r">IPPY</span></div>
+  </a>
+  <a class="btn-back" href="zippy.html">← Volver</a>
+</header>
+
+<div class="page">
+  <div id="loadingState" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando perfil…</p>
+  </div>
+  <div id="perfilContent" style="display:none"></div>
+</div>
+
+<!-- MODAL RESEÑA -->
+<div class="overlay" id="ov-resena" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Dejar reseña</h3>
+      <button class="modal-x" onclick="cerrarModal()">×</button>
+    </div>
+    <p class="modal-sub" id="resena-para">Tu opinión ayuda a otros vecinos.</p>
+    <div class="field">
+      <label>Tu nombre</label>
+      <input type="text" id="rv_autor" placeholder="Ej: Juan García (opcional)"/>
+    </div>
+    <div class="field">
+      <label>Calificación *</label>
+      <div class="star-picker" id="starPicker">
+        <span onclick="setStar(1)">★</span>
+        <span onclick="setStar(2)">★</span>
+        <span onclick="setStar(3)">★</span>
+        <span onclick="setStar(4)">★</span>
+        <span onclick="setStar(5)">★</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Comentario *</label>
+      <textarea id="rv_comentario" placeholder="Contá cómo fue tu experiencia…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-submit" id="btnEnviar" onclick="enviarResena()">Enviar reseña</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp, runTransaction }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const db = getFirestore(initializeApp({
+    apiKey:"AIzaSyC43DQO8rD0022-jr1v9Ev6kgkEAbLiddo",
+    authDomain:"servicio-ece5d.firebaseapp.com",
+    projectId:"servicio-ece5d",
+    storageBucket:"servicio-ece5d.firebasestorage.app",
+    messagingSenderId:"729691529118",
+    appId:"1:729691529118:web:7eeff9104496b7fb29c08f"
+  }));
+
+  const CATS = {
+    plomeria:{label:'Plomería',emoji:'🚿'},
+    electricidad:{label:'Electricidad',emoji:'⚡'},
+    cerrajeria:{label:'Cerrajería',emoji:'🔑'},
+    herreria:{label:'Herrería',emoji:'⚙️'},
+    albanileria:{label:'Albañilería',emoji:'🧱'},
+    mecanica:{label:'Mecánica',emoji:'🔧'},
+    pintura:{label:'Pintura',emoji:'🖌️'},
+    gasista:{label:'Gasista',emoji:'🔥'},
+    aires:{label:'Aire Acond.',emoji:'❄️'},
+  };
+
+  function esc(s){ return s?String(s).replace(/[&<>'"]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t)):''; }
+  function stars(n){ return n?'★'.repeat(Math.floor(n))+'☆'.repeat(5-Math.floor(n)):'★★★★★'; }
+  function fmtFecha(ts){ try{ const d=ts?.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}); }catch(e){ return ''; } }
+
+  // Leer ID de la URL
+  const params = new URLSearchParams(window.location.search);
+  const prestId = params.get('id');
+
+  if(!prestId){
+    document.getElementById('loadingState').innerHTML = '<p>❌ Perfil no encontrado.</p>';
+  } else {
+    cargarPerfil();
+  }
+
+  let PRESTADOR = null;
+
+  async function cargarPerfil() {
+    try {
+      // Cargar prestador
+      const snap = await getDoc(doc(db,'prestadores',prestId));
+      if(!snap.exists() || snap.data().estado !== 'activo'){
+        document.getElementById('loadingState').innerHTML = '<p>❌ Este perfil no está disponible.</p>';
+        return;
+      }
+      PRESTADOR = { id: snap.id, ...snap.data() };
+
+      // Cargar reseñas aprobadas
+      const resSnap = await getDocs(query(
+        collection(db,'resenas'),
+        where('prestadorId','==',prestId),
+        where('aprobada','==',true)
+      ));
+      const resenas = resSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+      renderPerfil(PRESTADOR, resenas);
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('perfilContent').style.display = 'block';
+
+      // Actualizar título de la página
+      document.title = `ZIPPY – ${PRESTADOR.nombre||PRESTADOR.negocio}`;
+
+    } catch(e) {
+      document.getElementById('loadingState').innerHTML = '<p>❌ Error al cargar el perfil.</p>';
+      console.error(e);
+    }
+  }
+
+  function renderPerfil(p, resenas) {
+    const c = CATS[p.cat] || {label:p.cat, emoji:'🔧'};
+    const tel = (p.telefono||'').replace(/\D/g,'');
+    const wa  = '549'+tel;
+    const waMsg = encodeURIComponent(`Hola ${p.nombre}, te encuentro en ZIPPY. Quisiera consultar por un servicio de ${c.label}.`);
+    const r = p.estrellas;
+    const nr = p.totalReseñas||0;
+    const isPro = p.plan === 'pro';
+
+    document.getElementById('perfilContent').innerHTML = `
+      <!-- CARD PRINCIPAL -->
+      <div class="perfil-card">
+        <div class="perfil-header">
+          <div class="perfil-avatar">${c.emoji}</div>
+          <div class="perfil-info">
+            <div class="perfil-nombre">${esc(p.nombre||p.negocio)}</div>
+            ${p.negocio&&p.nombre?`<div class="perfil-negocio">${esc(p.negocio)}</div>`:''}
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <span class="perfil-cat">${c.emoji} ${c.label}</span>
+              ${isPro?'<span class="perfil-pro">⭐ PRO</span>':''}
+              ${p.urgencias?'<span class="urg-badge">🚨 Urgencias 24hs</span>':''}
+            </div>
+          </div>
+        </div>
+
+        <div class="perfil-body">
+          ${r?`<div class="rating-big">
+            <div class="rating-num">${r}</div>
+            <div class="rating-right">
+              <div class="stars-big">${stars(r)}</div>
+              <div class="rating-sub">${nr} reseña${nr!==1?'s':''} de vecinos</div>
+            </div>
+          </div>`:''}
+
+          ${p.desc?`<div class="info-row">
+            <div class="info-icon">📋</div>
+            <div class="info-content">
+              <div class="info-label">Sobre el servicio</div>
+              <div class="info-val">${esc(p.desc)}</div>
+            </div>
+          </div>`:''}
+
+          ${p.zona?`<div class="info-row">
+            <div class="info-icon">📍</div>
+            <div class="info-content">
+              <div class="info-label">Zonas de cobertura</div>
+              <div class="info-val">${esc(p.zona)}</div>
+            </div>
+          </div>`:''}
+
+          <div class="info-row">
+            <div class="info-icon">📞</div>
+            <div class="info-content">
+              <div class="info-label">Contacto</div>
+              <div class="info-val">${tel}</div>
+            </div>
+          </div>
+
+          <div class="action-btns">
+            <a class="btn-call-big" href="tel:${tel}">📞 Llamar</a>
+            <a class="btn-wsp-big" href="https://wa.me/${wa}?text=${waMsg}" target="_blank">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+
+          <button class="btn-resena-big" onclick="abrirModal()">⭐ Dejar una reseña</button>
+        </div>
+      </div>
+
+      <!-- RESEÑAS -->
+      <div class="resenas-section">
+        <div class="resenas-header">
+          <div class="resenas-title">Reseñas</div>
+          <div class="resenas-count">${nr} reseña${nr!==1?'s':''}</div>
+        </div>
+        <div class="resenas-list">
+          ${resenas.length ? resenas.map(r=>`
+            <div class="resena-item">
+              <div class="resena-top">
+                <div>
+                  <div class="resena-autor-name">${esc(r.autor||'Cliente anónimo')}</div>
+                  <div class="resena-fecha">${fmtFecha(r.fecha)}</div>
+                </div>
+                <div class="resena-stars">${'★'.repeat(r.estrellas||5)}</div>
+              </div>
+              <div class="resena-comment">"${esc(r.comentario)}"</div>
+            </div>`).join('') :
+            '<div class="resenas-empty">Todavía no hay reseñas. ¡Sé el primero en opinar!</div>'
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  // MODAL RESEÑA
+  window.abrirModal = function() {
+    document.getElementById('rv_autor').value='';
+    document.getElementById('rv_comentario').value='';
+    estrellasSel=0; setStar(0);
+    if(PRESTADOR) document.getElementById('resena-para').textContent = `Tu opinión sobre ${PRESTADOR.nombre||PRESTADOR.negocio} ayuda a otros vecinos.`;
+    document.getElementById('ov-resena').classList.add('open');
+  };
+  window.cerrarModal = function() { document.getElementById('ov-resena').classList.remove('open'); };
+
+  let estrellasSel = 0;
+  window.setStar = function(n){
+    estrellasSel=n;
+    document.querySelectorAll('#starPicker span').forEach((s,i)=>s.classList.toggle('on',i<n));
+  };
+
+  window.enviarResena = async function() {
+    const autor     = document.getElementById('rv_autor').value.trim();
+    const comentario= document.getElementById('rv_comentario').value.trim();
+    if(!estrellasSel){ showToast('⚠️ Elegí una calificación.'); return; }
+    if(!comentario){ showToast('⚠️ Escribí un comentario.'); return; }
+
+    const btn = document.getElementById('btnEnviar');
+    btn.textContent='Enviando…'; btn.disabled=true;
+    try {
+      await addDoc(collection(db,'resenas'),{
+        prestadorId: prestId,
+        prestadorNombre: PRESTADOR?.nombre||'',
+        autor: autor||'Anónimo',
+        estrellas: estrellasSel,
+        comentario,
+        aprobada: false,
+        fecha: serverTimestamp()
+      });
+      cerrarModal();
+      showToast('✅ ¡Gracias! Tu reseña será publicada tras ser revisada.');
+    } catch(e) {
+      showToast('❌ Error al enviar. Intentá de nuevo.');
+      console.error(e);
+    }
+    btn.textContent='Enviar reseña'; btn.disabled=false;
+  };
+
+  let tT;
+  window.showToast = function(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast show';
+    clearTimeout(tT); tT=setTimeout(()=>t.className='toast',4000);
+  };
+</script>
+</body>
+</html>
