@@ -1014,16 +1014,25 @@
 
   let TODOS=[], activeCat=null, activeBarrio=null, searchQ='';
 
+  function normalizar(s) {
+    return (s||'').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9\s]/g,' ').trim();
+  }
+
   function getList(){
     let l=[...TODOS];
     if(activeCat) l=l.filter(p=>p.cat===activeCat);
-    if(activeBarrio) l=l.filter(p=>(p.zona||'').toLowerCase().includes(activeBarrio.toLowerCase()));
+    if(activeBarrio) {
+      const b = normalizar(activeBarrio);
+      l=l.filter(p=> normalizar(p.zona||'').split(/[,;\s]+/).some(z=> z.includes(b) || b.includes(z) && z.length > 3));
+    }
     if(searchQ) l=l.filter(p=>
-      (p.nombre||'').toLowerCase().includes(searchQ)||
-      (CM[p.cat]?.label||'').toLowerCase().includes(searchQ)||
-      (p.desc||'').toLowerCase().includes(searchQ)||
-      (p.zona||'').toLowerCase().includes(searchQ)||
-      (p.negocio||'').toLowerCase().includes(searchQ)
+      normalizar(p.nombre||'').includes(searchQ)||
+      normalizar(CM[p.cat]?.label||'').includes(searchQ)||
+      normalizar(p.desc||'').includes(searchQ)||
+      normalizar(p.zona||'').includes(searchQ)||
+      normalizar(p.negocio||'').includes(searchQ)
     );
     l.sort((a,b)=>(a.plan==='pro'&&b.plan!=='pro')?-1:(b.plan==='pro'&&a.plan!=='pro')?1:0);
     return l;
