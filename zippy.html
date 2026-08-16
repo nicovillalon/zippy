@@ -1071,7 +1071,7 @@
       const nr=p.totalReseñas||0;
       const isPro=p.plan==='pro';
 
-      return `<div class="pro-card" onclick="window.location='zippy-perfil.html?id=${p.id}'" style="cursor:pointer">
+      return `<div class="pro-card" onclick="irAlPerfil('${p.id}')" style="cursor:pointer">
         <div class="card-img-wrap">
           ${p.foto
             ? `<img class="card-foto" src="${esc(p.foto)}" alt="${esc(p.nombre||p.negocio)}" loading="lazy"/>`
@@ -1099,9 +1099,9 @@
           </div>
           <div style="display:flex;gap:8px;margin-top:8px" onclick="event.stopPropagation()">
             <button class="a-resena" style="flex:1" onclick="abrirResena('${p.id}','${esc(p.nombre||p.negocio)}')">⭐ Dejar reseña</button>
-            <a href="zippy-perfil.html?id=${p.id}" class="a-resena" style="flex:1;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px">
+            <button class="a-resena" style="flex:1;text-align:center;border:1.5px solid var(--border);background:var(--bg-soft)" onclick="event.stopPropagation();irAlPerfil('${p.id}')">
               👤 Ver perfil
-            </a>
+            </button>
           </div>
         </div>
       </div>`;
@@ -1204,7 +1204,9 @@
     btn.textContent='Enviar solicitud';btn.disabled=false;
   };
 
-  window.filterBy=function(cat){
+  window.irAlPerfil = function(id) {
+    window.location = 'zippy-perfil.html?id=' + encodeURIComponent(id);
+  };
     activeCat=cat; renderPros();
     document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
     document.getElementById(cat?'cat-'+cat:'cat-all')?.classList.add('active');
@@ -1233,7 +1235,7 @@
 </script>
 
 <script>
-  const BARRIOS=["Alberdi","Alta Córdoba","Arguello","Ayacucho","Bajo Palermo","Bella Vista","Botanico","Boulevares","Buen Pastor","Cañitas","Carbó","Caseros","Centro","Cerro Chico","Cerro Las Rosas","Colón","Dean Funes","El Velódromo","Empalme","Estación Flores","Ferreyra","General Bustos","General Paz","General Urquiza","Guiñazú","Güemes","Hipódromo","Ituzaingó","Iturraspe","Jardín Claret","Jardín Espinosa","Jardín Hipódromo","José Ignacio Díaz","La France","La Rambla","Las Violetas","Los Boulevares","Los Cedros","Lourdes","Maipú","Maldonado","Marqués de Sobremonte","Mataderos","Monserrat","Müller","Nazca","Nueva Córdoba","Nueva Italia","Observatorio","Palermo","Parque Azul","Parque Capital","Parque Chacabuco","Parque Liceo","Parque San Vicente","Parque Vélez Sarsfield","Patricias Argentinas","Poeta Lugones","Pueyrredón","Remedios de Escalada","Ricardo Rojas","Rivadavia","San Ignacio","San Martín","San Vicente","Santa Isabel","Talleres Este","Talleres Oeste","Terminal","Urca","Valle del Cerro","Vélez Sarsfield","Villa Adela","Villa Cabrera","Villa del Parque","Villa Dora","Villa El Libertador","Villa Esquiú","Villa General Mitre","Villa Los Álamos","Villa Páez","Villa Peñaloza","Villa Rivadavia","Villa Siburu","Villa Urquiza","Villa Warcalde","Yapeyú","Yofre Norte","Yofre Sud"].sort();
+  const BARRIOS=["1 De Julio","1Ra. Junta","1º De Mayo","20 De Junio","23 De Abril","25 De Mayo","4 De Febrero","A.T. E.","Achaval Peña","Acosta","Aeronautico","Aeropuerto","Alberdi","Alborada (N)","Alborada (S)","Alejandro Centeno","Almirante Brown","Alta Cordoba","Altamira","Alto Alberdi","Alto Hermoso","Alto Palermo","Alto Verde","Altos De Santa Ana","Altos De Velez Sarsfield","Altos De Villa Cabrera","Altos Del Chateau","Altos San Martin","Altos Sud De San Vicente","Ameghino Norte","Ameghino Sud","Ampliacion 1º De Mayo","Ampliacion Altamira","Ampliacion Benjamin Matienzo","Ampliacion Empalme","Ampliacion Farina","Ampliacion General Artigas","Ampliacion Jardin Espinosa","Ampliacion Kennedy","Ampliacion Las Palmas","Ampliacion Los Platanos","Ampliacion Palmar","Ampliacion Panamericano","Ampliacion Poeta Lugones","Ampliacion Pueyrredon","Ampliacion Residencial America","Ampliacion Rosedal","Ampliacion San Fernando","Ampliacion San Pablo","Ampliacion Velez Sarsfield","Ana Maria Zumaran","Anexo Las Palmas","Apeadero La Tablada","Arguello","Arguello Norte","Arsenales Anexo","Arturo Capdevila","Autodromo","Avenida","Ayacucho","Bajada De Piedra","Bajada San Roque","Bajo Galan","Bajo General Paz","Bajo Palermo","Bella Vista","Bella Vista Oeste","Benjamin Policarpio Cabral","Betania","Bialet Masse","Boedo","Brigadier San Martin","Cabaña Del Pilar","Cabo Farina","Caceres","California","Camino A 60 Cuadras","Camino A San Carlos","Camino A Villa Pose","Carbo","Carola Lorenzini","Carrara","Carrara De Horizonte","Caseros","Centro","Centro America","Cerro Chico","Cerro De Las Rosas","Cerro Norte","Cerveceros","Chateau Carreras","Ciudad De Juan Pablo Ii","Ciudad Universitaria","Ciudadela","Claros Del Bosque","Co.Vi.Co.","Cofico","Colinas De Bella Vista","Colinas De Velez Sarsfield","Colinas Del Cerro","Colon","Colonia Lola","Comandante Espora","Comercial","Congreso","Consorcio 16 De Noviembre","Consorcio Esperanza","Cooperativa 16 De Noviembre","Corral De Palos","Country Los Algarrobos","Crisol Norte","Crisol Sud","Cupani","De Los Cuartetos","De Mis Sueños","Dean Funes","Docta","Dr Remo M. Copello","Dr Rene Favaloro","Ducasse","Ejercito Argentino","El Bosque","El Cabildo","El Carmelo","El Cerrito","El Pueblito","El Quebrachal","El Quebracho","El Refugio","El Trebol","El Tropezon","El Viejo Algarrobo","Emaus","Empalme","Empalme Casas De Obreros Y Empleados","Escobar","Estacion Ferreyra","Estacion Flores","Evita","Ferrer","Ferreyra","Ferroviario  Mitre","Finca La Dorotea","Fincas Del Sur","General Arenales","General Artigas","General Belgrano","General Bustos","General Mosconi","General Paz","General Pueyrredon","General Savio","Granadero Pringles","Granja De Funes","Guarnicion Area Cba","Guarnicion Militar Cba","Guayaquil","Guemes","Guiñazu","Guiñazu Sud","Hipolito Irigoyen","Hogar Propio","Horizonte","Inaudi","Independencia","Industrial Este","Industrial Oeste","Ipona","Irupe","Ituzaingo","Ituzaingo Anexo","Ituzaingo Ii","Jardin","Jardin Del Pilar","Jardin Del Sud","Jardin Espinosa","Jardin Hipodromo","Jeronimo Luis De Cabrera","Jockey","Jockey Club","Jose Hernandez","Jose Ignacio Diaz 1A Seccion","Jose Ignacio Diaz 2A Seccion","Jose Ignacio Diaz 3A Seccion","Jose Ignacio Rucci","Juan B. Justo","Juan Xxiii","Juniors","Kairos","Kennedy","La Carbonada","La Carolina","La Esperanza","La Floresta","La France","La Fraternidad","La Hortensia","La Reserva","La Salle","La Toma","Lamadrid","Las Cañitas","Las Cañuelas","Las Dalias","Las Delicias","Las Flores","Las Huertillas","Las Lilas","Las Magnolias","Las Margaritas","Las Palmas","Las Playas","Las Rosas","Las Violetas","Liceo General Paz","Lomas De La Carolina","Lomas De San Martin","Los Alamos","Los Angeles","Los Boulevares","Los Ceibos","Los Chingolos","Los Eucaliptus","Los Filtros","Los Fresnos","Los Gigantes","Los Granados","Los Hornillos","Los Jacarandaes","Los Josefinos","Los Naranjos","Los Olmos","Los Olmos Sud","Los Paraisos","Los Pinos","Los Platanos","Los Robles","Los Sauces","Lourdes","Maipu 1A Seccion","Maipu 2A Seccion","Maldonado","Manantiales","Manantiales Ii","Marcelo T. De Alvear","Marcos Sastre","Marechal","Maria Lastenia","Mariano Balcarce","Mariano Fragueiro","Marques De Sobremonte","Maurizi","Mercantil","Militar General Deheza","Mirador","Mirador Del Chateau","Miralta","Mirizi","Muller","Mutual De Los Docentes","Nicolas Avellaneda","Nuestro Hogar Ii","Nuestro Hogar Iii","Nueva Cordoba","Nueva Cordoba Anexa","Nueva Italia","Nuevo Urca","O.S.N.","Obispo Angelelli","Obrero","Observatorio","Ombu","Oña","Padre Claret","Palmar","Panamericano","Parque Alameda","Parque Atlantica","Parque Capital","Parque Capital Sur","Parque Chacabuco","Parque Chateau Carreras","Parque Corema","Parque Del Este","Parque Don Bosco","Parque Futura","Parque Jorge Newbery","Parque Latino","Parque Liceo 1A Seccion","Parque Liceo 2A Seccion","Parque Liceo 3A Seccion","Parque Los Molinos","Parque Modelo","Parque Montecristo","Parque Republica","Parque San Carlos","Parque San Vicente","Parque Sarmiento","Parque Tablada","Parque Velez Sarsfield","Paso De Los Andes","Patria","Patricios","Patricios Este","Patricios Norte","Patricios Oeste","Poeta Lugones","Policial","Portal De Cordoba","Portal Del Jacaranda","Posta De Vargas","Providencia","Puente Blanco","Quebrada De Las Rosas","Quinta Santa Ana","Quintas De Arguello","Quintas De Ferreyra","Quintas De Flores","Quintas De Italia","Quintas De San Jorge","Quintas Del Sur","Ramon J. Carcano","Recreo Del Norte","Remedios De Escalada","Renacimiento","Rene Favaloro Sud","Residencial America","Residencial Aragon","Residencial Olivos","Residencial San Carlos","Residencial San Jorge","Residencial San Roque","Residencial Sud","Residencial Velez Sarsfield","Rivadavia","Rivera Indarte","Rocio Del Sur","Rogelio Martinez","Rosedal","S.E.P.","Sacchi","San Antonio","San Cayetano","San Daniel","San Felipe","San Fernando","San Francisco","San Ignacio","San Javier","San Jose","San Lorenzo (S)","San Lorenzo Norte","San Luis De Francia","San Marcelo","San Martin","San Martin Anexo","San Martin Norte","San Nicolas","San Pablo","San Pedro Nolasco","San Rafael","San Ramon","San Salvador","San Vicente","Santa Ana Residencial","Santa Cecilia","Santa Clara De Asis","Santa Isabel 1A Seccion","Santa Isabel 2A Seccion","Santa Isabel 3A Seccion","Santa Rita","Santa Rosa Residencial","Sargento Cabral","Sarmiento","Sd","Siete Soles","Smata","Solares De Santa Maria","Suarez","Tablada Park","Talleres (E)","Talleres (O)","Talleres Sud","Tejas De La Candelaria","Tejas Del Sur","Teodoro Fels","Tranviarios","Tte. Benjamin Matienzo","U.O.C.R.A.","Universitario De Horizonte","Urca","Uritorco","Urquiza","V.I.C.O.R.","Valle Cercano","Valle Del Cerro","Valle Escondido","Villa 9 De Julio","Villa Adela","Villa Alberdi","Villa Alberto","Villa Alberto Anexo","Villa Alicia Risler","Villa Allende Parque","Villa Argentina","Villa Aspasia","Villa Avalos","Villa Azalaiz","Villa Azalaiz Oeste","Villa Belgrano","Villa Bustos","Villa Cabrera","Villa Centenario","Villa Claret","Villa Claudina","Villa Corina","Villa Cornu","Villa Coronel Olmedo","Villa Derna","Villa El Libertador","Villa Esquiu","Villa Eucaristica","Villa General Urquiza","Villa Gran Parque","Villa Mafekin","Villa Marta","Villa Martinez","Villa Paez","Villa Quisquizacate","Villa Retiro","Villa Retiro De Horizonte","Villa Revol","Villa Revol Anexo","Villa Rivadavia Anexo \"A\"","Villa Rivera Indarte","Villa Saldan","Villa San Carlos","Villa San Isidro","Villa Serrana","Villa Siburu","Villa Silvano Funes","Villa Solferino","Villa Union","Villa Warcalde","Villa Zeppelin","Vivero Norte","Yapeyu","Yofre H","Yofre I","Yofre Norte","Yofre Sud","Zepa"].sort();
 
   let activeDropSrc=null, dT;
 
@@ -1284,12 +1286,15 @@
   function filtrarBarrios(v){
     const q=v.toLowerCase().trim();
     const m=q?BARRIOS.filter(b=>b.toLowerCase().includes(q)):BARRIOS.slice(0,8);
-    const drop=document.getElementById('bDrop');
-    drop.innerHTML=m.length
-      ?m.slice(0,8).map(b=>`<div class="b-item" onmousedown="elegirBarrio('${b.replace(/'/g,"\\'")}')"><span class="b-ico">📍</span>${b}</div>`).join('')
-      :'<div class="b-none">No encontramos ese barrio</div>';
+    const drop=document.getElementById('barrioDrop');
+    if(!q){ drop.innerHTML=m.slice(0,8).map(b=>`<div class="b-item" onmousedown="elegirBarrio('${b.replace(/'/g,"\\'")}')">📍 ${b}</div>`).join(''); return; }
+    let html = m.slice(0,8).map(b=>`<div class="b-item" onmousedown="elegirBarrio('${b.replace(/'/g,"\\'")}')">📍 ${b}</div>`).join('');
+    // Si escribió algo que no está en la lista, igual lo puede usar
+    if(!BARRIOS.some(b=>b.toLowerCase()===q)){
+      html += `<div class="b-item" style="border-top:1px solid #eee" onmousedown="elegirBarrio('${v.trim().replace(/'/g,"\\'")}')">📍 Buscar en "${v.trim()}"</div>`;
+    }
+    drop.innerHTML = html || '<div class="b-none">No encontramos ese barrio</div>';
   }
-
   function abrirDrop(src){
     clearTimeout(dT); activeDropSrc=src;
     const inp=src==='sp'?document.getElementById('spBarrio'):document.getElementById('hsInput');
