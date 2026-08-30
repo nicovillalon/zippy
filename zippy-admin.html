@@ -452,6 +452,8 @@
         <div class="filtro" onclick="setFiltro('activo',this)">Activos</div>
         <div class="filtro" onclick="setFiltro('inactivo',this)">Inactivos</div>
         <div class="filtro" onclick="setFiltro('pro',this)">PRO</div>
+        <div class="filtro" style="border-color:#D97706;color:#D97706" onclick="setFiltro('vence_pronto',this)">⚠️ Vencen pronto</div>
+        <div class="filtro" style="border-color:var(--danger);color:var(--danger)" onclick="setFiltro('vencidos',this)">🔴 Vencidos</div>
       </div>
       <div class="table-wrap">
         <table>
@@ -897,9 +899,24 @@
 
   // ── PRESTADORES ──
   function getListaFiltrada() {
+    const hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+    const en4  = new Date(hoy0); en4.setDate(en4.getDate()+4);
+
     let l = PRESTADORES;
-    if(filtroActivo==='pro') l=l.filter(p=>p.plan==='pro');
-    else if(filtroActivo!=='todos') l=l.filter(p=>p.estado===filtroActivo);
+    if(filtroActivo==='pro')          l=l.filter(p=>p.plan==='pro');
+    else if(filtroActivo==='vence_pronto') l=l.filter(p=>{
+      if(!p.vencimiento||p.estado!=='activo') return false;
+      const v=new Date(p.vencimiento);
+      const dias=Math.ceil((v-hoy0)/86400000);
+      return dias>=0 && dias<=4;
+    });
+    else if(filtroActivo==='vencidos') l=l.filter(p=>{
+      if(!p.vencimiento) return false;
+      const v=new Date(p.vencimiento);
+      return v<hoy0 && p.estado==='inactivo';
+    });
+    else if(filtroActivo!=='todos')   l=l.filter(p=>p.estado===filtroActivo);
+
     if(searchQ) l=l.filter(p=>
       (p.nombre||'').toLowerCase().includes(searchQ)||
       (p.negocio||'').toLowerCase().includes(searchQ)||
