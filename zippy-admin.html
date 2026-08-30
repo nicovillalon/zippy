@@ -380,6 +380,7 @@
     <div class="nav-tab" onclick="showPanel('pagos')">💰 Pagos</div>
     <div class="nav-tab" onclick="showPanel('contactos')">📊 Contactos</div>
     <div class="nav-tab" onclick="showPanel('resenas')">⭐ Reseñas <span class="badge warn" id="badgeRes">0</span></div>
+    <div class="nav-tab" onclick="showPanel('config')">⚙️ Configuración</div>
   </div>
 
   <div class="content">
@@ -554,6 +555,55 @@
       </div>
     </div>
 
+    <!-- CONFIGURACIÓN -->
+    <div class="panel" id="panel-config">
+      <div class="sec-title">⚙️ Configuración de ZIPPY</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+
+        <!-- PRECIOS -->
+        <div class="stat-card" style="grid-column:span 2">
+          <div class="stat-label" style="margin-bottom:16px">💰 Precios de suscripción</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="field">
+              <label>Precio Plan Básico ($/mes)</label>
+              <input type="number" id="cfg_precio_basico" placeholder="Ej: 5000" style="background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%"/>
+            </div>
+            <div class="field">
+              <label>Precio Plan PRO ($/mes)</label>
+              <input type="number" id="cfg_precio_pro" placeholder="Ej: 8000" style="background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALIAS PAGO -->
+        <div class="stat-card" style="grid-column:span 2">
+          <div class="stat-label" style="margin-bottom:16px">🏦 Datos de cobro</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="field">
+              <label>Alias CBU/CVU</label>
+              <input type="text" id="cfg_alias" placeholder="Ej: zippy.pagos.mp" style="background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%"/>
+            </div>
+            <div class="field">
+              <label>Nombre titular</label>
+              <input type="text" id="cfg_titular" placeholder="Ej: Nicolás Villalón" style="background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- MENSAJE RENOVACIÓN -->
+        <div class="stat-card" style="grid-column:span 2">
+          <div class="stat-label" style="margin-bottom:8px">💬 Vista previa del mensaje de renovación</div>
+          <div id="cfg_preview" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--ink-mid);line-height:1.7;white-space:pre-line"></div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:10px">
+        <button class="btn-ok" onclick="guardarConfig()" style="padding:11px 24px">💾 Guardar configuración</button>
+      </div>
+    </div>
+
     <!-- RESEÑAS -->
     <div class="panel" id="panel-resenas">
       <div class="sec-title">⭐ Reseñas pendientes de aprobación</div>
@@ -615,7 +665,7 @@
     </div>
     <div class="field">
       <label>Plan</label>
-      <select id="p_plan">
+      <select id="p_plan" onchange="autocompletarMonto(this.value)">
         <option value="gratis">Básico</option>
         <option value="pro">PRO (aparece primero)</option>
       </select>
@@ -634,7 +684,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, runTransaction }
+  import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const app = initializeApp({
@@ -722,6 +772,9 @@
 
     // Auto-desactivar vencidos al cargar el admin
     desactivarVencidos();
+
+    // Cargar configuración de precios y alias
+    cargarConfig();
   }
 
   // ── AUTO-DESACTIVACIÓN DE VENCIDOS ──
@@ -888,7 +941,7 @@
             <td><span style="color:${color};font-weight:700">${p.vencimiento}</span></td>
             <td><strong style="color:${color}">${dias===0?'HOY':dias===1?'MAÑANA':dias+' días'}</strong></td>
             <td><div class="actions">
-              <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence en '+dias+' día'+(dias!==1?'s':'')+'. ¿Renovamos?')}','_blank')">💬 Avisar</button>
+              <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text='+encodeURIComponent(getMensajeRenovacion('${esc(p.nombre)}',${dias},'${p.plan||'gratis'}')),'_blank')">💬 Avisar</button>
               <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>
             </div></td>
           </tr>`;
@@ -965,7 +1018,7 @@
       if(p.plan!=='pro')         btns.push(`<button class="btn-sm btn-pro" onclick="cambiarPlan('${p.id}','pro','${esc(p.nombre)}')">⭐ PRO</button>`);
       if(p.plan==='pro')         btns.push(`<button class="btn-sm btn-gratis" onclick="cambiarPlan('${p.id}','gratis','${esc(p.nombre)}')">↓ Básico</button>`);
       btns.push(`<button class="btn-sm" style="background:#2563EB;color:#fff" onclick="abrirEditar('${p.id}')">✏️ Editar</button>`);
-      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence pronto. ¿Renovamos?')}','_blank')">💬</button>`);
+      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text='+encodeURIComponent(getMensajeRenovacion('${esc(p.nombre)}',0,'${p.plan||'gratis'}')),'_blank')">💬</button>`);
       btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
 
       return `<tr style="${venc&&venc<=en4&&p.estado==='activo'?'background:rgba(217,119,6,.04)':''}${p.estado==='inactivo'&&venc&&venc<hoy0?'background:rgba(220,38,38,.03)':''}">
@@ -1067,6 +1120,71 @@
     el.classList.add('active');
     renderPagos();
   };
+
+  // ── CONFIGURACIÓN ──
+  let CONFIG = { precio_basico: 0, precio_pro: 0, alias: '', titular: '' };
+
+  async function cargarConfig() {
+    try {
+      const snap = await getDoc(doc(db,'config','zippy'));
+      if(snap.exists()) {
+        CONFIG = { ...CONFIG, ...snap.data() };
+        if(document.getElementById('cfg_precio_basico')) {
+          document.getElementById('cfg_precio_basico').value = CONFIG.precio_basico || '';
+          document.getElementById('cfg_precio_pro').value    = CONFIG.precio_pro || '';
+          document.getElementById('cfg_alias').value         = CONFIG.alias || '';
+          document.getElementById('cfg_titular').value       = CONFIG.titular || '';
+          actualizarPreview();
+        }
+      }
+    } catch(e) { console.error('Error cargando config:', e); }
+  }
+
+  function actualizarPreview() {
+    const basico  = document.getElementById('cfg_precio_basico')?.value || CONFIG.precio_basico || '?';
+    const pro     = document.getElementById('cfg_precio_pro')?.value    || CONFIG.precio_pro || '?';
+    const alias   = document.getElementById('cfg_alias')?.value         || CONFIG.alias || '?';
+    const titular = document.getElementById('cfg_titular')?.value       || CONFIG.titular || '';
+    const prev = document.getElementById('cfg_preview');
+    if(!prev) return;
+    prev.textContent =
+`Hola [NOMBRE], te escribimos desde ZIPPY 👋
+
+Tu suscripción vence en [X días]. Para continuar apareciendo en la plataforma, podés renovar.
+
+📋 Planes disponibles:
+• Básico: $${Number(basico||0).toLocaleString('es-AR')}/mes
+• PRO (aparece primero): $${Number(pro||0).toLocaleString('es-AR')}/mes
+
+🏦 Datos de pago:
+Alias: ${alias}${titular?'\nTitular: '+titular:''}
+
+Avisanos cuando hayas transferido y te renovamos enseguida. ¡Gracias! 🙌`;
+  }
+  window.actualizarPreview = actualizarPreview;
+
+  window.guardarConfig = async function() {
+    const precio_basico = Number(document.getElementById('cfg_precio_basico').value);
+    const precio_pro    = Number(document.getElementById('cfg_precio_pro').value);
+    const alias         = document.getElementById('cfg_alias').value.trim();
+    const titular       = document.getElementById('cfg_titular').value.trim();
+    if(!precio_basico||!precio_pro||!alias){ showToast('⚠️ Completá precios y alias.'); return; }
+    try {
+      await setDoc(doc(db,'config','zippy'),{precio_basico,precio_pro,alias,titular});
+      CONFIG={precio_basico,precio_pro,alias,titular};
+      actualizarPreview();
+      showToast('✅ Configuración guardada.');
+    } catch(e){ showToast('❌ Error al guardar.'); console.error(e); }
+  };
+
+  function getMensajeRenovacion(nombre, diasRestantes, plan) {
+    const precio  = plan==='pro' ? CONFIG.precio_pro : CONFIG.precio_basico;
+    const alias   = CONFIG.alias   || '(configurar en ⚙️ Configuración)';
+    const titular = CONFIG.titular ? `\nTitular: ${CONFIG.titular}` : '';
+    const diasTxt = diasRestantes===0?'HOY':diasRestantes===1?'mañana':`en ${diasRestantes} días`;
+    return `Hola ${nombre}, te escribimos desde ZIPPY 👋\n\nTu suscripción vence ${diasTxt}. Para continuar apareciendo, podés renovar.\n\n📋 Tu plan: ${plan==='pro'?'PRO':'Básico'} — $${Number(precio||0).toLocaleString('es-AR')}/mes\n\n🏦 Datos de pago:\nAlias: ${alias}${titular}\n\nAvisanos cuando hayas transferido y te renovamos. ¡Gracias! 🙌`;
+  }
+  window.getMensajeRenovacion = getMensajeRenovacion;
 
   // ── RESEÑAS ──
   function renderResenas() {
@@ -1325,9 +1443,21 @@
     document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
     document.getElementById('panel-'+id).classList.add('active');
     event.currentTarget.classList.add('active');
+    // Al abrir configuración, actualizar preview
+    if(id==='config' && window.actualizarPreview) window.actualizarPreview();
   }
   function cerrarMod(id){ document.getElementById('ov-'+id).classList.remove('open'); }
   function closeMod(id,e){ if(e.target===document.getElementById('ov-'+id)) cerrarMod(id); }
+
+  function autocompletarMonto(plan) {
+    if(window.CONFIG) {
+      const precio = plan==='pro' ? window.CONFIG.precio_pro : window.CONFIG.precio_basico;
+      if(precio) document.getElementById('p_monto').value = precio;
+    }
+  }
+
+  // Exponer CONFIG globalmente para acceso desde non-module
+  window.CONFIG = window.CONFIG || {};
 </script>
 </body>
 </html>
