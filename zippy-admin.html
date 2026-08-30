@@ -1136,6 +1136,7 @@
           document.getElementById('cfg_titular').value       = CONFIG.titular || '';
           actualizarPreview();
         }
+        window.CONFIG = CONFIG; // exponer globalmente
       }
     } catch(e) { console.error('Error cargando config:', e); }
   }
@@ -1178,7 +1179,7 @@ Avisanos cuando hayas transferido y te renovamos enseguida. ¡Gracias! 🙌`;
     } catch(e){ showToast('❌ Error al guardar.'); console.error(e); }
   };
 
-  window.CONFIG = CONFIG; // exponer globalmente
+  function getMensajeRenovacion(nombre, diasRestantes, plan) {
     const precio  = plan==='pro' ? CONFIG.precio_pro : CONFIG.precio_basico;
     const alias   = CONFIG.alias   || '(configurar en ⚙️ Configuración)';
     const titular = CONFIG.titular ? `\nTitular: ${CONFIG.titular}` : '';
