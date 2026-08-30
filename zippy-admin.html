@@ -717,6 +717,39 @@
       CONTACTOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderContactos();
     });
+
+    // Auto-desactivar vencidos al cargar el admin
+    desactivarVencidos();
+  }
+
+  // ── AUTO-DESACTIVACIÓN DE VENCIDOS ──
+  async function desactivarVencidos() {
+    const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    let desactivados = 0;
+
+    // Esperar a que PRESTADORES esté cargado
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const vencidos = PRESTADORES.filter(p =>
+      p.estado === 'activo' &&
+      p.vencimiento &&
+      p.vencimiento < hoy
+    );
+
+    if(!vencidos.length) return;
+
+    for(const p of vencidos) {
+      try {
+        await updateDoc(doc(db,'prestadores',p.id), { estado: 'inactivo' });
+        desactivados++;
+      } catch(e) {
+        console.error('Error desactivando:', p.id, e);
+      }
+    }
+
+    if(desactivados > 0) {
+      showToast(`⏸ ${desactivados} prestador${desactivados!==1?'es':''} desactivado${desactivados!==1?'s':''} por vencimiento`);
+    }
   }
 
   // ── CONTACTOS ──
@@ -792,15 +825,17 @@
 
   // ── DASHBOARD ──
   function renderDashboard() {
-    const hoy = new Date();
-    const en7 = new Date(); en7.setDate(en7.getDate()+7);
+    const hoy  = new Date();
+    const hoy0 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const en4  = new Date(hoy0); en4.setDate(en4.getDate()+4);
+    const en7  = new Date(hoy0); en7.setDate(en7.getDate()+7);
 
     const activos   = PRESTADORES.filter(p=>p.estado==='activo').length;
     const pendientes= PRESTADORES.filter(p=>p.estado==='pendiente').length;
     const pro       = PRESTADORES.filter(p=>p.plan==='pro'&&p.estado==='activo').length;
     const vencProx  = PRESTADORES.filter(p=>{
       if(!p.vencimiento||p.estado!=='activo') return false;
-      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+      const v=new Date(p.vencimiento); return v>=hoy0 && v<=en4;
     }).length;
 
     document.getElementById('stActivos').textContent = activos;
@@ -828,26 +863,34 @@
       </table></div>`;
     }
 
-    // Vencen pronto
-    const venc = PRESTADORES.filter(p=>{
+    // Vencen en 4 días — ALERTA
+    const venc4 = PRESTADORES.filter(p=>{
       if(!p.vencimiento||p.estado!=='activo') return false;
-      const v=new Date(p.vencimiento); return v>=hoy && v<=en7;
+      const v=new Date(p.vencimiento);
+      const dias = Math.ceil((v-hoy0)/86400000);
+      return dias >= 0 && dias <= 4;
     });
     const dv = document.getElementById('dashVenc');
-    if(!venc.length){ dv.innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nadie vence esta semana</p></div>'; }
+    if(!venc4.length){ dv.innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nadie vence en los próximos 4 días</p></div>'; }
     else {
       dv.innerHTML=`<div class="table-wrap"><table>
-        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Vence</th><th>Acciones</th></tr></thead>
-        <tbody>${venc.map(p=>`<tr>
-          <td><div class="td-name">${esc(p.nombre)}</div></td>
-          <td>${CAT[p.cat]||p.cat}</td>
-          <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
-          <td><span class="venc-warn">${p.vencimiento||'—'}</span></td>
-          <td><div class="actions">
-            <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence pronto. ¿Renovamos?')}','_blank')">💬 Recordatorio</button>
-            <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>
-          </div></td>
-        </tr>`).join('')}</tbody>
+        <thead><tr><th>Nombre</th><th>Rubro</th><th>Teléfono</th><th>Vence</th><th>Días restantes</th><th>Acciones</th></tr></thead>
+        <tbody>${venc4.map(p=>{
+          const v=new Date(p.vencimiento);
+          const dias=Math.ceil((v-hoy0)/86400000);
+          const color = dias<=1?'var(--danger)':dias<=2?'#C05621':'var(--warning)';
+          return `<tr style="background:rgba(217,119,6,.05)">
+            <td><div class="td-name">${esc(p.nombre)}</div></td>
+            <td>${CAT[p.cat]||p.cat}</td>
+            <td class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">📱 ${p.telefono}</a></td>
+            <td><span style="color:${color};font-weight:700">${p.vencimiento}</span></td>
+            <td><strong style="color:${color}">${dias===0?'HOY':dias===1?'MAÑANA':dias+' días'}</strong></td>
+            <td><div class="actions">
+              <button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence en '+dias+' día'+(dias!==1?'s':'')+'. ¿Renovamos?')}','_blank')">💬 Avisar</button>
+              <button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
       </table></div>`;
     }
   }
@@ -872,28 +915,48 @@
     const tbody = document.getElementById('tablaPrestadores');
     if(!list.length){ tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><p>No hay prestadores con este filtro</p></div></td></tr>`; return; }
 
-    const hoy=new Date();
+    const hoy   = new Date();
+    const hoy0  = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()); // sin hora
+    const en4   = new Date(hoy0); en4.setDate(en4.getDate()+4);
+
     tbody.innerHTML = list.map(p=>{
-      const vencClass = !p.vencimiento ? '' :
-        new Date(p.vencimiento) < hoy ? 'venc-bad' :
-        (new Date(p.vencimiento)-hoy)<7*86400000 ? 'venc-warn' : 'venc-ok';
+      const venc = p.vencimiento ? new Date(p.vencimiento) : null;
+
+      // Clase del texto de fecha
+      const vencClass = !venc ? '' :
+        venc < hoy0        ? 'venc-bad'  :
+        venc <= en4        ? 'venc-warn' : 'venc-ok';
+
+      // Badge extra junto al estado
+      let alertaBadge = '';
+      if(venc && p.estado==='activo') {
+        const diasRestantes = Math.ceil((venc - hoy0) / 86400000);
+        if(diasRestantes <= 0) {
+          alertaBadge = `<span class="badge inactivo" style="margin-left:4px">Vencido</span>`;
+        } else if(diasRestantes <= 4) {
+          alertaBadge = `<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(217,119,6,.12);color:#B45309;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:4px">⚠️ Vence en ${diasRestantes}d</span>`;
+        }
+      }
+      if(p.estado==='inactivo' && venc && venc < hoy0) {
+        alertaBadge = `<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(220,38,38,.1);color:var(--danger);border-radius:99px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:4px">🔴 Suscripción vencida</span>`;
+      }
 
       const btns = [];
       if(p.estado==='pendiente') btns.push(`<button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">✅ Activar</button>`);
       if(p.estado==='activo')    btns.push(`<button class="btn-sm btn-desactivar" onclick="cambiarEstado('${p.id}','inactivo','${esc(p.nombre)}')">⏸ Pausar</button>`);
-      if(p.estado==='inactivo')  btns.push(`<button class="btn-sm btn-activar" onclick="cambiarEstado('${p.id}','activo','${esc(p.nombre)}')">▶️ Reactivar</button>`);
+      if(p.estado==='inactivo')  btns.push(`<button class="btn-sm btn-activar" onclick="abrirModalPagoId('${p.id}')">💰 Renovar</button>`);
       if(p.plan!=='pro')         btns.push(`<button class="btn-sm btn-pro" onclick="cambiarPlan('${p.id}','pro','${esc(p.nombre)}')">⭐ PRO</button>`);
       if(p.plan==='pro')         btns.push(`<button class="btn-sm btn-gratis" onclick="cambiarPlan('${p.id}','gratis','${esc(p.nombre)}')">↓ Básico</button>`);
       btns.push(`<button class="btn-sm" style="background:#2563EB;color:#fff" onclick="abrirEditar('${p.id}')">✏️ Editar</button>`);
-      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}','_blank')">💬</button>`);
+      btns.push(`<button class="btn-sm btn-wsp" onclick="window.open('https://wa.me/549${p.telefono}?text=${encodeURIComponent('Hola '+p.nombre+', te escribimos desde ZIPPY. Tu suscripción vence pronto. ¿Renovamos?')}','_blank')">💬</button>`);
       btns.push(`<button class="btn-sm btn-eliminar" onclick="eliminarPrestador('${p.id}','${esc(p.nombre)}')">🗑️</button>`);
 
-      return `<tr>
+      return `<tr style="${venc&&venc<=en4&&p.estado==='activo'?'background:rgba(217,119,6,.04)':''}${p.estado==='inactivo'&&venc&&venc<hoy0?'background:rgba(220,38,38,.03)':''}">
         <td data-label="Prestador"><div class="td-name">${esc(p.nombre)}</div><div class="td-biz">${esc(p.negocio||'')}</div></td>
         <td data-label="Rubro">${CAT[p.cat]||p.cat||'—'}</td>
         <td data-label="Zona" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.zona||'—')}</td>
         <td data-label="Teléfono" class="td-tel"><a href="https://wa.me/549${p.telefono}" target="_blank">${p.telefono}</a></td>
-        <td data-label="Estado"><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span></td>
+        <td data-label="Estado"><span class="badge ${p.estado||'pendiente'}">${p.estado||'pendiente'}</span>${alertaBadge}</td>
         <td data-label="Plan"><span class="badge ${p.plan||'gratis'}">${p.plan==='pro'?'⭐ PRO':'Básico'}</span></td>
         <td data-label="Vencimiento"><span class="${vencClass}">${p.vencimiento||'—'}</span></td>
         <td data-label="Acciones"><div class="actions">${btns.join('')}</div></td>
