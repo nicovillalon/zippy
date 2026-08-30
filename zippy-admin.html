@@ -1172,12 +1172,13 @@ Avisanos cuando hayas transferido y te renovamos enseguida. ¡Gracias! 🙌`;
     try {
       await setDoc(doc(db,'config','zippy'),{precio_basico,precio_pro,alias,titular});
       CONFIG={precio_basico,precio_pro,alias,titular};
+      window.CONFIG = CONFIG; // sincronizar global
       actualizarPreview();
       showToast('✅ Configuración guardada.');
     } catch(e){ showToast('❌ Error al guardar.'); console.error(e); }
   };
 
-  function getMensajeRenovacion(nombre, diasRestantes, plan) {
+  window.CONFIG = CONFIG; // exponer globalmente
     const precio  = plan==='pro' ? CONFIG.precio_pro : CONFIG.precio_basico;
     const alias   = CONFIG.alias   || '(configurar en ⚙️ Configuración)';
     const titular = CONFIG.titular ? `\nTitular: ${CONFIG.titular}` : '';
@@ -1293,12 +1294,24 @@ Avisanos cuando hayas transferido y te renovamos enseguida. ¡Gracias! 🙌`;
   window.abrirModalPago = function() {
     pagoPreId = null;
     document.getElementById('p_prestador').value='';
+    document.getElementById('p_plan').value='gratis';
+    // autocomplete precio básico
+    const precio = window.CONFIG?.precio_basico || '';
+    document.getElementById('p_monto').value = precio;
     document.getElementById('ov-pago').classList.add('open');
   };
 
   window.abrirModalPagoId = function(id) {
     pagoPreId = id;
+    const prest = PRESTADORES.find(p=>p.id===id);
+    const plan  = prest?.plan || 'gratis';
     document.getElementById('p_prestador').value = id;
+    document.getElementById('p_plan').value = plan;
+    // autocomplete precio según plan actual del prestador
+    const precio = plan==='pro'
+      ? (window.CONFIG?.precio_pro || '')
+      : (window.CONFIG?.precio_basico || '');
+    document.getElementById('p_monto').value = precio;
     document.getElementById('ov-pago').classList.add('open');
   };
 
